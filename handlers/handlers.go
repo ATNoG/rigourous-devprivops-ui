@@ -5,6 +5,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-func Hello(c echo.Context) error {
-	return templates.Hello("").Render(c.Request().Context(), c.Response())
+func DemoPage(c echo.Context) error {
+	return templates.DemoPage().Render(c.Request().Context(), c.Response())
 }

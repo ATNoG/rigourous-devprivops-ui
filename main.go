@@ -32,19 +32,22 @@ func main() {
 	e.Static("site.manifest", "/static/site.manifest")
 
 	// Routes
-	e.GET("/", handlers.Hello)
+	e.GET("/", handlers.DemoPage)
 
 	if err := godotenv.Load(); err != nil {
 		slog.Error("Error loading .env file")
+		return
 	}
 
 	host, found := os.LookupEnv("HOST")
 	if !found {
 		slog.Error("'HOST' key not found in environment")
+		return
 	}
 	port, found := os.LookupEnv("PORT")
 	if !found {
 		slog.Error("'PORT' key not found in environment")
+		return
 	}
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))

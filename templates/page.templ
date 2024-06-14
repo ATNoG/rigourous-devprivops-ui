@@ -1,0 +1,43 @@
+package templates
+
+templ Page[T any](title string, pageContent func(...T) templ.Component, params ...T) {
+    <!DOCTYPE html>
+    <html>
+    <head>
+        @head(title)
+    </head>
+    <body class="page">
+        @pageContent(params...)
+    </body>
+    </html>
+}
+
+templ PageSingle[T any](title string, pageContent func(T) templ.Component, param T) {
+    <!DOCTYPE html>
+    <html>
+    <head>
+        @head(title)
+    </head>
+    <body class="page">
+        @pageContent(param)
+    </body>
+    </html>
+}
+
+templ head(title string) {
+    <title>{title}</title>
+    <link rel="stylesheet" href="/static/css/style.css"/>
+
+    <!--favicon-->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png"/>
+    <link rel="manifest" href="/static/site.webmanifest"/>
+
+    <!--HTMX-->
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+
+    <!--Tree helpers-->
+    <!--<link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet" />-->
+}
+
