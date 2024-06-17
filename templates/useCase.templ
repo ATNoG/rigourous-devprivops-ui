@@ -1,0 +1,49 @@
+package templates
+
+type UseCase struct {
+    Title string
+    IsMisuseCase bool
+    Requirements []Requirement
+}
+
+type Requirement struct {
+    Title string
+    Description string
+    Query string
+}
+
+templ UCSideBar(useCases *[]UseCase) {
+    <ul>
+        for _, uc := range *useCases {
+            <li> 
+                {uc.Title}
+                <ul>
+                    for _, requirement := range uc.Requirements {
+                        <li>{requirement.Title}</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+}
+
+templ UCDetails(endpoint string, useCase UseCase, requiremet Requirement) {
+	<form action={templ.SafeURL(endpoint)}>
+        <p>Use Case</p>
+        <label for="uc">Use Case</label>
+        <input id="uc" type="text" name="Use Case" value={useCase.Title}/>
+        
+        <label for="misusecase">Is misuse case</label>
+        <input id="misusecase" type="select" name="Use Case"/>
+		
+        <p>Requirement</p>
+
+        <label for="requirement">Requirement</label>
+        <input id="requirement" type="text" name="Is misuse case" value={requiremet.Title}/>
+        
+        <label for="description">Description</label>
+        <input id="description" type="text" name="Description" value={requiremet.Description}/>
+        
+        <input type="submit" value="Save"/>
+	</form>
+}

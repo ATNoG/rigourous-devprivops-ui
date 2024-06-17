@@ -7,7 +7,8 @@
         print-color-adjust: exact;
     }
 
-    .no-print, .no-print * {
+    .no-print,
+    .no-print * {
         display: none !important;
     }
 }
@@ -21,11 +22,11 @@ h2 {
 }
 
 h3 {
-    @apply text-xl pt-3 pb-2 text-emerald-700 
+    @apply text-xl pt-3 pb-2 text-emerald-700
 }
 
 h4 {
-    @apply text-emerald-700 
+    @apply text-emerald-700
 }
 
 body {
@@ -33,11 +34,11 @@ body {
 }
 
 table {
-    @apply table-auto bg-emerald-100	
+    @apply table-auto bg-emerald-100
 }
 
 thead {
-    @apply border-b-2 border-b-stone-50 bg-emerald-300	
+    @apply border-b-2 border-b-stone-50 bg-emerald-300
 }
 
 tbody tr {
@@ -67,6 +68,32 @@ ol ol {
     margin-left: 1em;
 }
 
+nav #nav-container ul {
+    @apply flex space-x-4
+}
+
+nav #nav-container ul li a {
+    @apply text-white
+}
+
+nav {
+    @apply bg-blue-600 text-white p-4 /*flex justify-between items-center*/
+}
+
+#nav-container {
+    @apply container /*mx-auto flex justify-between*/
+}
+
+.panel-container {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 4rem);
+}
+
+#editorContainer {
+    height: 100%;
+}
+
 @layer utilities {
     .link-txt {
         white-space: nowrap;
@@ -83,15 +110,26 @@ ol ol {
     }
 
     .card {
-        @apply transition-shadow ease-in-out duration-700 shadow-xl hover:shadow-2xl block rounded-md 
+        @apply transition-shadow ease-in-out duration-700 shadow-xl hover:shadow-2xl block rounded-md
     }
 
     .grid-container {
-        /*@apply grid grid-cols-3 gap-4*/
         @apply grid grid-cols-1 md:grid-cols-2 lg:md:grid-cols-3 gap-4
     }
 
     .link-btn {
-        @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 mr-2 rounded /*my-16*/ link-txt
+        @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 mr-2 rounded link-txt
+    }
+
+    .side-bar {
+        @apply bg-gray-200 p-4 flex-shrink-0
+    }
+
+    .center-container {
+        @apply flex-grow bg-white p-4
+    }
+
+    .editor {
+        @apply flex-grow p-4 bg-gray-50 
     }
 }

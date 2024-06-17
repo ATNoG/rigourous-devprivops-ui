@@ -1,0 +1,26 @@
+package templates
+
+type TreeNode struct {
+    Description string
+    Query string 
+    Children []TreeNode
+}
+
+templ Tree(root *TreeNode) {
+    <ul>
+        @Node(root)
+    </ul>
+}
+
+templ Node(node *TreeNode) {
+    <li>
+        {node.Description}
+        if len(node.Children) > 0 {
+            <ul>
+                for _, c := range node.Children {
+                    @Node(&c)
+                }
+            </ul>
+        }
+    </li>
+}

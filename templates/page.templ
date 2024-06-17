@@ -1,31 +1,79 @@
 package templates
 
-templ Page[T any](title string, pageContent func(...T) templ.Component, params ...T) {
+templ Page(title string, left, right func() templ.Component) {
     <!DOCTYPE html>
     <html>
     <head>
         @head(title)
     </head>
     <body class="page">
-        @pageContent(params...)
-    </body>
-    </html>
-}
-
-templ PageSingle[T any](title string, pageContent func(T) templ.Component, param T) {
-    <!DOCTYPE html>
-    <html>
-    <head>
-        @head(title)
-    </head>
-    <body class="page">
-        @pageContent(param)
+    <!-- Navbar -->
+    <nav>
+        <div id="nav-container">
+            // <span class="text-xl">My Resizable Panels</span>
+            <ul>
+                <li><a href="/trees">Trees</a></li>
+                <li><a href="/descriptions">Descriptions</a></li>
+                <li><a href="/reasoner">Reasoner</a></li>
+                <li><a href="/regulations">Regulations</a></li>
+                <li><a href="/extra-data">Extra data</a></li>
+                <li><a href="/requirements">Requirements</a></li>
+                <li><a href="/schemas">Schemas</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="panel-container">
+        <!-- Left Panel -->
+        <div class="side-bar" style="width: 15%;">
+            if left != nil {
+                @left()
+            }/* else {
+                <p>Left Panel</p>
+            }*/
+        </div>
+        
+        <!-- Center Panel -->
+        <div class="center-container" style="width: 70%;">
+            <div id="editorContainer" class="editor"></div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+            <script>
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    monaco.editor.create(document.getElementById('editorContainer'), {
+                        value: [
+                            'function x() {',
+                            '\tconsole.log("Hello, world!");',
+                            '}'
+                        ].join('\n'),
+                        language: 'javascript'
+                    });
+                });
+            </script>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="side-bar" style="width: 15%;">
+            if right != nil {
+                @right()
+            }/* else {
+                <p>Right Panel</p>
+            }*/
+        </div>
+    </div>
+    
     </body>
     </html>
 }
 
 templ head(title string) {
     <title>{title}</title>
+    
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    // <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/static/css/style.css"/>
 
     <!--favicon-->

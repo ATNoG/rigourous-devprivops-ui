@@ -1,0 +1,25 @@
+package templates
+
+type Policy struct {
+    File string
+    Title string
+    Description string
+    IsConsistency bool
+    MaxViolations int
+    MappingMessage string
+}
+
+templ PolicySideBar(policies *map[string][]Policy) {
+    <ul>
+        for regulation, policies := range *policies {
+            <li> 
+                {regulation}
+                <ul>
+                    for _, pol := range policies {
+                        <li>{pol.Title}</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+}

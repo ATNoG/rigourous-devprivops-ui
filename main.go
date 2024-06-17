@@ -34,6 +34,23 @@ func main() {
 	// Routes
 	e.GET("/", handlers.DemoPage)
 
+	e.GET("/trees", handlers.TreesMainPage)
+	e.GET("/trees/:tree", handlers.TreeView)
+
+	e.GET("/descriptions", handlers.DescriptionsMainPage)
+
+	e.GET("/reasoner", handlers.ReasonerMainPage)
+
+	e.GET("/regulations", handlers.RegulationsMainPage)
+	e.GET("/regulations/:reg", handlers.RegulationView)
+
+	e.GET("/extra-data", handlers.ExtraDataMainPage)
+	e.GET("/extra-data/:query", handlers.ExtraDataQuery)
+
+	e.GET("/requirements", handlers.RequirementsMainPage)
+
+	e.GET("/schemas", handlers.SchemasMainPage)
+
 	if err := godotenv.Load(); err != nil {
 		slog.Error("Error loading .env file")
 		return

@@ -1,0 +1,52 @@
+package templates
+
+type SideBarListElement struct {
+	Text string
+	Link string
+}
+
+type InputType string
+
+const (
+	TEXT     InputType = "text"
+	RADIO              = "radio"
+	CHECKBOX           = "checkbox"
+	SUBMIT             = "submit"
+	BUTTON             = "button"
+)
+
+func (input InputType) String() string {
+    switch input {
+        case TEXT: return "text"
+        case RADIO: return "radio"
+        case CHECKBOX: return "checkbox"
+        case SUBMIT: return "submit"
+        case BUTTON: return "button"
+    }
+
+    return ""
+}
+
+type SideBarFormElement struct {
+	Type  InputType // The input type
+	Id    string // The HTML id of the field
+	Label string // The label text
+}
+
+templ SideBarList(elements []SideBarListElement) {
+	<ul>
+		for _, e := range elements {
+			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+		}
+	</ul>
+}
+
+templ SideBarForm(endpoint string, elements []SideBarFormElement) {
+	<form action={templ.SafeURL(endpoint)}>
+		for _, e := range elements {
+			<label for={ e.Id }>{ e.Label }</label>
+			<input id={ e.Id } type={ e.Type.String() } name={ e.Id }/>
+		}
+        <input type="submit" value="Submit"/>
+	</form>
+}
