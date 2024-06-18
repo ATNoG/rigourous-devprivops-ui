@@ -32,7 +32,8 @@ func main() {
 	e.Static("site.manifest", "/static/site.manifest")
 
 	// Routes
-	e.GET("/", handlers.DemoPage)
+	e.GET("/", handlers.HomePage)
+	e.GET("/demo", handlers.DemoPage)
 
 	e.GET("/trees", handlers.TreesMainPage)
 	e.GET("/trees/:tree", handlers.TreeView)

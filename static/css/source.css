@@ -68,6 +68,7 @@ ol ol {
     margin-left: 1em;
 }
 
+/*
 nav #nav-container ul {
     @apply flex space-x-4
 }
@@ -77,12 +78,13 @@ nav #nav-container ul li a {
 }
 
 nav {
-    @apply bg-blue-600 text-white p-4 /*flex justify-between items-center*/
+    @apply bg-blue-600 text-white p-4
 }
 
 #nav-container {
-    @apply container /*mx-auto flex justify-between*/
+    @apply container
 }
+*/
 
 .panel-container {
     display: flex;

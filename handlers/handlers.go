@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func DemoPage(c echo.Context) error {
+func HomePage(c echo.Context) error {
 	// return templates.DemoPage().Render(c.Request().Context(), c.Response())
 	return templates.Page(
 		"My page",
@@ -15,6 +15,10 @@ func DemoPage(c echo.Context) error {
 			return templates.SideBarForm("Test", []templates.SideBarFormElement{{templates.TEXT, "idd", "label"}})
 		},
 	).Render(c.Request().Context(), c.Response())
+}
+
+func DemoPage(c echo.Context) error {
+	return templates.DemoPage().Render(c.Request().Context(), c.Response())
 }
 
 func TreesMainPage(c echo.Context) error {

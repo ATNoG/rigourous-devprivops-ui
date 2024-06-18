@@ -8,18 +8,22 @@ templ Page(title string, left, right func() templ.Component) {
     </head>
     <body class="page">
     <!-- Navbar -->
-    <nav>
-        <div id="nav-container">
-            // <span class="text-xl">My Resizable Panels</span>
-            <ul>
-                <li><a href="/trees">Trees</a></li>
-                <li><a href="/descriptions">Descriptions</a></li>
-                <li><a href="/reasoner">Reasoner</a></li>
-                <li><a href="/regulations">Regulations</a></li>
-                <li><a href="/extra-data">Extra data</a></li>
-                <li><a href="/requirements">Requirements</a></li>
-                <li><a href="/schemas">Schemas</a></li>
-            </ul>
+    <nav class="bg-green-800 p-4">
+        <div class="container mx-auto flex justify-between">
+            <div class="flex space-x-4">
+                <a class="text-white" href="/trees">Trees</a>
+                <a class="text-white" href="/descriptions">Descriptions</a>
+                <a class="text-white" href="/reasoner">Reasoner</a>
+                <a class="text-white" href="/regulations">Regulations</a>
+                <a class="text-white" href="/extra-data">Extra data</a>
+                <a class="text-white" href="/requirements">Requirements</a>
+                <a class="text-white" href="/schemas">Schemas</a>
+            </div>
+            <div class="flex space-x-4">
+                <a class="text-white" href="#">Save</a>
+                <a class="text-white" href="#">Test</a>
+                <a class="text-white" href="#">Analyse</a>
+            </div>
         </div>
     </nav>
     
@@ -75,6 +79,7 @@ templ head(title string) {
 
     // <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/static/css/style.css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!--favicon-->
     <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png"/>
