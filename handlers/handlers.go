@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -14,11 +15,33 @@ import (
 )
 
 func HomePage(c echo.Context) error {
-	// return templates.DemoPage().Render(c.Request().Context(), c.Response())
 	return templates.Page(
-		"My page",
+		"Home page",
 		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component { return templates.LoginForm() },
+		func() templ.Component {
+			return templates.SideBarForm("Test", []templates.SideBarFormElement{{templates.TEXT, "idd", "label"}})
+		},
+	).Render(c.Request().Context(), c.Response())
+}
+
+func LogIn(c echo.Context) error {
+	userNameCookie := new(http.Cookie)
+	userNameCookie.Name = "username"
+	userNameCookie.Value = c.FormValue("username")
+	userNameCookie.SameSite = http.SameSiteStrictMode
+	c.SetCookie(userNameCookie)
+
+	mailCookie := new(http.Cookie)
+	mailCookie.Name = "email"
+	mailCookie.Value = c.FormValue("email")
+	mailCookie.SameSite = http.SameSiteStrictMode
+	c.SetCookie(mailCookie)
+
+	return templates.Page(
+		"Home page",
+		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
+		func() templ.Component { return templates.LoginForm() },
 		func() templ.Component {
 			return templates.SideBarForm("Test", []templates.SideBarFormElement{{templates.TEXT, "idd", "label"}})
 		},
@@ -114,6 +137,12 @@ func DescriptionsMainPage(c echo.Context) error {
 }
 
 func DescriptionEdit(c echo.Context) error {
+	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+
+	fmt.Printf("User: %s\n", cookie.Value)
+
 	desc, err := url.QueryUnescape(c.Param("desc"))
 	if err != nil {
 		return err
@@ -336,6 +365,11 @@ func SaveEndpoint(c echo.Context) error {
 			return err
 		}
 	*/
+	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+
+	fmt.Printf("User: %s\n", cookie.Value)
 	content, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return err

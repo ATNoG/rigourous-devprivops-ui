@@ -34,6 +34,7 @@ func main() {
 
 	// Routes
 	e.GET("/", handlers.HomePage)
+	e.GET("/login", handlers.LogIn)
 	e.GET("/demo", handlers.DemoPage)
 
 	e.GET("/trees", handlers.TreesMainPage)

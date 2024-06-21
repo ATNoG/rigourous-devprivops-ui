@@ -40,7 +40,9 @@ templ Page(title string, left, center, right func() templ.Component) {
         
         <!-- Center Panel -->
         <div class="center-container" style="width: 70%;">
-            @center()
+            if center != nil {
+                @center()
+            }
         </div>
         
         <!-- Right Panel -->

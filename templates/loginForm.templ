@@ -1,0 +1,13 @@
+package templates
+
+templ LoginForm() {
+	<form action="/login">
+        <label for="username">User name</label>
+        <input id="username" type={string(TEXT)} name="username"/>
+
+        <label for="email">E-mail</label>
+        <input id="email" type={string(TEXT)} name="email"/>
+
+        <input type="submit" value="Submit"/>
+	</form>
+}
