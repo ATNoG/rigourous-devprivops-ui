@@ -3,9 +3,12 @@ package handlers
 import (
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
+	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -358,18 +361,22 @@ func SchemasMainPage(c echo.Context) error {
 }
 
 func SaveEndpoint(c echo.Context) error {
-	/*
-		var content []byte
-		_, err := c.Request().Body.Read(content)
-		if err != nil {
-			return err
-		}
-	*/
-	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+	out, err := exec.Command("git", "-h").Output()
+	if err != nil {
+		fmt.Printf(">%s\n>%s\n", string(out), err)
+		return err
+	}
+
+	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
+	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "email"
+	})[0]
 
-	fmt.Printf("User: %s\n", cookie.Value)
+	userName := userCookie.Value
+	email := emailCookie.Value
+
 	content, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return err
@@ -390,6 +397,23 @@ func SaveEndpoint(c echo.Context) error {
 	if err := os.WriteFile(descFile, content, 0666); err != nil {
 		return err
 	}
+
+	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	res, err := fs.AddAll(fs.LocalDir)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Sprintln(res)
+	res, err = fs.Commit(fs.LocalDir, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Sprintln(res)
 
 	return nil
 }
