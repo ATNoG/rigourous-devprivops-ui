@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 
+	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/handlers"
 )
 
@@ -39,6 +40,7 @@ func main() {
 	e.GET("/trees/:tree", handlers.TreeView)
 
 	e.GET("/descriptions", handlers.DescriptionsMainPage)
+	e.GET("/descriptions/:desc", handlers.DescriptionEdit)
 
 	e.GET("/reasoner", handlers.ReasonerMainPage)
 
@@ -52,6 +54,8 @@ func main() {
 
 	e.GET("/schemas", handlers.SchemasMainPage)
 
+	e.POST("/save/:file", handlers.SaveEndpoint)
+
 	if err := godotenv.Load(); err != nil {
 		slog.Error("Error loading .env file")
 		return
@@ -59,14 +63,27 @@ func main() {
 
 	host, found := os.LookupEnv("HOST")
 	if !found {
-		slog.Error("'HOST' key not found in environment")
+		slog.Error("'HOST' variable not found in environment")
 		return
 	}
 	port, found := os.LookupEnv("PORT")
 	if !found {
-		slog.Error("'PORT' key not found in environment")
+		slog.Error("'PORT' variable not found in environment")
 		return
 	}
+	localDir, found := os.LookupEnv("LOCAL_DIR")
+	if !found {
+		slog.Error("'LOCAL_DIR' variable not found in environment")
+		return
+	}
+	globalDir, found := os.LookupEnv("GLOBAL_DIR")
+	if !found {
+		slog.Error("'GLOBAL_DIR' variable not found in environment")
+		return
+	}
+
+	fs.LocalDir = localDir
+	fs.GlobalDir = globalDir
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))
 }

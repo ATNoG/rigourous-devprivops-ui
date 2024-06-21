@@ -1,27 +1,40 @@
 package templates
 
-/*
-script Editor() {
+script EditorScript(language string, content string, fileURL string) {
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
-        monaco.editor.create(document.getElementById('editorContainer'), {
-            value: [
-                'function x() {',
-                '\tconsole.log("Hello, world!");',
-                '}'
-            ].join('\n'),
-            language: 'javascript'
-        });
-    });
-}
-*/
-
-script Editor(language string, content string) {
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
-    require(['vs/editor/editor.main'], function() {
-        monaco.editor.create(document.getElementById('editorContainer'), {
+        const editor = monaco.editor.create(document.getElementById('editorContainer'), {
             value: content,
             language: language
         });
+
+		document.getElementById('save-btn').addEventListener('click', function(event) {
+			event.preventDefault();
+			const editorContent = editor.getValue();
+			// console.log(editorContent);
+		
+			fetch(fileURL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				// body: JSON.stringify({ content: editorContent })
+				body: editorContent
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('Success:', data);
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+			});
+		});
     });
+
+}
+
+templ EditorComponent(language string, content string, fileURL string) {
+    <div id="editorContainer" class="editor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    @EditorScript(language, content, fileURL)
 }
