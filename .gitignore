@@ -1,6 +1,7 @@
 .vscode/
 
 .devprivops
+report*.json
 
 **/*.old
 **/*.tmp
@@ -13,3 +14,4 @@ static/css/style.css
 db.json
 
 devprivops-dashboard
+devprivops

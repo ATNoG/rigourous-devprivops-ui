@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/handlers"
+	"github.com/Joao-Felisberto/devprivops-ui/tool"
 )
 
 func main() {
@@ -57,6 +59,9 @@ func main() {
 
 	e.POST("/save/:file", handlers.SaveEndpoint)
 
+	e.POST("/analyse", handlers.Analyse)
+	e.POST("/test", handlers.Test)
+
 	if err := godotenv.Load(); err != nil {
 		slog.Error("Error loading .env file")
 		return
@@ -82,9 +87,44 @@ func main() {
 		slog.Error("'GLOBAL_DIR' variable not found in environment")
 		return
 	}
+	dbUser, found := os.LookupEnv("DB_USER")
+	if !found {
+		slog.Error("'DB_USER' variable not found in environment")
+		return
+	}
+	dbPass, found := os.LookupEnv("DB_PASS")
+	if !found {
+		slog.Error("'DB_PASS' variable not found in environment")
+		return
+	}
+	dbIp, found := os.LookupEnv("DB_IP")
+	if !found {
+		slog.Error("'DB_IP' variable not found in environment")
+		return
+	}
+	dbPort, found := os.LookupEnv("DB_PORT")
+	if !found {
+		slog.Error("'DB_PORT' variable not found in environment")
+		return
+	}
+	dbDataset, found := os.LookupEnv("DB_DATASET")
+	if !found {
+		slog.Error("'DB_DATASET' variable not found in environment")
+		return
+	}
 
 	fs.LocalDir = localDir
 	fs.GlobalDir = globalDir
+	tool.Username = dbUser
+	tool.Password = dbPass
+	tool.DBIP = dbIp
+	dbPortInt, err := strconv.Atoi(dbPort)
+	if err != nil {
+		slog.Error("'DB_PORT' must be a numeric value")
+		return
+	}
+	tool.DBPort = dbPortInt
+	tool.Dataset = dbDataset
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))
 }
