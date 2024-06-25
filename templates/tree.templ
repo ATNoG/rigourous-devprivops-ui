@@ -1,9 +1,12 @@
 package templates
 
+import "net/url"
+import "fmt"
+
 type TreeNode struct {
-    Description string
-    Query string 
-    Children []TreeNode
+    Description string  `json:"description"`
+    Query string        `json:"query"`
+    Children []TreeNode `json:"children"`
 }
 
 templ Tree(root *TreeNode) {
@@ -14,7 +17,7 @@ templ Tree(root *TreeNode) {
 
 templ Node(node *TreeNode) {
     <li>
-        {node.Description}
+        <a href={templ.SafeURL(fmt.Sprintf("/node/%s", url.PathEscape(node.Query)))}> {node.Description} </a>
         if len(node.Children) > 0 {
             <ul>
                 for _, c := range node.Children {

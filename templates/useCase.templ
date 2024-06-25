@@ -1,22 +1,22 @@
 package templates
 
 type UseCase struct {
-    Title string
-    IsMisuseCase bool
-    Requirements []Requirement
+    Title string                `json:"use case"`
+    IsMisuseCase bool           `json:"is misuse case"`
+    Requirements []Requirement  `json:"requirements"`
 }
 
 type Requirement struct {
-    Title string
-    Description string
-    Query string
+    Title string        `json:"title"`
+    Description string  `json:"description"`
+    Query string        `json:"query"`
 }
 
 templ UCSideBar(useCases *[]UseCase) {
     <ul>
         for _, uc := range *useCases {
             <li> 
-                {uc.Title}
+                ({uc.Title})
                 <ul>
                     for _, requirement := range uc.Requirements {
                         <li>{requirement.Title}</li>

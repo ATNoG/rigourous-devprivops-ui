@@ -41,11 +41,13 @@ func main() {
 
 	e.GET("/trees", handlers.TreesMainPage)
 	e.GET("/trees/:tree", handlers.TreeView)
+	// TODO: tree node editor at /node with correct URL
 
 	e.GET("/descriptions", handlers.DescriptionsMainPage)
 	e.GET("/descriptions/:desc", handlers.DescriptionEdit)
 
 	e.GET("/reasoner", handlers.ReasonerMainPage)
+	e.GET("/reasoner/:rule", handlers.ReasonerRuleEditor)
 
 	e.GET("/regulations", handlers.RegulationsMainPage)
 	e.GET("/regulations/:reg", handlers.RegulationView)
@@ -56,6 +58,7 @@ func main() {
 	e.GET("/requirements", handlers.RequirementsMainPage)
 
 	e.GET("/schemas", handlers.SchemasMainPage)
+	e.GET("/schemas/:schema", handlers.SchemaEditPage)
 
 	e.POST("/save/:file", handlers.SaveEndpoint)
 

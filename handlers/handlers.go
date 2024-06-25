@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"io"
+	iofs "io/fs"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -16,6 +17,7 @@ import (
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
+	"gopkg.in/yaml.v3"
 )
 
 func HomePage(c echo.Context) error {
@@ -57,58 +59,80 @@ func DemoPage(c echo.Context) error {
 }
 
 func TreesMainPage(c echo.Context) error {
+
+	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	if err != nil {
+		return err
+	}
+	treeFiles, err := os.ReadDir(atkDir)
+	if err != nil {
+		return err
+	}
+
+	treeList := util.Map(treeFiles, func(t iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: t.Name(),
+			Link: fmt.Sprintf("/trees/%s", url.QueryEscape(t.Name())),
+		}
+	})
+
 	return templates.Page(
 		"Trees",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{
-				{
-					Text: "Tree 1",
-					Link: "/trees/sample",
-				},
-			})
+			return templates.SideBarList(treeList)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func TreeView(c echo.Context) error {
+
+	treeName, err := url.QueryUnescape(c.Param("tree"))
+	if err != nil {
+		return err
+	}
+
+	treeFileName := fmt.Sprintf("attack_trees/descriptions/%s", treeName)
+	treeFile, err := fs.GetFile(treeFileName)
+	if err != nil {
+		return err
+	}
+
+	treeContent, err := os.ReadFile(treeFile)
+	if err != nil {
+		return err
+	}
+
+	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	if err != nil {
+		return err
+	}
+	treeFiles, err := os.ReadDir(atkDir)
+	if err != nil {
+		return err
+	}
+
+	treeList := util.Map(treeFiles, func(t iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: t.Name(),
+			Link: fmt.Sprintf("/trees/%s", url.QueryEscape(t.Name())),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(treeFileName))
+
+	var tree templates.TreeNode
+	yaml.Unmarshal(treeContent, &tree)
+
 	return templates.Page(
 		"Trees",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{
-				{
-					Text: "Tree 1",
-					Link: "/trees/sample",
-				},
-			})
+			return templates.SideBarList(treeList)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component { return templates.EditorComponent("yaml", string(treeContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.Tree(
-				&templates.TreeNode{
-					Description: "Root",
-					Query:       "q",
-					Children: []templates.TreeNode{
-						{
-							Description: "C1",
-							Query:       "q",
-							Children: []templates.TreeNode{
-								{
-									Description: "C11",
-									Query:       "q",
-									Children:    []templates.TreeNode{},
-								},
-							},
-						},
-						{
-							Description: "C2",
-							Query:       "q",
-							Children:    []templates.TreeNode{},
-						},
-					},
-				},
-			)
+			return templates.Tree(&tree)
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -191,43 +215,132 @@ func DescriptionEdit(c echo.Context) error {
 }
 
 func ReasonerMainPage(c echo.Context) error {
+	reasonDir, err := fs.GetFile("reasoner")
+	if err != nil {
+		return err
+	}
+	ruleFiles, err := os.ReadDir(reasonDir)
+	if err != nil {
+		return err
+	}
+
+	ruleList := util.Map(ruleFiles, func(t iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: t.Name(),
+			Link: fmt.Sprintf("/reasoner/%s", url.QueryEscape(t.Name())),
+		}
+	})
+
 	return templates.Page(
 		"Reasoner",
-		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Rule 1", "#"}}) },
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component { return templates.SideBarList(ruleList) },
+		nil,
+		nil,
+	).Render(c.Request().Context(), c.Response())
+}
+
+func ReasonerRuleEditor(c echo.Context) error {
+	ruleName, err := url.QueryUnescape(c.Param("rule"))
+	if err != nil {
+		return err
+	}
+
+	ruleFileName := fmt.Sprintf("reasoner/%s", ruleName)
+	ruleFile, err := fs.GetFile(ruleFileName)
+	if err != nil {
+		return err
+	}
+
+	ruleContent, err := os.ReadFile(ruleFile)
+	if err != nil {
+		return err
+	}
+
+	reasonDir, err := fs.GetFile("reasoner")
+	if err != nil {
+		return err
+	}
+	ruleFiles, err := os.ReadDir(reasonDir)
+	if err != nil {
+		return err
+	}
+
+	ruleList := util.Map(ruleFiles, func(t iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: t.Name(),
+			Link: fmt.Sprintf("/reasoner/%s", url.QueryEscape(t.Name())),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(ruleFileName))
+
+	return templates.Page(
+		"Reasoner",
+		func() templ.Component { return templates.SideBarList(ruleList) },
+		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func RegulationsMainPage(c echo.Context) error {
+	regulationDirs, err := fs.GetRegulations()
+	if err != nil {
+		return err
+	}
+
+	regulations := util.Map(regulationDirs, func(r string) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: r,
+			Link: fmt.Sprintf("/regulations/%s", r),
+		}
+	})
+
 	return templates.Page(
 		"Regulations",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{
-				{
-					Text: "Regulation 1",
-					Link: "/regulations/sample",
-				},
-			})
+			return templates.SideBarList(regulations)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func RegulationView(c echo.Context) error {
+
+	regName := c.Param("reg")
+
+	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", regName)
+	treeFile, err := fs.GetFile(regCfgFileName)
+	if err != nil {
+		return err
+	}
+
+	cfgContent, err := os.ReadFile(treeFile)
+	if err != nil {
+		return err
+	}
+
+	regulationDirs, err := fs.GetRegulations()
+	if err != nil {
+		return err
+	}
+
+	regulations := util.Map(regulationDirs, func(r string) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: r,
+			Link: fmt.Sprintf("/regulations/%s", r),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
+
 	// TODO: tests
 	return templates.Page(
 		"Regulations",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{
-				{
-					Text: "Regulation 1",
-					Link: "/regulations/sample",
-				},
-			})
+			return templates.SideBarList(regulations)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
 		func() templ.Component {
 			return templates.SideBarForm("#", []templates.SideBarFormElement{
 				{
@@ -261,102 +374,275 @@ func RegulationView(c echo.Context) error {
 }
 
 func ExtraDataMainPage(c echo.Context) error {
+	extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+	if err != nil {
+		return err
+	}
+
+	extraDataContent, err := os.ReadFile(extraDataFile)
+	if err != nil {
+		return err
+	}
+
+	contentList := []interface{}{}
+	err = yaml.Unmarshal(extraDataContent, &contentList)
+	if err != nil {
+		return err
+	}
+
+	extraDataList := util.Map(contentList, func(ed interface{}) templates.SideBarListElement {
+		content := ed.(map[string]interface{})
+
+		return templates.SideBarListElement{
+			Text: content["query"].(string),
+			Link: fmt.Sprintf("/extra-data/%s", url.QueryEscape(content["query"].(string))),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
 	return templates.Page(
 		"Extra Data",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{
-				{
-					Text: "Query 1",
-					Link: "extra-data/sample",
-				},
-			})
+			return templates.SideBarList(extraDataList)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component {
+			return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
+		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func ExtraDataQuery(c echo.Context) error {
+	queryName, err := url.QueryUnescape(c.Param("query"))
+	if err != nil {
+		return err
+	}
+
+	queryFile, err := fs.GetFile(queryName)
+	if err != nil {
+		return err
+	}
+
+	queryContent, err := os.ReadFile(queryFile)
+	if err != nil {
+		return err
+	}
+
+	extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+	if err != nil {
+		return err
+	}
+
+	extraDataContent, err := os.ReadFile(extraDataFile)
+	if err != nil {
+		return err
+	}
+
+	contentList := []interface{}{}
+	err = yaml.Unmarshal(extraDataContent, &contentList)
+	if err != nil {
+		return err
+	}
+
+	extraDataList := util.Map(contentList, func(ed interface{}) templates.SideBarListElement {
+		content := ed.(map[string]interface{})
+
+		return templates.SideBarListElement{
+			Text: content["query"].(string),
+			Link: fmt.Sprintf("/extra-data/%s", url.QueryEscape(content["query"].(string))),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
 	return templates.Page(
 		"Extra Data",
-		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Query 1", "#"}}) },
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
 		func() templ.Component {
-			return templates.SideBarForm("#", []templates.SideBarFormElement{
-				{
-					Type:  templates.TEXT,
-					Id:    "Heading",
-					Label: "heading",
-				},
-				{
-					Type:  templates.TEXT,
-					Id:    "Description",
-					Label: "description",
-				},
-				{
-					Type:  templates.CHECKBOX,
-					Id:    "Location",
-					Label: "location",
-				},
-			})
+			return templates.SideBarList(extraDataList)
 		},
+		func() templ.Component {
+			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)
+		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func RequirementsMainPage(c echo.Context) error {
-	// return templates.DemoPage().Render(c.Request().Context(), c.Response())
+	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+	if err != nil {
+		return err
+	}
+
+	requriementsContent, err := os.ReadFile(requirementsFile)
+	if err != nil {
+		return err
+	}
+
+	contentList := []interface{}{}
+	err = yaml.Unmarshal(requriementsContent, &contentList)
+	if err != nil {
+		return err
+	}
+
+	var useCases []templates.UseCase
+	err = yaml.Unmarshal(requriementsContent, &useCases)
+	if err != nil {
+		return err
+	}
+	for _, uc := range useCases {
+		fmt.Printf("%s %v %d\n", uc.Title, uc.IsMisuseCase, len(uc.Requirements))
+	}
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
 		"Requirements",
 		func() templ.Component {
-			return templates.UCSideBar(&[]templates.UseCase{
-				{Title: "a", IsMisuseCase: false, Requirements: []templates.Requirement{
-					{Title: "b", Description: "b", Query: "b"},
-				}},
-			})
+			return templates.UCSideBar(&useCases)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		func() templ.Component {
+			return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
+		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func RequirementDetails(c echo.Context) error {
-	// return templates.DemoPage().Render(c.Request().Context(), c.Response())
+	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+	if err != nil {
+		return err
+	}
+
+	requriementsContent, err := os.ReadFile(requirementsFile)
+	if err != nil {
+		return err
+	}
+
+	contentList := []interface{}{}
+	err = yaml.Unmarshal(requriementsContent, &contentList)
+	if err != nil {
+		return err
+	}
+
+	var useCases []templates.UseCase
+	err = yaml.Unmarshal(requriementsContent, &useCases)
+	if err != nil {
+		return err
+	}
+	for _, uc := range useCases {
+		fmt.Printf("%s %v %d\n", uc.Title, uc.IsMisuseCase, len(uc.Requirements))
+	}
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
 		"Requirements",
 		func() templ.Component {
-			return templates.UCSideBar(&[]templates.UseCase{
-				{Title: "a", IsMisuseCase: false, Requirements: []templates.Requirement{
-					{Title: "b", Description: "b", Query: "b"},
-				}},
-			})
+			return templates.UCSideBar(&useCases)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
 		func() templ.Component {
-			return templates.UCDetails(
-				"#",
-				templates.UseCase{
-					Title:        "",
-					IsMisuseCase: false,
-					Requirements: []templates.Requirement{},
-				},
-				templates.Requirement{
-					Title:       "a",
-					Description: "a",
-					Query:       "a",
-				},
-			)
+			return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
 		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
+
+	/*
+		return templates.Page(
+			"Requirements",
+			func() templ.Component {
+				return templates.UCSideBar(&[]templates.UseCase{
+					{Title: "a", IsMisuseCase: false, Requirements: []templates.Requirement{
+						{Title: "b", Description: "b", Query: "b"},
+					}},
+				})
+			},
+			func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+			func() templ.Component {
+				return templates.UCDetails(
+					"#",
+					templates.UseCase{
+						Title:        "",
+						IsMisuseCase: false,
+						Requirements: []templates.Requirement{},
+					},
+					templates.Requirement{
+						Title:       "a",
+						Description: "a",
+						Query:       "a",
+					},
+				)
+			},
+		).Render(c.Request().Context(), c.Response())
+	*/
 }
 
 func SchemasMainPage(c echo.Context) error {
-	// return templates.DemoPage().Render(c.Request().Context(), c.Response())
+	schemasDir, err := fs.GetFile("schemas")
+	if err != nil {
+		return err
+	}
+
+	schemaFiles, err := os.ReadDir(schemasDir)
+	if err != nil {
+		return err
+	}
+
+	schemas := util.Map(schemaFiles, func(s iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: s.Name(),
+			Link: fmt.Sprintf("/schemas/%s", s.Name()),
+		}
+	})
+
 	return templates.Page(
 		"Schemas",
 		func() templ.Component {
-			return templates.SideBarList([]templates.SideBarListElement{{"Schema 1", "#"}})
+			return templates.SideBarList(schemas)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		nil,
+		nil,
+	).Render(c.Request().Context(), c.Response())
+}
+
+func SchemaEditPage(c echo.Context) error {
+	schemaName, err := url.QueryUnescape(c.Param("schema"))
+	if err != nil {
+		return err
+	}
+
+	schemaFile, err := fs.GetFile(fmt.Sprintf("schemas/%s", schemaName))
+	if err != nil {
+		return err
+	}
+
+	schemaContent, err := os.ReadFile(schemaFile)
+	if err != nil {
+		return err
+	}
+
+	schemasDir, err := fs.GetFile("schemas")
+	if err != nil {
+		return err
+	}
+
+	schemaFiles, err := os.ReadDir(schemasDir)
+	if err != nil {
+		return err
+	}
+
+	schemas := util.Map(schemaFiles, func(s iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: s.Name(),
+			Link: fmt.Sprintf("/schemas/%s", s.Name()),
+		}
+	})
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(schemaFile))
+	return templates.Page(
+		"Schemas",
+		func() templ.Component {
+			return templates.SideBarList(schemas)
+		},
+		func() templ.Component {
+			return templates.EditorComponent("yaml", string(schemaContent), saveEndpoint)
+		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
