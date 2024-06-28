@@ -9,19 +9,19 @@ type TreeNode struct {
     Children []TreeNode `json:"children"`
 }
 
-templ Tree(root *TreeNode) {
+templ Tree(treeUrl string, root *TreeNode) {
     <ul>
-        @Node(root)
+        @Node(treeUrl, root)
     </ul>
 }
 
-templ Node(node *TreeNode) {
+templ Node(treeUrl string, node *TreeNode) {
     <li>
-        <a href={templ.SafeURL(fmt.Sprintf("/node/%s", url.PathEscape(node.Query)))}> {node.Description} </a>
+        <a href={templ.SafeURL(fmt.Sprintf("/node/%s/%s", treeUrl, url.PathEscape(node.Query)))}> {node.Description} </a>
         if len(node.Children) > 0 {
             <ul>
                 for _, c := range node.Children {
-                    @Node(&c)
+                    @Node(treeUrl, &c)
                 }
             </ul>
         }

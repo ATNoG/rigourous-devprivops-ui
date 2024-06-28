@@ -41,7 +41,7 @@ func main() {
 
 	e.GET("/trees", handlers.TreesMainPage)
 	e.GET("/trees/:tree", handlers.TreeView)
-	// TODO: tree node editor at /node with correct URL
+	e.GET("/node/:tree/:node", handlers.EditTreeNode)
 
 	e.GET("/descriptions", handlers.DescriptionsMainPage)
 	e.GET("/descriptions/:desc", handlers.DescriptionEdit)

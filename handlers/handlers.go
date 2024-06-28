@@ -59,7 +59,6 @@ func DemoPage(c echo.Context) error {
 }
 
 func TreesMainPage(c echo.Context) error {
-
 	atkDir, err := fs.GetFile("attack_trees/descriptions/")
 	if err != nil {
 		return err
@@ -87,7 +86,6 @@ func TreesMainPage(c echo.Context) error {
 }
 
 func TreeView(c echo.Context) error {
-
 	treeName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
 		return err
@@ -132,7 +130,72 @@ func TreeView(c echo.Context) error {
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(treeContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.Tree(&tree)
+			return templates.Tree(url.QueryEscape(treeName), &tree)
+		},
+	).Render(c.Request().Context(), c.Response())
+}
+
+func EditTreeNode(c echo.Context) error {
+	treeName, err := url.QueryUnescape(c.Param("tree"))
+	if err != nil {
+		return err
+	}
+
+	treeFileName := fmt.Sprintf("attack_trees/descriptions/%s", treeName)
+	treeFile, err := fs.GetFile(treeFileName)
+	if err != nil {
+		return err
+	}
+
+	treeContent, err := os.ReadFile(treeFile)
+	if err != nil {
+		return err
+	}
+
+	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	if err != nil {
+		return err
+	}
+	treeFiles, err := os.ReadDir(atkDir)
+	if err != nil {
+		return err
+	}
+
+	treeList := util.Map(treeFiles, func(t iofs.DirEntry) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: t.Name(),
+			Link: fmt.Sprintf("/trees/%s", url.QueryEscape(t.Name())),
+		}
+	})
+
+	nodeFileName, err := url.QueryUnescape(c.Param("node"))
+	if err != nil {
+		return err
+	}
+
+	nodeFile, err := fs.GetFile(nodeFileName)
+	if err != nil {
+		return err
+	}
+
+	nodeContent, err := os.ReadFile(nodeFile)
+	if err != nil {
+		return err
+	}
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(nodeFileName))
+
+	var tree templates.TreeNode
+	yaml.Unmarshal(treeContent, &tree)
+
+	return templates.Page(
+		"Trees",
+		func() templ.Component {
+			return templates.SideBarList(treeList)
+		},
+		func() templ.Component { return templates.EditorComponent("sparql", string(nodeContent), saveEndpoint) },
+		func() templ.Component {
+			return templates.Tree(url.QueryEscape(treeName), &tree)
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -156,11 +219,7 @@ func DescriptionsMainPage(c echo.Context) error {
 			return templates.SideBarList(descriptions)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
-		func() templ.Component {
-			return templates.PolicySideBar(&map[string][]templates.Policy{
-				"Reg 1": {{"a", "a", "a", true, 1, "a"}},
-			})
-		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -206,11 +265,7 @@ func DescriptionEdit(c echo.Context) error {
 			return templates.SideBarList(descriptions)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
-		func() templ.Component {
-			return templates.PolicySideBar(&map[string][]templates.Policy{
-				"Reg 1": {{"a", "a", "a", true, 1, "a"}},
-			})
-		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
