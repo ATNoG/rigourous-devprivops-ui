@@ -57,6 +57,7 @@ func main() {
 	e.GET("/extra-data/:query", handlers.ExtraDataQuery)
 
 	e.GET("/requirements", handlers.RequirementsMainPage)
+	e.GET("/requirements/:req", handlers.RequirementEdit)
 
 	e.GET("/schemas", handlers.SchemasMainPage)
 	e.GET("/schemas/:schema", handlers.SchemaEditPage)

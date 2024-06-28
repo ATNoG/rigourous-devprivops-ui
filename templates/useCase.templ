@@ -1,5 +1,8 @@
 package templates
 
+import "net/url"
+import "fmt"
+
 type UseCase struct {
     UseCase string              `json:"use case"`
     IsMisuseCase bool           `json:"is misuse case"`
@@ -19,7 +22,7 @@ templ UCSideBar(useCases *[]UseCase) {
                 ({uc.UseCase})
                 <ul>
                     for _, requirement := range uc.Requirements {
-                        <li>{requirement.Title}</li>
+                        <li><a href={templ.SafeURL(fmt.Sprintf("/requirements/%s", url.PathEscape(requirement.Query)))}>{requirement.Title}</a></li>
                     }
                 </ul>
             </li>

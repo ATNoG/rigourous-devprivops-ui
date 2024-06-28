@@ -714,6 +714,84 @@ func RequirementsMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+func RequirementEdit(c echo.Context) error {
+	reqName, err := url.QueryUnescape(c.Param("req"))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	requirementFile, err := fs.GetFile(reqName)
+	if err != nil {
+		return err
+	}
+
+	requriementQuery, err := os.ReadFile(requirementFile)
+	if err != nil {
+		return err
+	}
+
+	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+	if err != nil {
+		return err
+	}
+
+	requriementsContent, err := os.ReadFile(requirementsFile)
+	if err != nil {
+		return err
+	}
+
+	contentList := []interface{}{}
+	err = yaml.Unmarshal(requriementsContent, &contentList)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(requriementsContent))
+
+	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
+		uc := ucRaw.(map[string]interface{})
+
+		useCase := uc["use case"].(string)
+		fmt.Printf("-- '%s'\n", useCase)
+		isMisuseCase := uc["is misuse case"].(bool)
+		reqsRaw := uc["requirements"].([]interface{})
+		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
+			req := reqRaw.(map[string]interface{})
+
+			title := req["title"].(string)
+			description := req["description"].(string)
+			query := req["query"].(string)
+
+			return templates.Requirement{
+				Title:       title,
+				Description: description,
+				Query:       query,
+			}
+		})
+
+		return templates.UseCase{
+			UseCase:      useCase,
+			IsMisuseCase: isMisuseCase,
+			Requirements: requirements,
+		}
+	})
+	for _, uc := range useCases {
+		fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
+	}
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(reqName))
+	return templates.Page(
+		"Requirements",
+		func() templ.Component {
+			return templates.UCSideBar(&useCases)
+		},
+		func() templ.Component {
+			return templates.EditorComponent("sparql", string(requriementQuery), saveEndpoint)
+		},
+		nil,
+	).Render(c.Request().Context(), c.Response())
+}
+
 func RequirementDetails(c echo.Context) error {
 	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
 	if err != nil {
