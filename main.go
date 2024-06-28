@@ -51,6 +51,7 @@ func main() {
 
 	e.GET("/regulations", handlers.RegulationsMainPage)
 	e.GET("/regulations/:reg", handlers.RegulationView)
+	e.GET("/policy/:pol", handlers.PolicyEdit)
 
 	e.GET("/extra-data", handlers.ExtraDataMainPage)
 	e.GET("/extra-data/:query", handlers.ExtraDataQuery)

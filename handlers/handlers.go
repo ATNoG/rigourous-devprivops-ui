@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -387,6 +388,24 @@ func RegulationView(c echo.Context) error {
 		}
 	})
 
+	var policies []interface{} = []interface{}{}
+
+	err = yaml.Unmarshal(cfgContent, &policies)
+	if err != nil {
+		return err
+	}
+
+	policyFiles := util.Map(policies, func(pol interface{}) templates.SideBarListElement {
+		p := pol.(map[string]interface{})
+		fmt.Printf("!! /policy/%s\n", url.QueryEscape(p["file"].(string)))
+		return templates.SideBarListElement{
+			Text: p["file"].(string),
+			Link: fmt.Sprintf("/policy/%s", url.QueryEscape(p["file"].(string))),
+		}
+	})
+
+	regulations = append(regulations, policyFiles...)
+
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
 
 	// TODO: tests
@@ -396,6 +415,111 @@ func RegulationView(c echo.Context) error {
 			return templates.SideBarList(regulations)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
+		func() templ.Component {
+			return templates.SideBarForm("#", []templates.SideBarFormElement{
+				{
+					Type:  templates.TEXT,
+					Id:    "Title",
+					Label: "title",
+				},
+				{
+					Type:  templates.TEXT,
+					Id:    "Description",
+					Label: "description",
+				},
+				{
+					Type:  templates.CHECKBOX,
+					Id:    "Is consistency",
+					Label: "consistency",
+				},
+				{
+					Type:  templates.TEXT,
+					Id:    "Maximum violations",
+					Label: "violations",
+				},
+				{
+					Type:  templates.TEXT,
+					Id:    "Mapping message",
+					Label: "mapping",
+				},
+			})
+		},
+	).Render(c.Request().Context(), c.Response())
+}
+
+func PolicyEdit(c echo.Context) error {
+	polName, err := url.QueryUnescape(c.Param("pol"))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", strings.Split(polName, "/")[1])
+	regCfgFile, err := fs.GetFile(regCfgFileName)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	regCfgContent, err := os.ReadFile(regCfgFile)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	polFile, err := fs.GetFile(polName)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	polContent, err := os.ReadFile(polFile)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	regulationDirs, err := fs.GetRegulations()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	regulations := util.Map(regulationDirs, func(r string) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: r,
+			Link: fmt.Sprintf("/regulations/%s", r),
+		}
+	})
+
+	var policies []interface{} = []interface{}{}
+
+	err = yaml.Unmarshal(regCfgContent, &policies)
+	if err != nil {
+		fmt.Println(string(regCfgContent))
+		fmt.Println(err)
+		return err
+	}
+
+	policyFiles := util.Map(policies, func(pol interface{}) templates.SideBarListElement {
+		p := pol.(map[string]interface{})
+		return templates.SideBarListElement{
+			Text: p["file"].(string),
+			Link: p["file"].(string),
+		}
+	})
+
+	regulations = append(regulations, policyFiles...)
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(polFile))
+
+	// TODO: tests
+	return templates.Page(
+		"Regulations",
+		func() templ.Component {
+			return templates.SideBarList(regulations)
+		},
+		func() templ.Component { return templates.EditorComponent("sparql", string(polContent), saveEndpoint) },
 		func() templ.Component {
 			return templates.SideBarForm("#", []templates.SideBarFormElement{
 				{
