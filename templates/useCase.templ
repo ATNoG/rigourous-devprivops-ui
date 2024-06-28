@@ -1,7 +1,7 @@
 package templates
 
 type UseCase struct {
-    Title string                `json:"use case"`
+    UseCase string              `json:"use case"`
     IsMisuseCase bool           `json:"is misuse case"`
     Requirements []Requirement  `json:"requirements"`
 }
@@ -16,7 +16,7 @@ templ UCSideBar(useCases *[]UseCase) {
     <ul>
         for _, uc := range *useCases {
             <li> 
-                ({uc.Title})
+                ({uc.UseCase})
                 <ul>
                     for _, requirement := range uc.Requirements {
                         <li>{requirement.Title}</li>
@@ -31,7 +31,7 @@ templ UCDetails(endpoint string, useCase UseCase, requiremet Requirement) {
 	<form action={templ.SafeURL(endpoint)}>
         <p>Use Case</p>
         <label for="uc">Use Case</label>
-        <input id="uc" type="text" name="Use Case" value={useCase.Title}/>
+        <input id="uc" type="text" name="Use Case" value={useCase.UseCase}/>
         
         <label for="misusecase">Is misuse case</label>
         <input id="misusecase" type="select" name="Use Case"/>

@@ -661,14 +661,44 @@ func RequirementsMainPage(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(string(requriementsContent))
 
-	var useCases []templates.UseCase
-	err = yaml.Unmarshal(requriementsContent, &useCases)
-	if err != nil {
-		return err
-	}
+	/*
+		useCases := []templates.UseCase {}
+		err = yaml.Unmarshal(requriementsContent, &useCases)
+		if err != nil {
+			return err
+		}
+	*/
+	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
+		uc := ucRaw.(map[string]interface{})
+
+		useCase := uc["use case"].(string)
+		fmt.Printf("-- '%s'\n", useCase)
+		isMisuseCase := uc["is misuse case"].(bool)
+		reqsRaw := uc["requirements"].([]interface{})
+		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
+			req := reqRaw.(map[string]interface{})
+
+			title := req["title"].(string)
+			description := req["description"].(string)
+			query := req["query"].(string)
+
+			return templates.Requirement{
+				Title:       title,
+				Description: description,
+				Query:       query,
+			}
+		})
+
+		return templates.UseCase{
+			UseCase:      useCase,
+			IsMisuseCase: isMisuseCase,
+			Requirements: requirements,
+		}
+	})
 	for _, uc := range useCases {
-		fmt.Printf("%s %v %d\n", uc.Title, uc.IsMisuseCase, len(uc.Requirements))
+		fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
 	}
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
@@ -701,13 +731,42 @@ func RequirementDetails(c echo.Context) error {
 		return err
 	}
 
-	var useCases []templates.UseCase
-	err = yaml.Unmarshal(requriementsContent, &useCases)
-	if err != nil {
-		return err
-	}
+	/*
+		useCases := []templates.UseCase {}
+		err = yaml.Unmarshal(requriementsContent, &useCases)
+		if err != nil {
+			return err
+		}
+	*/
+	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
+		uc := ucRaw.(map[string]interface{})
+
+		useCase := uc["use case"].(string)
+		fmt.Printf("-- '%s'\n", useCase)
+		isMisuseCase := uc["is misuse case"].(bool)
+		reqsRaw := uc["requirements"].([]interface{})
+		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
+			req := reqRaw.(map[string]interface{})
+
+			title := req["title"].(string)
+			description := req["description"].(string)
+			query := req["query"].(string)
+
+			return templates.Requirement{
+				Title:       title,
+				Description: description,
+				Query:       query,
+			}
+		})
+
+		return templates.UseCase{
+			UseCase:      useCase,
+			IsMisuseCase: isMisuseCase,
+			Requirements: requirements,
+		}
+	})
 	for _, uc := range useCases {
-		fmt.Printf("%s %v %d\n", uc.Title, uc.IsMisuseCase, len(uc.Requirements))
+		fmt.Printf("%s %v %d\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
 	}
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
