@@ -50,3 +50,19 @@ templ SideBarForm(endpoint string, elements []SideBarFormElement) {
         <input type="submit" value="Submit"/>
 	</form>
 }
+
+templ DescriptionMetadata(endpoint string, scehma string, schemaList []string) {
+	<form action={templ.SafeURL(endpoint)}>
+		// <input type="hidden" id="" name="custId" value="3487">
+ 
+		<label for="schemas">Schema</label>
+
+		<select name="schemas" id="schemas">
+			for _, s := range schemaList {
+				<option value={s}>{s}</option>
+			}
+		</select>
+		<br/>
+        <input type="submit" value="Submit"/>
+	</form>
+}

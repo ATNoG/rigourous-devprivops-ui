@@ -19,7 +19,7 @@ templ UCSideBar(useCases *[]UseCase) {
     <ul>
         for _, uc := range *useCases {
             <li> 
-                ({uc.UseCase})
+                <li><a href="/requirements">{uc.UseCase}</a></li>
                 <ul>
                     for _, requirement := range uc.Requirements {
                         <li><a href={templ.SafeURL(fmt.Sprintf("/requirements/%s", url.PathEscape(requirement.Query)))}>{requirement.Title}</a></li>

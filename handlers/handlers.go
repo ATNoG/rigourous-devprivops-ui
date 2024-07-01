@@ -219,12 +219,17 @@ func DescriptionsMainPage(c echo.Context) error {
 		func() templ.Component {
 			return templates.SideBarList(descriptions)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
+		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
 func DescriptionEdit(c echo.Context) error {
+	newSchema := c.FormValue("schemas")
+	if newSchema != "" {
+		fmt.Println(newSchema)
+	}
+
 	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
@@ -266,7 +271,9 @@ func DescriptionEdit(c echo.Context) error {
 			return templates.SideBarList(descriptions)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
-		nil,
+		func() templ.Component {
+			return templates.DescriptionMetadata("#", "a", []string{"a", "b", "c"})
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 
