@@ -16,7 +16,9 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
+	"gopkg.in/yaml.v3"
 )
 
 /*
@@ -215,4 +217,34 @@ func getConfigs(localRoot string, globalRoot string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func ChangeTreeDescription(node *templates.TreeNode, queryFile string, newDescription string) bool {
+	fmt.Printf("Comp '%s' <=> '%s'\n", node.Query, queryFile)
+	if node.Query == queryFile {
+		fmt.Println("FOUND")
+		node.Description = newDescription
+		return true
+	} else {
+		for _, child := range node.Children {
+			if ChangeTreeDescription(child, queryFile, newDescription) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func SaveTreeDescription(tree *templates.TreeNode, file string) error {
+	data, err := yaml.Marshal(tree)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(file, data, 0666)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -41,7 +41,7 @@ templ SideBarList(elements []SideBarListElement) {
 	</ul>
 }
 
-templ SideBarForm(endpoint string, elements []SideBarFormElement) {
+templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 	<form action={templ.SafeURL(endpoint)}>
 		for _, e := range elements {
 			<label for={ e.Id }>{ e.Label }</label>
@@ -49,6 +49,13 @@ templ SideBarForm(endpoint string, elements []SideBarFormElement) {
 		}
         <input type="submit" value="Submit"/>
 	</form>
+}
+
+templ VerticalList(elements ...func() templ.Component) {
+	for _, e := range elements {
+		@e()
+		<br/>
+	}
 }
 
 templ DescriptionMetadata(endpoint string, scehma string, schemaList []string) {

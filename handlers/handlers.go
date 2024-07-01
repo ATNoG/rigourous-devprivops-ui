@@ -27,7 +27,7 @@ func HomePage(c echo.Context) error {
 		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
 		func() templ.Component { return templates.LoginForm() },
 		func() templ.Component {
-			return templates.SideBarForm("Test", []templates.SideBarFormElement{{templates.TEXT, "idd", "label"}})
+			return templates.SideBarForm("Test", templates.SideBarFormElement{templates.TEXT, "idd", "label"})
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -50,7 +50,7 @@ func LogIn(c echo.Context) error {
 		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
 		func() templ.Component { return templates.LoginForm() },
 		func() templ.Component {
-			return templates.SideBarForm("Test", []templates.SideBarFormElement{{templates.TEXT, "idd", "label"}})
+			return templates.SideBarForm("Test", templates.SideBarFormElement{templates.TEXT, "idd", "label"})
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -189,14 +189,44 @@ func EditTreeNode(c echo.Context) error {
 	var tree templates.TreeNode
 	yaml.Unmarshal(treeContent, &tree)
 
+	newDesc := c.FormValue("description")
+	if newDesc != "" {
+		fmt.Printf("Changing description of '%s' to '%s', wrting to '%s'\n", nodeFileName, newDesc, treeFile)
+		fs.ChangeTreeDescription(&tree, nodeFileName, newDesc)
+		err := fs.SaveTreeDescription(&tree, treeFile)
+		if err != nil {
+			fmt.Println("ERROR")
+			fmt.Println(err)
+			return err
+		}
+	}
+
 	return templates.Page(
 		"Trees",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
-		func() templ.Component { return templates.EditorComponent("sparql", string(nodeContent), saveEndpoint) },
+		func() templ.Component { return templates.EditorComponent("yaml", string(nodeContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.Tree(url.QueryEscape(treeName), &tree)
+			return templates.VerticalList(
+				func() templ.Component { return templates.Tree(url.QueryEscape(treeName), &tree) },
+				func() templ.Component {
+					return templates.SideBarForm("#",
+						templates.SideBarFormElement{
+							Type:  "text",
+							Id:    "description",
+							Label: "Description",
+						},
+						/*
+							templates.SideBarFormElement{
+								Type:  "text",
+								Id:    "query",
+								Label: "Query",
+							},
+						*/
+					)
+				},
+			)
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -423,33 +453,33 @@ func RegulationView(c echo.Context) error {
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.SideBarForm("#", []templates.SideBarFormElement{
-				{
+			return templates.SideBarForm("#",
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Title",
 					Label: "title",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Description",
 					Label: "description",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.CHECKBOX,
 					Id:    "Is consistency",
 					Label: "consistency",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Maximum violations",
 					Label: "violations",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Mapping message",
 					Label: "mapping",
 				},
-			})
+			)
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -528,33 +558,33 @@ func PolicyEdit(c echo.Context) error {
 		},
 		func() templ.Component { return templates.EditorComponent("sparql", string(polContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.SideBarForm("#", []templates.SideBarFormElement{
-				{
+			return templates.SideBarForm("#",
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Title",
 					Label: "title",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Description",
 					Label: "description",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.CHECKBOX,
 					Id:    "Is consistency",
 					Label: "consistency",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Maximum violations",
 					Label: "violations",
 				},
-				{
+				templates.SideBarFormElement{
 					Type:  templates.TEXT,
 					Id:    "Mapping message",
 					Label: "mapping",
 				},
-			})
+			)
 		},
 	).Render(c.Request().Context(), c.Response())
 }

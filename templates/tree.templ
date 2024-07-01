@@ -6,7 +6,7 @@ import "fmt"
 type TreeNode struct {
     Description string  `json:"description"`
     Query string        `json:"query"`
-    Children []TreeNode `json:"children"`
+    Children []*TreeNode `json:"children"`
 }
 
 templ Tree(treeUrl string, root *TreeNode) {
@@ -21,7 +21,7 @@ templ Node(treeUrl string, node *TreeNode) {
         if len(node.Children) > 0 {
             <ul>
                 for _, c := range node.Children {
-                    @Node(treeUrl, &c)
+                    @Node(treeUrl, c)
                 }
             </ul>
         }
