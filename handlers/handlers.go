@@ -217,13 +217,6 @@ func EditTreeNode(c echo.Context) error {
 							Id:    "description",
 							Label: "Description",
 						},
-						/*
-							templates.SideBarFormElement{
-								Type:  "text",
-								Id:    "query",
-								Label: "Query",
-							},
-						*/
 					)
 				},
 			)
@@ -255,10 +248,6 @@ func DescriptionsMainPage(c echo.Context) error {
 }
 
 func DescriptionEdit(c echo.Context) error {
-	newSchema := c.FormValue("schemas")
-	if newSchema != "" {
-		fmt.Println(newSchema)
-	}
 
 	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
@@ -295,6 +284,11 @@ func DescriptionEdit(c echo.Context) error {
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(desc))
 
+	newSchema := c.FormValue("schemas")
+	if newSchema != "" {
+		fmt.Println(newSchema)
+	}
+
 	return templates.Page(
 		"My page",
 		func() templ.Component {
@@ -302,7 +296,11 @@ func DescriptionEdit(c echo.Context) error {
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.DescriptionMetadata("#", "a", []string{"a", "b", "c"})
+			return templates.DescriptionMetadata(
+				fmt.Sprintf("/descriptions/%s", c.Param("desc")),
+				"a",
+				[]string{"a", "b", "c"},
+			)
 		},
 	).Render(c.Request().Context(), c.Response())
 }
@@ -403,12 +401,12 @@ func RegulationView(c echo.Context) error {
 	regName := c.Param("reg")
 
 	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", regName)
-	treeFile, err := fs.GetFile(regCfgFileName)
+	regulationFile, err := fs.GetFile(regCfgFileName)
 	if err != nil {
 		return err
 	}
 
-	cfgContent, err := os.ReadFile(treeFile)
+	cfgContent, err := os.ReadFile(regulationFile)
 	if err != nil {
 		return err
 	}
@@ -452,35 +450,7 @@ func RegulationView(c echo.Context) error {
 			return templates.SideBarList(regulations)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
-		func() templ.Component {
-			return templates.SideBarForm("#",
-				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "Title",
-					Label: "title",
-				},
-				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "Description",
-					Label: "description",
-				},
-				templates.SideBarFormElement{
-					Type:  templates.CHECKBOX,
-					Id:    "Is consistency",
-					Label: "consistency",
-				},
-				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "Maximum violations",
-					Label: "violations",
-				},
-				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "Mapping message",
-					Label: "mapping",
-				},
-			)
-		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -491,7 +461,8 @@ func PolicyEdit(c echo.Context) error {
 		return err
 	}
 
-	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", strings.Split(polName, "/")[1])
+	regulationName := strings.Split(polName, "/")[1]
+	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", regulationName)
 	regCfgFile, err := fs.GetFile(regCfgFileName)
 	if err != nil {
 		fmt.Println(err)
@@ -550,6 +521,68 @@ func PolicyEdit(c echo.Context) error {
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(polFile))
 
+	formTitle := c.FormValue("title")
+	formDescription := c.FormValue("description")
+	formConsistency := c.FormValue("consistency") // TODO: can't turn off consistency once turned on
+	formViolations := c.FormValue("violations")
+	formMapping := c.FormValue("mapping")
+
+	if formTitle != "" || formDescription != "" || formConsistency != "" || formViolations != "" || formMapping != "" {
+		fmt.Printf("-> '%s' '%s' '%s' '%s' '%s'\n",
+			formTitle,
+			formDescription,
+			formConsistency, // TODO: can't turn off consistency once turned on
+			formViolations,
+			formMapping,
+		)
+
+		policyRaw := util.First(policies, func(pol interface{}) bool {
+			p := pol.(map[string]interface{})
+			return p["file"] == polName
+		})
+		if policyRaw == nil {
+			fmt.Printf("ERROR No policy for '%s' found\n", polName)
+			return nil
+		}
+
+		if formTitle != "" {
+			((*policyRaw).(map[string]interface{}))["title"] = formTitle
+		}
+		if formDescription != "" {
+			((*policyRaw).(map[string]interface{}))["description"] = formDescription
+		}
+		if formConsistency != "" {
+			((*policyRaw).(map[string]interface{}))["is consistency"] = formConsistency
+		}
+		if formViolations != "" {
+			((*policyRaw).(map[string]interface{}))["maximum violations"] = formViolations
+		}
+		if formMapping != "" {
+			((*policyRaw).(map[string]interface{}))["mapping message"] = formMapping
+		}
+
+		data, err := yaml.Marshal(policies)
+		if err != nil {
+			return err
+		}
+
+		regulationFile, err := fs.GetFile(fmt.Sprintf("regulations/%s/policies.yml", regulationName))
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Printf("Writing to '%s'\n", regulationFile)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		err = os.WriteFile(regulationFile, data, 0666)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
 	// TODO: tests
 	return templates.Page(
 		"Regulations",
@@ -558,31 +591,31 @@ func PolicyEdit(c echo.Context) error {
 		},
 		func() templ.Component { return templates.EditorComponent("sparql", string(polContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.SideBarForm("#",
+			return templates.SideBarForm(fmt.Sprintf("/policy/%s", c.Param("pol")),
 				templates.SideBarFormElement{
 					Type:  templates.TEXT,
-					Id:    "Title",
-					Label: "title",
+					Id:    "title",
+					Label: "Title",
 				},
 				templates.SideBarFormElement{
 					Type:  templates.TEXT,
-					Id:    "Description",
-					Label: "description",
+					Id:    "description",
+					Label: "Description",
 				},
 				templates.SideBarFormElement{
 					Type:  templates.CHECKBOX,
-					Id:    "Is consistency",
-					Label: "consistency",
+					Id:    "consistency",
+					Label: "Is consistency",
 				},
 				templates.SideBarFormElement{
 					Type:  templates.TEXT,
-					Id:    "Maximum violations",
-					Label: "violations",
+					Id:    "violations",
+					Label: "Maximum violations",
 				},
 				templates.SideBarFormElement{
 					Type:  templates.TEXT,
-					Id:    "Mapping message",
-					Label: "mapping",
+					Id:    "mapping",
+					Label: "Mapping message",
 				},
 			)
 		},

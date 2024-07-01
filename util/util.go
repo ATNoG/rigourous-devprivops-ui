@@ -77,6 +77,23 @@ func Filter[T any](arr []T, filter func(T) bool) []T {
 	return new
 }
 
+// Find the first element in the stream that satisfies the condition
+//
+// `arr`: the array on which to search
+//
+// `condition`: The function that decides whether an element should be in the final array
+//
+// returns: The first element of `arr` for which `condition` returned `true`
+func First[T any](arr []T, condition func(T) bool) *T {
+	for _, e := range arr {
+		if condition(e) {
+			return &e
+		}
+	}
+
+	return nil
+}
+
 // Cast a generic map into a map of a specific key and value types. Errors will make the function panic
 //
 // `m`: The map to convert

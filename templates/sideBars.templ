@@ -46,6 +46,7 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 		for _, e := range elements {
 			<label for={ e.Id }>{ e.Label }</label>
 			<input id={ e.Id } type={ e.Type.String() } name={ e.Id }/>
+			<br/>
 		}
         <input type="submit" value="Submit"/>
 	</form>
@@ -60,8 +61,6 @@ templ VerticalList(elements ...func() templ.Component) {
 
 templ DescriptionMetadata(endpoint string, scehma string, schemaList []string) {
 	<form action={templ.SafeURL(endpoint)}>
-		// <input type="hidden" id="" name="custId" value="3487">
- 
 		<label for="schemas">Schema</label>
 
 		<select name="schemas" id="schemas">
