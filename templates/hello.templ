@@ -104,6 +104,13 @@ templ DemoPage() {
             var options = {};
             var network = new vis.Network(container, data, options);
         </script>
+
+        <script type="module">
+            import init, { greet } from "/static/dfd/dfd.js";
+            init().then(() => {
+                greet();
+            });
+        </script>
     </body>
     </html>
 }
