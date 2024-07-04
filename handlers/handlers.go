@@ -294,7 +294,10 @@ func DescriptionEdit(c echo.Context) error {
 		func() templ.Component {
 			return templates.SideBarList(descriptions)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
+		//		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
+		func() templ.Component {
+			return templates.EditorWithVisualizer("yaml", string(descContent), saveEndpoint)
+		},
 		func() templ.Component {
 			return templates.DescriptionMetadata(
 				fmt.Sprintf("/descriptions/%s", c.Param("desc")),

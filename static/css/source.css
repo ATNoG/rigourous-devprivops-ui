@@ -92,8 +92,15 @@ nav {
     height: calc(100vh - 4rem);
 }
 
-#editorContainer {
+#editorContainer, #graphContainer {
     height: 100%;
+    display: none; /* Initially hidden */
+}
+
+#mynetwork {
+    width: 100%;
+    height: 100%;
+    border: 1px solid lightgray;
 }
 
 @layer utilities {
