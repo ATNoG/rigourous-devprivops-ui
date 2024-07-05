@@ -98,7 +98,8 @@ templ Page(title string, left, center, right func() templ.Component) {
         let isEditorVisible = true;
 
         toggleButton.addEventListener('click', function() {
-            console.log("I'm alive!")
+            console.log(window.editor.getValue())
+
             if (isEditorVisible) {
                 document.getElementById('editorContainer').style.display = 'none';
                 document.getElementById('graphContainer').style.display = 'block';

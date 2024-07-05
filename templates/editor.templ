@@ -8,6 +8,9 @@ script EditorScript(language string, content string, fileURL string) {
             language: language
         });
 
+		window.editor = editor
+		window.editorReady = true;
+
 		document.getElementById('save-btn').addEventListener('click', function(event) {
 			event.preventDefault();
 			const editorContent = editor.getValue();
@@ -33,23 +36,14 @@ script EditorScript(language string, content string, fileURL string) {
 
 }
 
-script GraphVizScript() {
+/*
+script GraphVizScript(nodesJSON string, edgesJSON string) {
 	// Create a data set with nodes
-	var nodes = new vis.DataSet([
-		{ id: 1, label: "Node 1" },
-		{ id: 2, label: "Node 2" },
-		{ id: 3, label: "Node 3" },
-		{ id: 4, label: "Node 4" },
-		{ id: 5, label: "Node 5" }
-	]);
+
+	var nodes = new vis.DataSet(JSON.parse(nodesJSON))
 
 	// Create a data set with edges
-	var edges = new vis.DataSet([
-		{ from: 1, to: 2 },
-		{ from: 1, to: 3 },
-		{ from: 2, to: 4 },
-		{ from: 2, to: 5 }
-	]);
+	var edges = new vis.DataSet(JSON.parse(edgesJSON))
 
 	// Create a network
 	var container = document.getElementById('mynetwork');
@@ -79,6 +73,7 @@ script GraphVizScript() {
 
 	window.network = network
 }
+*/
 
 templ EditorComponent(language string, content string, fileURL string) {
     <div id="editorContainer" class="editor"></div>
@@ -93,5 +88,64 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 	</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
     @EditorScript(language, content, fileURL)
-	@GraphVizScript()
+	/*
+	@GraphVizScript(
+		"[ { \"id\": 1, \"label\": \"Node 1\" }, { \"id\": 2, \"label\": \"Node 2\" }, { \"id\": 3, \"label\": \"Node 3\" }, { \"id\": 4, \"label\": \"Node 4\" }, { \"id\": 5, \"label\": \"Node 5\" } ]",
+		"[ { \"from\": 1, \"to\": 2 }, { \"from\": 1, \"to\": 3 }, { \"from\": 2, \"to\": 4 }, { \"from\": 2, \"to\": 5 }]",
+	)
+	*/
+	
+	<script type="module">
+		import init, { process } from "/static/dfd/dfd.js";
+
+		function waitForEditor() {
+            return new Promise((resolve) => {
+                const checkEditor = setInterval(() => {
+                    if (window.editor && window.editorReady) {
+                        clearInterval(checkEditor);
+                        resolve(window.editor);
+                    }
+                }, 100);
+            });
+        }
+
+		init().then(() => {
+			waitForEditor().then((editor) => {
+				var rawData = JSON.parse(process(editor.getValue()))
+				console.log(rawData)
+
+				// Create a data set with nodes and edges
+				var nodes = new vis.DataSet(rawData.nodes)
+				var edges = new vis.DataSet(rawData.edges)
+
+				// Create a network
+				var container = document.getElementById('mynetwork');
+				var data = {
+					nodes: nodes,
+					edges: edges
+				};
+				var options = {
+					layout: {
+						improvedLayout: true
+					},
+					physics: {
+						enabled: true
+					}
+				};
+				var network = new vis.Network(container, data, options);
+
+				// Center the graph
+				network.once('stabilizationIterationsDone', function () {
+					network.fit({
+						animation: {
+							duration: 500,
+							easingFunction: 'easeInOutQuad'
+						}
+					});
+				});
+
+				window.network = network
+			})
+		});
+	</script>
 }
