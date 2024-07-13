@@ -36,45 +36,6 @@ script EditorScript(language string, content string, fileURL string) {
 
 }
 
-/*
-script GraphVizScript(nodesJSON string, edgesJSON string) {
-	// Create a data set with nodes
-
-	var nodes = new vis.DataSet(JSON.parse(nodesJSON))
-
-	// Create a data set with edges
-	var edges = new vis.DataSet(JSON.parse(edgesJSON))
-
-	// Create a network
-	var container = document.getElementById('mynetwork');
-	var data = {
-		nodes: nodes,
-		edges: edges
-	};
-	var options = {
-		layout: {
-			improvedLayout: true
-		},
-		physics: {
-			enabled: true
-		}
-	};
-	var network = new vis.Network(container, data, options);
-
-	// Center the graph
-	network.once('stabilizationIterationsDone', function () {
-		network.fit({
-			animation: {
-				duration: 500,
-				easingFunction: 'easeInOutQuad'
-			}
-		});
-	});
-
-	window.network = network
-}
-*/
-
 templ EditorComponent(language string, content string, fileURL string) {
     <div id="editorContainer" class="editor"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>

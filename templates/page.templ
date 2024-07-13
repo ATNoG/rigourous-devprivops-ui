@@ -1,6 +1,6 @@
 package templates
 
-templ Page(title string, left, center, right func() templ.Component) {
+templ Page(title string, altView string, left, center, right func() templ.Component) {
     <!DOCTYPE html>
     <html>
     <head>
@@ -93,6 +93,7 @@ templ Page(title string, left, center, right func() templ.Component) {
         </div>
     </div>
    
+   /*
     <script>
         const toggleButton = document.getElementById('toggleView');
         let isEditorVisible = true;
@@ -117,8 +118,39 @@ templ Page(title string, left, center, right func() templ.Component) {
         // Show editor by default
         document.getElementById('editorContainer').style.display = 'block';
     </script> 
+    */
+    @toggleButton(altView)
     </body>
     </html>
+}
+
+script toggleButton(altView string) {
+    const toggleButton = document.getElementById('toggleView');
+    let isEditorVisible = true;
+
+    toggleButton.addEventListener('click', function() {
+        // console.log(window.editor.getValue())
+
+        if (altView === "") {
+            return
+        }
+
+        if (isEditorVisible) {
+            document.getElementById('editorContainer').style.display = 'none';
+            document.getElementById(altView).style.display = 'block';
+            window.network.redraw();
+            window.network.fit();
+            toggleButton.textContent = 'Editor';
+        } else {
+            document.getElementById('editorContainer').style.display = 'block';
+            document.getElementById(altView).style.display = 'none';
+            toggleButton.textContent = 'Graph';
+        }
+        isEditorVisible = !isEditorVisible;
+    });
+
+    // Show editor by default
+    document.getElementById('editorContainer').style.display = 'block';
 }
 
 templ head(title string) {
