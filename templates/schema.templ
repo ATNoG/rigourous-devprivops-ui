@@ -7,12 +7,19 @@ templ SchemaEditor(language string, content string, fileURL string) {
 
     <script src="/static/js/gen_schema.js"></script>
     <div id="schemaEditorContainer" class="editor">
-        <div id="main-object">
-            <input type="text" id="main-name" placeholder="Main Object Name"/>
-            <button onclick="addChild('main')">Add Child</button>
-            <div id="children-container"></div>
-        </div> 
-        <button id="generate-json" onclick="generateJSON()">Generate JSON</button>
-        <pre id="output"></pre>
+        <h1>JSON Schema Generator</h1>
+        <div id="type-definitions">
+            <div class="type-section" data-type="Main">
+                <h3>Main <button onclick="removeType(this)">Remove type</button></h3>
+                <button onclick="addProperty(this)">Add property</button>
+            </div>
+        </div>
+        <div id="add-type-section">
+            <h3>Add New Type</h3>
+            <label>Type name: <input type="text" id="new-type-name"/></label>
+            <button onclick="addType()">Add type</button>
+        </div>
+        <button onclick="generateSchema()">Generate schema</button>
+        <pre id="json-schema"></pre>
     </div>
 }
