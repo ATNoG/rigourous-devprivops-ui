@@ -7,6 +7,7 @@ templ SchemaEditor(language string, content string, fileURL string) {
 
     <script src="/static/js/gen_schema.js"></script>
     <div id="schemaEditorContainer" class="editor">
+        /*
         <h1>JSON Schema Generator</h1>
         <div id="type-definitions">
             <div class="type-section" data-type="Main">
@@ -21,5 +22,94 @@ templ SchemaEditor(language string, content string, fileURL string) {
         </div>
         <button onclick="generateSchema()">Generate schema</button>
         <pre id="json-schema"></pre>
-    </div>
+        */
+        <h1>JSON Schema Generator</h1>
+        <div id="type-definitions"></div>
+        <div id="add-type-section">
+            <h3>Add New Type</h3>
+            <label>Type name: <input type="text" id="new-type-name"/></label>
+            <button onclick="addType()">Add type</button>
+        </div>
+        <button onclick="generateSchema()">Generate schema</button>
+        <pre id="json-schema"></pre>
+        </div>
+
+/*
+        <script>
+        // Example usage:
+        const exampleSchema = `
+        {
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Main",
+  "definitions": {
+    "Main": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "age": {
+          "type": "number"
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        }
+      },
+      "required": [
+        "name",
+        "age",
+        "address"
+      ],
+      "title": "Main"
+    },
+    "Address": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "a": {
+          "type": "array",
+          "items": {
+            "type": "boolean"
+          }
+        }
+      },
+      "required": [
+        "street",
+        "city",
+        "a"
+      ],
+      "title": "Address"
+    }
+  }
+}
+        `;
+        initializePageWithSchema(exampleSchema);
+        </script>
+        */
+        <script>
+        function waitForEditor() {
+          return new Promise((resolve) => {
+            const checkEditor = setInterval(() => {
+              if (window.editor && window.editorReady) {
+                clearInterval(checkEditor);
+                resolve(window.editor);
+              }
+            }, 100);
+          });
+        }
+
+
+        waitForEditor().then((editor) => {
+          var rawData = editor.getValue()
+        
+          initializePageWithSchema(rawData)
+        })
+        </script>
 }

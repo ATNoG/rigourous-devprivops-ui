@@ -73,7 +73,7 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 		init().then(() => {
 			waitForEditor().then((editor) => {
 				var rawData = JSON.parse(process(editor.getValue()))
-				console.log(rawData)
+				// console.log(rawData)
 
 				// Create a data set with nodes and edges
 				var nodes = new vis.DataSet(rawData.nodes)
