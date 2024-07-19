@@ -245,9 +245,7 @@ func DescriptionsMainPage(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"", "",
-		func() templ.Component {
-			return templates.SideBarList(descriptions)
-		},
+		func() templ.Component { return templates.FileList("", descriptions) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -298,9 +296,7 @@ func DescriptionEdit(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"graphContainer", "Visualizer",
-		func() templ.Component {
-			return templates.SideBarList(descriptions)
-		},
+		func() templ.Component { return templates.FileList("", descriptions) },
 		//		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
 		func() templ.Component {
 			return templates.EditorWithVisualizer("yaml", string(descContent), saveEndpoint)
@@ -335,7 +331,7 @@ func ReasonerMainPage(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
-		func() templ.Component { return templates.SideBarList(ruleList) },
+		func() templ.Component { return templates.FileList("reasoner/", ruleList) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -379,7 +375,7 @@ func ReasonerRuleEditor(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
-		func() templ.Component { return templates.SideBarList(ruleList) },
+		func() templ.Component { return templates.FileList("reasoner/", ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -667,9 +663,7 @@ func ExtraDataMainPage(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
-		func() templ.Component {
-			return templates.SideBarList(extraDataList)
-		},
+		func() templ.Component { return templates.FileList("", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
 		},
@@ -722,9 +716,7 @@ func ExtraDataQuery(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
-		func() templ.Component {
-			return templates.SideBarList(extraDataList)
-		},
+		func() templ.Component { return templates.FileList("", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)
 		},
@@ -1001,9 +993,7 @@ func SchemasMainPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"", "",
-		func() templ.Component {
-			return templates.SideBarList(schemas)
-		},
+		func() templ.Component { return templates.FileList("schemas/", schemas) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -1046,9 +1036,7 @@ func SchemaEditPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"schemaEditorContainer", "Schema Editor",
-		func() templ.Component {
-			return templates.SideBarList(schemas)
-		},
+		func() templ.Component { return templates.FileList("schemas/", schemas) },
 		func() templ.Component {
 			return templates.SchemaEditor("yaml", string(schemaContent), saveEndpoint)
 		},
@@ -1128,4 +1116,33 @@ func Test(c echo.Context) error {
 	fmt.Println(res)
 
 	return err
+}
+
+func DeleteFile(c echo.Context) error {
+	file := c.QueryParam("path")
+	path := fmt.Sprintf("'%s/%s'", fs.LocalDir, file)
+
+	fmt.Printf("Delete '%s'\n", path)
+
+	err := os.Remove(path)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateFile(c echo.Context) error {
+	file := c.QueryParam("path")
+	path := fmt.Sprintf("'%s/%s'", fs.LocalDir, file)
+
+	fmt.Printf("Create '%s'\n", path)
+
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return nil
 }

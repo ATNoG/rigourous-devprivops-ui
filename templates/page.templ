@@ -156,7 +156,11 @@ script toggleButton(altView string, toggleBtnName string) {
     });
 
     // Show editor by default
-    document.getElementById('editorContainer').style.display = 'block';
+    edCont = document.getElementById('editorContainer')
+    
+    if (edCont !== null) {
+        edCont.style.display = 'block';
+    }
 }
 
 templ head(title string) {

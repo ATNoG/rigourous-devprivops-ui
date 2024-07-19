@@ -1,5 +1,7 @@
 package templates
 
+import "fmt"
+
 type SideBarListElement struct {
 	Text string
 	Link string
@@ -51,6 +53,137 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
         <input type="submit" value="Submit"/>
 	</form>
 }
+
+templ FileList(baseDir string, files []SideBarListElement) {
+	/*
+	<ul>
+		for _, e := range files {
+			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+		}
+		<li><a href={ templ.SafeURL(createFileEndpoint) }>New File</a></li>
+	</ul>
+	*/
+	
+	// @FileListScript()
+
+	<ul id="fileList">
+		for _, e := range files {
+			<li>
+				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+				// <button onclick={ fmt.Sprintf("deleteFile(this, %s)", fileName) }>Delete</button>
+				<button onclick={ templ.ComponentScript{
+					Call: fmt.Sprintf("deleteFile(this, '%s%s')", baseDir, e.Text),
+				} }>Delete</button>
+			</li>
+		}
+		<div class="new-file">
+            <input type="text" id="newFileName" placeholder="New file name"/>
+            <button onclick={ templ.ComponentScript{
+				Call: fmt.Sprintf("addFile('%s')", baseDir),
+			} }>Create</button>
+        </div>
+	</ul>
+
+	<script>
+	async function addFile(baseDir) {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("File name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create?path=${encodeURIComponent(baseDir + '/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			li.innerHTML = `
+				<span>${fileName}</span>
+				<button onclick="deleteFile(this, '${fileName}')">Delete</button>
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
+
+	async function deleteFile(button, fileName) {
+		try {
+			const response = await fetch(`/delete?path=${encodeURIComponent(fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const li = button.parentElement;
+			li.remove();
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			alert('Failed to delete file.');
+		}
+	}
+	</script>
+}
+
+/*
+script FileListScript() {
+	async function addFile() {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("File name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create?path=${encodeURIComponent(fileName)}`);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			li.innerHTML = `
+				<span>${fileName}</span>
+				<button onclick="deleteFile(this, '${fileName}')">Delete</button>
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
+
+	async function deleteFile(button, fileName) {
+		try {
+			const response = await fetch(`/delete?path=${encodeURIComponent(fileName)}`);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const li = button.parentElement;
+			li.remove();
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			alert('Failed to delete file.');
+		}
+	}
+}
+*/
 
 templ VerticalList(elements ...func() templ.Component) {
 	for _, e := range elements {
