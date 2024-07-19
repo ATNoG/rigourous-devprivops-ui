@@ -103,7 +103,7 @@ nav {
     height: calc(100vh - 4rem);
 }
 
-#editorContainer, #graphContainer {
+#editorContainer, #graphContainer, #schemaEditorContainer {
     height: 100%;
     display: none; /* Initially hidden */
 }

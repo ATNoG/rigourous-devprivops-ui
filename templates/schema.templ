@@ -30,69 +30,10 @@ templ SchemaEditor(language string, content string, fileURL string) {
             <label>Type name: <input type="text" id="new-type-name"/></label>
             <button onclick="addType()">Add type</button>
         </div>
-        <button onclick="generateSchema()">Generate schema</button>
+        <button id="gen-schema" onclick="generateSchema()">Generate schema</button>
         <pre id="json-schema"></pre>
         </div>
 
-/*
-        <script>
-        // Example usage:
-        const exampleSchema = `
-        {
-  "$schema": "http://json-schema.org/draft-06/schema#",
-  "$ref": "#/definitions/Main",
-  "definitions": {
-    "Main": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "age": {
-          "type": "number"
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        }
-      },
-      "required": [
-        "name",
-        "age",
-        "address"
-      ],
-      "title": "Main"
-    },
-    "Address": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "street": {
-          "type": "string"
-        },
-        "city": {
-          "type": "string"
-        },
-        "a": {
-          "type": "array",
-          "items": {
-            "type": "boolean"
-          }
-        }
-      },
-      "required": [
-        "street",
-        "city",
-        "a"
-      ],
-      "title": "Address"
-    }
-  }
-}
-        `;
-        initializePageWithSchema(exampleSchema);
-        </script>
-        */
         <script>
         function waitForEditor() {
           return new Promise((resolve) => {
@@ -105,6 +46,33 @@ templ SchemaEditor(language string, content string, fileURL string) {
           });
         }
 
+        document.getElementById('gen-schema').addEventListener('click', function(event) {
+          event.preventDefault();
+          waitForEditor();
+          const schema = generateSchema();
+          console.log(schema);
+          editor.getModel().setValue(schema); 
+          // const editorContent = editor.getValue();
+          // console.log(editorContent);
+        
+          /*
+          fetch(fileURL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            // body: JSON.stringify({ content: editorContent })
+            body: editorContent
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+          */
+        });
 
         waitForEditor().then((editor) => {
           var rawData = editor.getValue()

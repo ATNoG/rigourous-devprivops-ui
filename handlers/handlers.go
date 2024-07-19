@@ -24,7 +24,7 @@ import (
 func HomePage(c echo.Context) error {
 	return templates.Page(
 		"Home page",
-		"",
+		"", "",
 		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
 		func() templ.Component { return templates.LoginForm() },
 		func() templ.Component {
@@ -48,7 +48,7 @@ func LogIn(c echo.Context) error {
 
 	return templates.Page(
 		"Home page",
-		"",
+		"", "",
 		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
 		func() templ.Component { return templates.LoginForm() },
 		func() templ.Component {
@@ -80,7 +80,7 @@ func TreesMainPage(c echo.Context) error {
 
 	return templates.Page(
 		"Trees",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
@@ -129,7 +129,7 @@ func TreeView(c echo.Context) error {
 
 	return templates.Page(
 		"Trees",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
@@ -207,7 +207,7 @@ func EditTreeNode(c echo.Context) error {
 
 	return templates.Page(
 		"Trees",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
@@ -244,7 +244,7 @@ func DescriptionsMainPage(c echo.Context) error {
 
 	return templates.Page(
 		"My page",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(descriptions)
 		},
@@ -297,7 +297,7 @@ func DescriptionEdit(c echo.Context) error {
 
 	return templates.Page(
 		"My page",
-		"graphContainer",
+		"graphContainer", "Visualizer",
 		func() templ.Component {
 			return templates.SideBarList(descriptions)
 		},
@@ -334,7 +334,7 @@ func ReasonerMainPage(c echo.Context) error {
 
 	return templates.Page(
 		"Reasoner",
-		"",
+		"", "",
 		func() templ.Component { return templates.SideBarList(ruleList) },
 		nil,
 		nil,
@@ -378,7 +378,7 @@ func ReasonerRuleEditor(c echo.Context) error {
 
 	return templates.Page(
 		"Reasoner",
-		"",
+		"", "",
 		func() templ.Component { return templates.SideBarList(ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
 		nil,
@@ -400,7 +400,7 @@ func RegulationsMainPage(c echo.Context) error {
 
 	return templates.Page(
 		"Regulations",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(regulations)
 		},
@@ -459,7 +459,7 @@ func RegulationView(c echo.Context) error {
 	// TODO: tests
 	return templates.Page(
 		"Regulations",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(regulations)
 		},
@@ -600,7 +600,7 @@ func PolicyEdit(c echo.Context) error {
 	// TODO: tests
 	return templates.Page(
 		"Regulations",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(regulations)
 		},
@@ -666,7 +666,7 @@ func ExtraDataMainPage(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
 	return templates.Page(
 		"Extra Data",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(extraDataList)
 		},
@@ -721,7 +721,7 @@ func ExtraDataQuery(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
 	return templates.Page(
 		"Extra Data",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(extraDataList)
 		},
@@ -791,7 +791,7 @@ func RequirementsMainPage(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
 		"Requirements",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},
@@ -870,7 +870,7 @@ func RequirementEdit(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(reqName))
 	return templates.Page(
 		"Requirements",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},
@@ -939,7 +939,7 @@ func RequirementDetails(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
 		"Requirements",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},
@@ -1000,7 +1000,7 @@ func SchemasMainPage(c echo.Context) error {
 
 	return templates.Page(
 		"Schemas",
-		"",
+		"", "",
 		func() templ.Component {
 			return templates.SideBarList(schemas)
 		},
@@ -1045,7 +1045,7 @@ func SchemaEditPage(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(schemaFile))
 	return templates.Page(
 		"Schemas",
-		"schemaEditorContainer",
+		"schemaEditorContainer", "Schema Editor",
 		func() templ.Component {
 			return templates.SideBarList(schemas)
 		},
