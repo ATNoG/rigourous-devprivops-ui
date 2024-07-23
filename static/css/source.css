@@ -13,6 +13,16 @@
     }
 }
 
+.object-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.child-container {
+    margin-left: 20px;
+}
+
 .object-form {
     margin-bottom: 20px;
     border: 1px solid #ccc;

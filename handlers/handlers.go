@@ -130,11 +130,11 @@ func TreeView(c echo.Context) error {
 
 	return templates.Page(
 		"Trees",
-		"", "",
+		"tree-editor", "Visual",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", string(treeContent), saveEndpoint) },
+		func() templ.Component { return templates.TreeEditor("yaml", string(treeContent), saveEndpoint) },
 		func() templ.Component {
 			return templates.Tree(url.QueryEscape(treeName), &tree)
 		},
@@ -1220,7 +1220,6 @@ func DeleteRegulation(c echo.Context) error {
 }
 
 func UpdateRegulation(c echo.Context) error {
-
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
@@ -1269,6 +1268,71 @@ func UpdateRegulation(c echo.Context) error {
 	if err := os.WriteFile(file, data, 0666); err != nil {
 		return err
 	}
+
+	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	return nil
+}
+
+func UpdateTree(c echo.Context) error {
+	fmt.Println("HELLO")
+	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "email"
+	})[0]
+
+	userName := userCookie.Value
+	email := emailCookie.Value
+
+	fName, err := url.QueryUnescape(c.Param("tree"))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Printf("Save to: %s\n", fName)
+
+	body, err := io.ReadAll(c.Request().Body)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(string(body))
+
+	var contents interface{}
+	err = json.Unmarshal(body, &contents)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	data, err := yaml.Marshal(contents)
+	// _, err = yaml.Marshal(contents)
+	// fmt.Printf("%+v\n", contents)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Data to write \\/")
+	fmt.Println(string(data))
+
+	/*
+		file, err := fs.GetFile(fName)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Printf("Writing to %s: %s \n", file, string(data))
+
+		if err := os.WriteFile(file, data, 0666); err != nil {
+			return err
+		}
+	*/
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
