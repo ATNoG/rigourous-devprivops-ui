@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	iofs "io/fs"
@@ -252,10 +253,10 @@ func DescriptionsMainPage(c echo.Context) error {
 }
 
 func DescriptionEdit(c echo.Context) error {
-
-	cookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf("User: %s\n", cookie.Value)
 
@@ -398,7 +399,7 @@ func RegulationsMainPage(c echo.Context) error {
 		"Regulations",
 		"", "",
 		func() templ.Component {
-			return templates.SideBarList(regulations)
+			return templates.RegulationList("regulations", regulations)
 		},
 		nil,
 		nil,
@@ -455,11 +456,12 @@ func RegulationView(c echo.Context) error {
 	// TODO: tests
 	return templates.Page(
 		"Regulations",
-		"", "",
+		"regulation-editor", "Visual",
 		func() templ.Component {
 			return templates.SideBarList(regulations)
 		},
-		func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
+		// func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
+		func() templ.Component { return templates.RegulationEditor("yaml", string(cfgContent), saveEndpoint) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
@@ -993,7 +995,7 @@ func SchemasMainPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"", "",
-		func() templ.Component { return templates.FileList("schemas/", schemas) },
+		func() templ.Component { return templates.FileList("schemas", schemas) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -1036,7 +1038,7 @@ func SchemaEditPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"schemaEditorContainer", "Schema Editor",
-		func() templ.Component { return templates.FileList("schemas/", schemas) },
+		func() templ.Component { return templates.FileList("schemas", schemas) },
 		func() templ.Component {
 			return templates.SchemaEditor("yaml", string(schemaContent), saveEndpoint)
 		},
@@ -1066,19 +1068,19 @@ func SaveEndpoint(c echo.Context) error {
 		return err
 	}
 
-	desc, err := url.QueryUnescape(c.Param("file"))
+	fName, err := url.QueryUnescape(c.Param("file"))
 	if err != nil {
 		return err
 	}
 
-	descFile, err := fs.GetFile(desc)
+	file, err := fs.GetFile(fName)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Writing to %s: %s \n", descFile, content)
+	fmt.Printf("Writing to %s: %s \n", file, content)
 
-	if err := os.WriteFile(descFile, content, 0666); err != nil {
+	if err := os.WriteFile(file, content, 0666); err != nil {
 		return err
 	}
 
@@ -1124,10 +1126,12 @@ func DeleteFile(c echo.Context) error {
 
 	fmt.Printf("Delete '%s'\n", path)
 
-	err := os.Remove(path)
-	if err != nil {
-		return err
-	}
+	/*
+		err := os.Remove(path)
+		if err != nil {
+			return err
+		}
+	*/
 
 	return nil
 }
@@ -1138,11 +1142,135 @@ func CreateFile(c echo.Context) error {
 
 	fmt.Printf("Create '%s'\n", path)
 
-	f, err := os.Create(path)
+	/*
+		f, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+	*/
+
+	return nil
+}
+
+func CreateRegulation(c echo.Context) error {
+	file := c.QueryParam("path")
+	path := fmt.Sprintf("%s/%s", fs.LocalDir, file)
+
+	fmt.Printf("Create REGULATION '%s'\n", path)
+
+	if err := os.Mkdir(path, 0777); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if err := os.Mkdir(fmt.Sprintf("%s/consistency", path), 0755); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if err := os.Mkdir(fmt.Sprintf("%s/policies", path), 0755); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if err := os.WriteFile(
+		fmt.Sprintf("%s/policies.yml", path),
+		[]byte("[]"),
+		0666); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func DeleteRegulation(c echo.Context) error {
+	file := c.QueryParam("path")
+	path := fmt.Sprintf("%s/regulations/%s", fs.LocalDir, file)
+
+	fmt.Printf("Delete REGULATION '%s'\n", path)
+
+	if err := os.RemoveAll(path); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	/*
+		if err := os.Mkdir(path, 0777); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		if err := os.Mkdir(fmt.Sprintf("%s/consistency", path), 0755); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		if err := os.Mkdir(fmt.Sprintf("%s/policies", path), 0755); err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if err := os.WriteFile(
+			fmt.Sprintf("%s/policies.yml", path),
+			[]byte("[]"),
+			0666); err != nil {
+			fmt.Println(err)
+			return err
+		}
+	*/
+
+	return nil
+}
+
+func UpdateRegulation(c echo.Context) error {
+
+	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "email"
+	})[0]
+
+	userName := userCookie.Value
+	email := emailCookie.Value
+
+	fName, err := url.QueryUnescape(c.Param("reg"))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Printf("\\ %s\n", fName)
+
+	body, err := io.ReadAll(c.Request().Body)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	contents := []interface{}{}
+	json.Unmarshal(body, &contents)
+
+	data, err := yaml.Marshal(contents)
+	// _, err = yaml.Marshal(contents)
+	// fmt.Printf("%+v\n", contents)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println(string(data))
+
+	file, err := fs.GetFile(fName)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+
+	fmt.Printf("Writing to %s: %s \n", file, string(data))
+
+	if err := os.WriteFile(file, data, 0666); err != nil {
+		return err
+	}
+
+	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
 	return nil
 }

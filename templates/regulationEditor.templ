@@ -1,0 +1,126 @@
+package templates
+
+import "fmt"
+
+templ RegulationEditor(language string, content string, fileURL string) {
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
+	// <script src="/static/js/gen_schema.js"></script>
+	<div id="regulation-editor">
+		<div id="object-list">
+			<!-- Dynamic object forms will be inserted here -->
+		</div>
+		<button id="add-object-btn" onclick="addObjectForm()">Add Policy</button>
+		<button id="save-objects-btn" onclick={templ.ComponentScript {
+            Call: fmt.Sprintf("saveObjects('%s')", fileURL),
+        }}>Save Policy</button>
+	</div>
+    
+    // <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	<script>
+    let objectCount = 0;
+    const objectList = document.getElementById('object-list');
+
+    // document.getElementById('add-object-btn').addEventListener('click', addObjectForm);
+    // document.getElementById('save-objects-btn').addEventListener('click', saveObjects);
+
+    // Function to add a new object form
+    function addObjectForm(object = null) {
+        if (object.file === undefined) {console.log("YEPPEEEE")}
+        const form = document.createElement('div');
+        form.classList.add('object-form');
+        form.innerHTML = `
+            <h3>Object ${objectCount + 1}</h3>
+            <label for="file-${objectCount}">File</label>
+            <input type="text" id="file-${objectCount}" name="file-${objectCount}" value="${object.file ? object.file : ''}">
+            <label for="title-${objectCount}">Title</label>
+            <input type="text" id="title-${objectCount}" name="title-${objectCount}" value="${object.title ? object.title : ''}">
+            <label for="description-${objectCount}">Description</label>
+            <input type="text" id="description-${objectCount}" name="description-${objectCount}" value="${object.description ? object.description : ''}">
+            <label for="consistency-${objectCount}">Is Consistency</label>
+            <select id="consistency-${objectCount}" name="consistency-${objectCount}">
+                <option value="true" ${object && object.consistency ? 'selected' : ''}>True</option>
+                <option value="false" ${object && !object.consistency ? 'selected' : ''}>False</option>
+            </select>
+            <label for="max-violations-${objectCount}">Maximum Violations</label>
+            <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="${object.max_violations ? object.max_violations : ''}">
+            <label for="mapping-message-${objectCount}">Mapping Message</label>
+            <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="${object.mapping_message ? object.mapping_message : ''}">
+        `;
+        objectList.appendChild(form);
+        objectCount++;
+    }
+
+    // Function to save objects
+    function saveObjects(file) {
+        const objects = [];
+        for (let i = 0; i < objectCount; i++) {
+            const obj = {
+                file: document.getElementById(`file-${i}`).value,
+                title: document.getElementById(`title-${i}`).value,
+                description: document.getElementById(`description-${i}`).value,
+                consistency: document.getElementById(`consistency-${i}`).value === 'true',
+                max_violations: Number(document.getElementById(`max-violations-${i}`).value),
+                mapping_message: document.getElementById(`mapping-message-${i}`).value,
+            };
+            objects.push(obj);
+        }
+        const yamlString = JSON.stringify(objects);
+        sendYamlData(yamlString, file);
+    }
+
+    // Function to send YAML data to the server
+    function sendYamlData(yamlData, file) {
+        /*
+        fetch('/save-obj', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-yaml'
+            },
+            body: yamlData
+        })
+        */
+        const path = file.split('/')
+        console.log(path[path.length-1])
+        fetch(`/save-regulation/${path[path.length-1]}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: yamlData
+        })
+        .then(response => response.text())
+        .then(data => alert('Objects saved successfully!'))
+        .catch(error => console.error('Error saving objects:', error));
+    }
+
+    // Function to populate the page with a JSON array of objects
+    function populatePageWithObjects(objects) {
+        objects.forEach(object => addObjectForm(object));
+    }
+
+    // Simulating fetching data from the server (for demo purposes)
+    // document.addEventListener('DOMContentLoaded', () => {
+        const sampleObjects = [
+            {
+                file: "Sample String 1",
+                title: "Sample String 2",
+                description: "Sample String 3",
+                consistency: true,
+                max_violations: 42,
+                mapping_message: "Sample Additional String"
+            },
+            {
+                file: "Another String 1",
+                title: "Another String 2",
+                description: "Another String 3",
+                consistency: false,
+                max_violations: 27,
+                mapping_message: "Another Additional String"
+            }
+        ];
+        populatePageWithObjects(sampleObjects);
+    // });
+  </script>
+}

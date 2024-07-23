@@ -76,14 +76,34 @@ templ FileList(baseDir string, files []SideBarListElement) {
 				} }>Delete</button>
 			</li>
 		}
-		<div class="new-file">
-            <input type="text" id="newFileName" placeholder="New file name"/>
-            <button onclick={ templ.ComponentScript{
-				Call: fmt.Sprintf("addFile('%s')", baseDir),
-			} }>Create</button>
-        </div>
 	</ul>
+	<div class="new-file">
+		<input type="text" id="newFileName" placeholder="New file name"/>
+		<button onclick={ templ.ComponentScript{
+			Call: fmt.Sprintf("addFile('%s')", baseDir),
+		} }>Create</button>
+	</div>
 
+	@FileScript()
+}
+
+templ RegulationList(baseDir string, files []SideBarListElement) {
+	<ul id="fileList">
+		for _, e := range files {
+			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+		}
+	</ul>
+	<div class="new-file">
+		<input type="text" id="newFileName" placeholder="New file name"/>
+		<button onclick={ templ.ComponentScript{
+			Call: fmt.Sprintf("addRegulation('%s')", baseDir),
+		} }>Add</button>
+	</div>
+
+	@FileScript()
+}
+
+templ FileScript() {
 	<script>
 	async function addFile(baseDir) {
 		const fileNameInput = document.getElementById('newFileName');
@@ -116,10 +136,59 @@ templ FileList(baseDir string, files []SideBarListElement) {
 			alert('Failed to create file.');
 		}
 	}
+	
+	async function addRegulation(baseDir) {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("Regulation name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create-regulation?path=${encodeURIComponent(baseDir + '/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			li.innerHTML = `
+				<span>${fileName}</span>
+				<button onclick="deleteRegulation(this, '${fileName}')">Delete</button>
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
 
 	async function deleteFile(button, fileName) {
 		try {
 			const response = await fetch(`/delete?path=${encodeURIComponent(fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const li = button.parentElement;
+			li.remove();
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			alert('Failed to delete file.');
+		}
+	}
+	
+	async function deleteRegulation(button, fileName) {
+		try {
+			const response = await fetch(`/delete-regulation?path=${encodeURIComponent(fileName)}`,
 				{method: 'POST'}
 			);
 			if (!response.ok) {
@@ -184,6 +253,7 @@ script FileListScript() {
 	}
 }
 */
+
 
 templ VerticalList(elements ...func() templ.Component) {
 	for _, e := range elements {
