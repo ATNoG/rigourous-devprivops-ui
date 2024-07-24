@@ -2,7 +2,7 @@ package templates
 
 import "fmt"
 
-templ RegulationEditor(language string, content string, fileURL string) {
+templ RegulationEditor(language string, content string, fileURL string, regulation *string) {
 	<div id="editorContainer" class="editor"></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@EditorScript(language, content, fileURL)
@@ -12,12 +12,14 @@ templ RegulationEditor(language string, content string, fileURL string) {
 			<!-- Dynamic object forms will be inserted here -->
 		</div>
 		<button id="add-object-btn" onclick="addObjectForm()">Add Policy</button>
-		<button id="save-objects-btn" onclick={templ.ComponentScript {
+		<button
+			id="save-objects-btn"
+			onclick={ templ.ComponentScript {
             Call: fmt.Sprintf("saveObjects('%s')", fileURL),
-        }}>Save Policy</button>
+        } }
+		>Save Policy</button>
 	</div>
-    
-    // <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	// <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script>
     let objectCount = 0;
     const objectList = document.getElementById('object-list');
@@ -28,6 +30,8 @@ templ RegulationEditor(language string, content string, fileURL string) {
     // Function to add a new object form
     function addObjectForm(object = null) {
         if (object.file === undefined) {console.log("YEPPEEEE")}
+        console.log(Object.keys(object))
+        console.log(`${object.file}, ${object["file"]}, ${object["maximum violations"]}`)
         const form = document.createElement('div');
         form.classList.add('object-form');
         form.innerHTML = `
@@ -44,7 +48,7 @@ templ RegulationEditor(language string, content string, fileURL string) {
                 <option value="false" ${object && !object.consistency ? 'selected' : ''}>False</option>
             </select>
             <label for="max-violations-${objectCount}">Maximum Violations</label>
-            <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="${object.max_violations ? object.max_violations : ''}">
+            <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="${object["maximum violations"] !== undefined ? object["maximum violations"] : 'nope'}">
             <label for="mapping-message-${objectCount}">Mapping Message</label>
             <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="${object.mapping_message ? object.mapping_message : ''}">
         `;
@@ -61,7 +65,7 @@ templ RegulationEditor(language string, content string, fileURL string) {
                 title: document.getElementById(`title-${i}`).value,
                 description: document.getElementById(`description-${i}`).value,
                 consistency: document.getElementById(`consistency-${i}`).value === 'true',
-                max_violations: Number(document.getElementById(`max-violations-${i}`).value),
+                "maximum violations": Number(document.getElementById(`max-violations-${i}`).value),
                 mapping_message: document.getElementById(`mapping-message-${i}`).value,
             };
             objects.push(obj);
@@ -102,13 +106,14 @@ templ RegulationEditor(language string, content string, fileURL string) {
 
     // Simulating fetching data from the server (for demo purposes)
     // document.addEventListener('DOMContentLoaded', () => {
+        /*
         const sampleObjects = [
             {
                 file: "Sample String 1",
                 title: "Sample String 2",
                 description: "Sample String 3",
                 consistency: true,
-                max_violations: 42,
+                "maximum violations": 42,
                 mapping_message: "Sample Additional String"
             },
             {
@@ -116,11 +121,20 @@ templ RegulationEditor(language string, content string, fileURL string) {
                 title: "Another String 2",
                 description: "Another String 3",
                 consistency: false,
-                max_violations: 27,
+                "maximum violations": 27,
                 mapping_message: "Another Additional String"
             }
         ];
         populatePageWithObjects(sampleObjects);
+        */
     // });
   </script>
+  @RegulationInitialization(regulation)
+}
+
+script RegulationInitialization(regulation *string) {
+    console.log(regulation)
+    document.addEventListener('DOMContentLoaded', () => {
+        populatePageWithObjects(JSON.parse(regulation));
+    });
 }

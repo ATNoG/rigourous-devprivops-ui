@@ -65,10 +65,12 @@ func DemoPage(c echo.Context) error {
 func TreesMainPage(c echo.Context) error {
 	atkDir, err := fs.GetFile("attack_trees/descriptions/")
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	treeFiles, err := os.ReadDir(atkDir)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -128,13 +130,23 @@ func TreeView(c echo.Context) error {
 	var tree templates.TreeNode
 	yaml.Unmarshal(treeContent, &tree)
 
+	jsonTree, err := json.Marshal(&tree)
+	if err != nil {
+		fmt.Printf("LLL %s\n", err)
+		return err
+	}
+	jsonStr := string(jsonTree)
+	fmt.Println(jsonStr)
+
 	return templates.Page(
 		"Trees",
 		"tree-editor", "Visual",
 		func() templ.Component {
 			return templates.SideBarList(treeList)
 		},
-		func() templ.Component { return templates.TreeEditor("yaml", string(treeContent), saveEndpoint) },
+		func() templ.Component {
+			return templates.TreeEditor("yaml", string(treeContent), saveEndpoint, &jsonStr)
+		},
 		func() templ.Component {
 			return templates.Tree(url.QueryEscape(treeName), &tree)
 		},
@@ -440,6 +452,12 @@ func RegulationView(c echo.Context) error {
 		return err
 	}
 
+	jsonContent, err := json.Marshal(&policies)
+	if err != nil {
+		return err
+	}
+	jsonString := string(jsonContent)
+
 	policyFiles := util.Map(policies, func(pol interface{}) templates.SideBarListElement {
 		p := pol.(map[string]interface{})
 		fmt.Printf("!! /policy/%s\n", url.QueryEscape(p["file"].(string)))
@@ -461,7 +479,9 @@ func RegulationView(c echo.Context) error {
 			return templates.SideBarList(regulations)
 		},
 		// func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
-		func() templ.Component { return templates.RegulationEditor("yaml", string(cfgContent), saveEndpoint) },
+		func() templ.Component {
+			return templates.RegulationEditor("yaml", string(cfgContent), saveEndpoint, &jsonString)
+		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
@@ -1275,7 +1295,6 @@ func UpdateRegulation(c echo.Context) error {
 }
 
 func UpdateTree(c echo.Context) error {
-	fmt.Println("HELLO")
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]

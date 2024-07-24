@@ -2,7 +2,7 @@ package templates
 
 import "fmt"
 
-templ TreeEditor(language string, content string, fileURL string) {
+templ TreeEditor(language string, content string, fileURL string, tree *string) {
 	<div id="editorContainer" class="editor"></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@EditorScript(language, content, fileURL)
@@ -93,6 +93,7 @@ templ TreeEditor(language string, content string, fileURL string) {
     }
 
     // Example initialization
+    /*
     const exampleJson = {
         description: 'Root Object',
         query: 'root-query',
@@ -113,5 +114,15 @@ templ TreeEditor(language string, content string, fileURL string) {
     document.addEventListener('DOMContentLoaded', () => {
         initializeFromJson(exampleJson);
     });
+    */
     </script>
+    @TreeInitialization(tree)
+}
+
+script TreeInitialization(tree *string) {
+    console.log(typeof tree)
+    document.addEventListener('DOMContentLoaded', () => {
+        // initializeFromJson(JSON.stringify(tree));
+        initializeFromJson(JSON.parse(tree));
+    });
 }
