@@ -54,7 +54,7 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 	</form>
 }
 
-templ FileList(baseDir string, files []SideBarListElement) {
+templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 	/*
 	<ul>
 		for _, e := range files {
@@ -80,7 +80,7 @@ templ FileList(baseDir string, files []SideBarListElement) {
 	<div class="new-file">
 		<input type="text" id="newFileName" placeholder="New file name"/>
 		<button onclick={ templ.ComponentScript{
-			Call: fmt.Sprintf("addFile('%s')", baseDir),
+			Call: fmt.Sprintf("addFile('%s', '%s')", baseURL, baseDir),
 		} }>Create</button>
 	</div>
 
@@ -105,7 +105,7 @@ templ RegulationList(baseDir string, files []SideBarListElement) {
 
 templ FileScript() {
 	<script>
-	async function addFile(baseDir) {
+	async function addFile(baseURL, baseDir) {
 		const fileNameInput = document.getElementById('newFileName');
 		const fileName = fileNameInput.value.trim();
 
@@ -122,11 +122,12 @@ templ FileScript() {
 				throw new Error('Network response was not ok');
 			}
 
+			console.log(`'${baseURL}' '${fileName}'`)
 			const fileList = document.getElementById('fileList');
 			const li = document.createElement('li');
 			li.innerHTML = `
-				<span>${fileName}</span>
-				<button onclick="deleteFile(this, '${fileName}')">Delete</button>
+				<span><a href='${baseURL}/${fileName}'>${fileName}</a></span>
+				<button onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
 			`;
 			fileList.appendChild(li);
 
@@ -156,9 +157,15 @@ templ FileScript() {
 
 			const fileList = document.getElementById('fileList');
 			const li = document.createElement('li');
+			/*
 			li.innerHTML = `
 				<span>${fileName}</span>
 				<button onclick="deleteRegulation(this, '${fileName}')">Delete</button>
+			`;
+			*/
+			li.innerHTML = `
+				<span><a href='/regulations/${fileName}'>${fileName}</a></span>
+				<button onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
 			`;
 			fileList.appendChild(li);
 
@@ -204,56 +211,6 @@ templ FileScript() {
 	}
 	</script>
 }
-
-/*
-script FileListScript() {
-	async function addFile() {
-		const fileNameInput = document.getElementById('newFileName');
-		const fileName = fileNameInput.value.trim();
-
-		if (fileName === "") {
-			alert("File name cannot be empty!");
-			return;
-		}
-
-		try {
-			const response = await fetch(`/create?path=${encodeURIComponent(fileName)}`);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-
-			const fileList = document.getElementById('fileList');
-			const li = document.createElement('li');
-			li.innerHTML = `
-				<span>${fileName}</span>
-				<button onclick="deleteFile(this, '${fileName}')">Delete</button>
-			`;
-			fileList.appendChild(li);
-
-			fileNameInput.value = '';
-		} catch (error) {
-			console.error('Error creating file:', error);
-			alert('Failed to create file.');
-		}
-	}
-
-	async function deleteFile(button, fileName) {
-		try {
-			const response = await fetch(`/delete?path=${encodeURIComponent(fileName)}`);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-
-			const li = button.parentElement;
-			li.remove();
-		} catch (error) {
-			console.error('Error deleting file:', error);
-			alert('Failed to delete file.');
-		}
-	}
-}
-*/
-
 
 templ VerticalList(elements ...func() templ.Component) {
 	for _, e := range elements {

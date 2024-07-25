@@ -29,9 +29,6 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
 
     // Function to add a new object form
     function addObjectForm(object = null) {
-        if (object.file === undefined) {console.log("YEPPEEEE")}
-        console.log(Object.keys(object))
-        console.log(`${object.file}, ${object["file"]}, ${object["maximum violations"]}`)
         const form = document.createElement('div');
         form.classList.add('object-form');
         form.innerHTML = `

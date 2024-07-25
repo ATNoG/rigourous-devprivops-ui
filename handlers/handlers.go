@@ -85,7 +85,7 @@ func TreesMainPage(c echo.Context) error {
 		"Trees",
 		"", "",
 		func() templ.Component {
-			return templates.SideBarList(treeList)
+			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},
 		nil,
 		nil,
@@ -142,7 +142,7 @@ func TreeView(c echo.Context) error {
 		"Trees",
 		"tree-editor", "Visual",
 		func() templ.Component {
-			return templates.SideBarList(treeList)
+			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},
 		func() templ.Component {
 			return templates.TreeEditor("yaml", string(treeContent), saveEndpoint, &jsonStr)
@@ -258,7 +258,7 @@ func DescriptionsMainPage(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"", "",
-		func() templ.Component { return templates.FileList("", descriptions) },
+		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -309,7 +309,7 @@ func DescriptionEdit(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"graphContainer", "Visualizer",
-		func() templ.Component { return templates.FileList("", descriptions) },
+		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
 		//		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
 		func() templ.Component {
 			return templates.EditorWithVisualizer("yaml", string(descContent), saveEndpoint)
@@ -344,7 +344,7 @@ func ReasonerMainPage(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
-		func() templ.Component { return templates.FileList("reasoner/", ruleList) },
+		func() templ.Component { return templates.FileList("/reasoner/", "reasoner", ruleList) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -388,7 +388,7 @@ func ReasonerRuleEditor(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
-		func() templ.Component { return templates.FileList("reasoner/", ruleList) },
+		func() templ.Component { return templates.FileList("/reasoner/", "reasoner/", ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -685,7 +685,7 @@ func ExtraDataMainPage(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
-		func() templ.Component { return templates.FileList("", extraDataList) },
+		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
 		},
@@ -738,7 +738,7 @@ func ExtraDataQuery(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
-		func() templ.Component { return templates.FileList("", extraDataList) },
+		func() templ.Component { return templates.FileList("/extra-data/", "", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)
 		},
@@ -1015,7 +1015,7 @@ func SchemasMainPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"", "",
-		func() templ.Component { return templates.FileList("schemas", schemas) },
+		func() templ.Component { return templates.FileList("/schemas/", "schemas", schemas) },
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -1058,7 +1058,7 @@ func SchemaEditPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"schemaEditorContainer", "Schema Editor",
-		func() templ.Component { return templates.FileList("schemas", schemas) },
+		func() templ.Component { return templates.FileList("/schemas/", "schemas", schemas) },
 		func() templ.Component {
 			return templates.SchemaEditor("yaml", string(schemaContent), saveEndpoint)
 		},
