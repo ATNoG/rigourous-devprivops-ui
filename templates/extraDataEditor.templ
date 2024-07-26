@@ -1,0 +1,120 @@
+package templates
+
+templ ExtraDataEditor(language string, content string, fileURL string, extraData *string) {
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
+
+
+    <div id="extra-data-editor">
+        <h1>Create Objects</h1>
+
+        <div class="object-form">
+            <input type="text" id="location" placeholder="Location" />
+            <input type="text" id="query" placeholder="Query" />
+            <input type="text" id="heading" placeholder="Heading" />
+            <input type="text" id="description" placeholder="Description" />
+            <input type="text" id="dataRowLine" placeholder="Data Row Line" />
+            <button onclick="addObject()">Add Object</button>
+        </div>
+
+        <div id="objectList"></div>
+
+        <button onclick="saveObjects()">Save List</button>
+    </div>
+
+    <script>
+    const objectList = [];
+
+    function addObject() {
+        const location = document.getElementById('location').value;
+        const query = document.getElementById('query').value;
+        const heading = document.getElementById('heading').value;
+        const description = document.getElementById('description').value;
+        const dataRowLine = document.getElementById('dataRowLine').value;
+
+        const newObject = { location, query, heading, description, dataRowLine };
+        objectList.push(newObject);
+        renderObjectList();
+
+        document.getElementById('location').value = '';
+        document.getElementById('query').value = '';
+        document.getElementById('heading').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('dataRowLine').value = '';
+    }
+
+    function deleteObject(index) {
+        objectList.splice(index, 1);
+        renderObjectList();
+    }
+
+    function renderObjectList() {
+        const objectListDiv = document.getElementById('objectList');
+        objectListDiv.innerHTML = '';
+        objectList.forEach((obj, index) => {
+            const objectDiv = document.createElement('div');
+            objectDiv.className = 'object';
+            objectDiv.innerHTML = `
+                <p><strong>Location:</strong> ${obj.location}</p>
+                <p><strong>Query:</strong> ${obj.query}</p>
+                <p><strong>Heading:</strong> ${obj.heading}</p>
+                <p><strong>Description:</strong> ${obj.description}</p>
+                <p><strong>Data Row Line:</strong> ${obj.dataRowLine}</p>
+                <span class="delete-button" onclick="deleteObject(${index})">Delete</span>
+            `;
+            objectListDiv.appendChild(objectDiv);
+        });
+    }
+
+    function saveObjects() {
+        fetch('/save-report-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(objectList)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function populateUI(jsonList) {
+        objectList.length = 0;
+        jsonList.forEach(obj => {
+            objectList.push(obj);
+        });
+        renderObjectList();
+    } 
+
+    /*
+    populateUI([
+        {
+            "location":"a",
+            "query":"b",
+            "heading":"c",
+            "description":"d",
+            "dataRowLine":"e"
+        },
+        {
+            "location":"1",
+            "query":"2",
+            "heading":"3",
+            "description":"4",
+            "dataRowLine":"5"
+        }
+    ])
+    */
+    </script>
+
+    @ExtraDataInitialization(extraData)
+}
+
+script ExtraDataInitialization(extraData *string) {
+    populateUI(JSON.parse(extraData))
+}

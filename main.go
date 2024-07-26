@@ -73,6 +73,7 @@ func main() {
 	e.POST("/delete-regulation", handlers.DeleteRegulation)
 	e.POST("/save-regulation/:reg", handlers.UpdateRegulation)
 	e.POST("/save-tree/:tree", handlers.UpdateTree)
+	e.POST("/save-report-data", handlers.UpdateExtraData)
 
 	if err := godotenv.Load(); err != nil {
 		slog.Error("Error loading .env file")

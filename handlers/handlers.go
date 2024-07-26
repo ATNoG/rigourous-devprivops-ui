@@ -467,7 +467,7 @@ func RegulationView(c echo.Context) error {
 		}
 	})
 
-	regulations = append(regulations, policyFiles...)
+	// regulations = append(regulations, policyFiles...)
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
 
@@ -476,7 +476,11 @@ func RegulationView(c echo.Context) error {
 		"Regulations",
 		"regulation-editor", "Visual",
 		func() templ.Component {
-			return templates.SideBarList(regulations)
+			return templates.VerticalList(
+				func() templ.Component { return templates.RegulationList("regulations", regulations) },
+				func() templ.Component { return templates.SideBarList(policyFiles) },
+			)
+			// return templates.SideBarList(regulations)
 		},
 		// func() templ.Component { return templates.EditorComponent("yaml", string(cfgContent), saveEndpoint) },
 		func() templ.Component {
@@ -672,6 +676,12 @@ func ExtraDataMainPage(c echo.Context) error {
 		return err
 	}
 
+	rawJsonData, err := json.Marshal(contentList)
+	if err != nil {
+		return err
+	}
+	jsonData := string(rawJsonData)
+
 	extraDataList := util.Map(contentList, func(ed interface{}) templates.SideBarListElement {
 		content := ed.(map[string]interface{})
 
@@ -684,10 +694,11 @@ func ExtraDataMainPage(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
 	return templates.Page(
 		"Extra Data",
-		"", "",
+		"extra-data-editor", "Visual",
 		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
-			return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
+			// return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
+			return templates.ExtraDataEditor("yaml", string(extraDataContent), saveEndpoint, &jsonData)
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -738,7 +749,7 @@ func ExtraDataQuery(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
-		func() templ.Component { return templates.FileList("/extra-data/", "", extraDataList) },
+		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)
 		},
@@ -775,7 +786,6 @@ func RequirementsMainPage(c echo.Context) error {
 		uc := ucRaw.(map[string]interface{})
 
 		useCase := uc["use case"].(string)
-		fmt.Printf("-- '%s'\n", useCase)
 		isMisuseCase := uc["is misuse case"].(bool)
 		reqsRaw := uc["requirements"].([]interface{})
 		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
@@ -798,9 +808,11 @@ func RequirementsMainPage(c echo.Context) error {
 			Requirements: requirements,
 		}
 	})
-	for _, uc := range useCases {
-		fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
-	}
+	/*
+		for _, uc := range useCases {
+			fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
+		}
+	*/
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
@@ -1311,6 +1323,72 @@ func UpdateTree(c echo.Context) error {
 		return err
 	}
 	fmt.Printf("Save to: %s\n", fName)
+
+	body, err := io.ReadAll(c.Request().Body)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(string(body))
+
+	var contents interface{}
+	err = json.Unmarshal(body, &contents)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	data, err := yaml.Marshal(contents)
+	// _, err = yaml.Marshal(contents)
+	// fmt.Printf("%+v\n", contents)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Data to write \\/")
+	fmt.Println(string(data))
+
+	/*
+		file, err := fs.GetFile(fName)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Printf("Writing to %s: %s \n", file, string(data))
+
+		if err := os.WriteFile(file, data, 0666); err != nil {
+			return err
+		}
+	*/
+
+	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	return nil
+}
+
+func UpdateExtraData(c echo.Context) error {
+	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "email"
+	})[0]
+
+	userName := userCookie.Value
+	email := emailCookie.Value
+
+	/*
+		fName, err := url.QueryUnescape(c.Param("tree"))
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Printf("Save to: %s\n", fName)
+	*/
 
 	body, err := io.ReadAll(c.Request().Body)
 

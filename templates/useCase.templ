@@ -16,7 +16,7 @@ type Requirement struct {
 }
 
 templ UCSideBar(useCases *[]UseCase) {
-    <ul>
+    <ul id="use-case-list">
         for _, uc := range *useCases {
             <li> 
                 <li><a href="/requirements">{uc.UseCase}</a></li>
@@ -28,6 +28,46 @@ templ UCSideBar(useCases *[]UseCase) {
             </li>
         }
     </ul>
+
+	<div class="new-file">
+		<input type="text" id="new-use-case" placeholder="New use case name"/>
+		<button onclick="addUseCase()">Create</button>
+	</div>
+
+    <script>
+	async function addUseCase() {
+		const fileNameInput = document.getElementById('new-use-case');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("File name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create?path=${encodeURIComponent('/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			console.log(`'${fileName}'`)
+			const fileList = document.getElementById('use-case-list');
+			const li = document.createElement('li');
+			li.innerHTML = `
+				<span><a href='/use-cases/${fileName}'>${fileName}</a></span>
+				<!--<button onclick="deleteFile(this, '${fileName}')">Delete</button>-->
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating use case:', error);
+			alert('Failed to create use case.');
+		}
+	}
+    </script>
 }
 
 templ UCDetails(endpoint string, useCase UseCase, requiremet Requirement) {
