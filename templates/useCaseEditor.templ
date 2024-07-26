@@ -1,0 +1,149 @@
+package templates
+
+templ UseCaseEditor(language string, content string, fileURL string, useCases *string) {
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
+
+    <div id="uc-editor">
+        <h1>Use Cases Manager</h1>
+        <div id="use-cases-container"></div>
+        <button id="add-use-case">Add Use Case</button>
+        <button id="save-list">Save List</button>
+    </div>
+
+    <script>
+    let useCaseIdCounter = 0;
+    let requirementIdCounter = 0;
+
+    document.getElementById('add-use-case').addEventListener('click', addUseCase);
+    document.getElementById('save-list').addEventListener('click', saveList);
+
+    function addUseCase(useCase = { useCase: '', isMisuseCase: false, requirements: [] }) {
+        useCaseIdCounter++;
+        const useCaseDiv = document.createElement('div');
+        useCaseDiv.className = 'use-case';
+        useCaseDiv.dataset.id = useCaseIdCounter;
+
+        const useCaseLabel = document.createElement('label');
+        useCaseLabel.textContent = 'Use Case: ';
+        const useCaseInput = document.createElement('input');
+        useCaseInput.type = 'text';
+        useCaseInput.value = useCase.useCase; // undefined???
+        useCaseLabel.appendChild(useCaseInput);
+
+        const misuseLabel = document.createElement('label');
+        misuseLabel.textContent = ' Is Misuse Case: ';
+        const misuseInput = document.createElement('input');
+        misuseInput.type = 'checkbox';
+        misuseInput.checked = useCase.isMisuseCase;
+        misuseLabel.appendChild(misuseInput);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete Use Case';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', () => {
+            useCaseDiv.remove();
+        });
+
+        const requirementsContainer = document.createElement('div');
+        requirementsContainer.className = 'requirements-container';
+
+        const addRequirementButton = document.createElement('button');
+        addRequirementButton.textContent = 'Add Requirement';
+        addRequirementButton.addEventListener('click', () => addRequirement(requirementsContainer));
+
+        useCaseDiv.appendChild(useCaseLabel);
+        useCaseDiv.appendChild(misuseLabel);
+        useCaseDiv.appendChild(deleteButton);
+        useCaseDiv.appendChild(requirementsContainer);
+        useCaseDiv.appendChild(addRequirementButton);
+
+        document.getElementById('use-cases-container').appendChild(useCaseDiv);
+
+        useCase.requirements.forEach(requirement => addRequirement(requirementsContainer, requirement));
+    }
+
+    function addRequirement(container, requirement = { title: '', description: '', query: '' }) {
+        requirementIdCounter++;
+        const requirementDiv = document.createElement('div');
+        requirementDiv.className = 'requirement';
+        requirementDiv.dataset.id = requirementIdCounter;
+
+        const titleLabel = document.createElement('label');
+        titleLabel.textContent = 'Title: ';
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.value = requirement.title;
+        titleLabel.appendChild(titleInput);
+
+        const descriptionLabel = document.createElement('label');
+        descriptionLabel.textContent = ' Description: ';
+        const descriptionInput = document.createElement('input');
+        descriptionInput.type = 'text';
+        descriptionInput.value = requirement.description;
+        descriptionLabel.appendChild(descriptionInput);
+
+        const queryLabel = document.createElement('label');
+        queryLabel.textContent = ' Query: ';
+        const queryInput = document.createElement('input');
+        queryInput.type = 'text';
+        queryInput.value = requirement.query;
+        queryLabel.appendChild(queryInput);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete Requirement';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', () => {
+            requirementDiv.remove();
+        });
+
+        requirementDiv.appendChild(titleLabel);
+        requirementDiv.appendChild(descriptionLabel);
+        requirementDiv.appendChild(queryLabel);
+        requirementDiv.appendChild(deleteButton);
+
+        container.appendChild(requirementDiv);
+    }
+
+    function saveList() {
+        const useCases = [];
+        document.querySelectorAll('.use-case').forEach(useCaseDiv => {
+            const useCase = {
+                useCase: useCaseDiv.querySelector('input[type="text"]').value,
+                isMisuseCase: useCaseDiv.querySelector('input[type="checkbox"]').checked,
+                requirements: []
+            };
+
+            useCaseDiv.querySelectorAll('.requirement').forEach(requirementDiv => {
+                const requirement = {
+                    title: requirementDiv.querySelector('input[type="text"]').value,
+                    description: requirementDiv.querySelectorAll('input[type="text"]')[1].value,
+                    query: requirementDiv.querySelectorAll('input[type="text"]')[2].value
+                };
+                useCase.requirements.push(requirement);
+            });
+
+            useCases.push(useCase);
+        });
+
+        fetch('/save-requirements', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(useCases)
+        }).then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    }
+
+    function populateUI(useCases) {
+        useCases.forEach(useCase => addUseCase(useCase));
+    }
+    </script>
+
+    @UseCaseInitialization(useCases)
+}
+
+script UseCaseInitialization(useCases *string) {
+    populateUI(JSON.parse(useCases))
+}

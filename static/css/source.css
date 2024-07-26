@@ -13,6 +13,16 @@
     }
 }
 
+.use-case, .requirement {
+    border: 1px solid #000;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.use-case > .delete-button, .requirement > .delete-button {
+    margin-left: 10px;
+}
+
 .object-container {
     border: 1px solid #ccc;
     padding: 10px;

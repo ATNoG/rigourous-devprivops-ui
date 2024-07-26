@@ -814,15 +814,19 @@ func RequirementsMainPage(c echo.Context) error {
 		}
 	*/
 
+	rawJsonUCs, err := json.Marshal(&useCases)
+	jsonUCs := string(rawJsonUCs)
+
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
 	return templates.Page(
 		"Requirements",
-		"", "",
+		"uc-editor", "Visual",
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},
 		func() templ.Component {
-			return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
+			// return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
+			return templates.UseCaseEditor("yaml", string(requriementsContent), saveEndpoint, &jsonUCs)
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -1371,6 +1375,72 @@ func UpdateTree(c echo.Context) error {
 }
 
 func UpdateExtraData(c echo.Context) error {
+	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "username"
+	})[0]
+	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
+		return cookie.Name == "email"
+	})[0]
+
+	userName := userCookie.Value
+	email := emailCookie.Value
+
+	/*
+		fName, err := url.QueryUnescape(c.Param("tree"))
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Printf("Save to: %s\n", fName)
+	*/
+
+	body, err := io.ReadAll(c.Request().Body)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(string(body))
+
+	var contents interface{}
+	err = json.Unmarshal(body, &contents)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	data, err := yaml.Marshal(contents)
+	// _, err = yaml.Marshal(contents)
+	// fmt.Printf("%+v\n", contents)
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Data to write \\/")
+	fmt.Println(string(data))
+
+	/*
+		file, err := fs.GetFile(fName)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Printf("Writing to %s: %s \n", file, string(data))
+
+		if err := os.WriteFile(file, data, 0666); err != nil {
+			return err
+		}
+	*/
+
+	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	return nil
+}
+
+func UpdateRequirements(c echo.Context) error {
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
