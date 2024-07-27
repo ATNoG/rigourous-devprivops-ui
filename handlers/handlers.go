@@ -292,6 +292,80 @@ func DescriptionEdit(c echo.Context) error {
 		return err
 	}
 
+	urisFile, err := fs.GetFile("uris.yml")
+	if err != nil {
+		return err
+	}
+	urisContent, err := os.ReadFile(urisFile)
+	if err != nil {
+		return err
+	}
+
+	uris := []map[string]interface{}{}
+	err = yaml.Unmarshal(urisContent, &uris)
+	if err != nil {
+		return err
+	}
+
+	uriList := util.Map(uris, func(uri map[string]interface{}) string {
+		return uri["abreviation"].(string)
+	})
+
+	uri := c.FormValue("uri")
+	// fmt.Printf("Old %s\n", uri)
+	if uri != "" {
+		for _, e := range uris {
+			if e["abreviation"].(string) != uri {
+				continue
+			}
+
+			files := e["files"].([]interface{})
+			if util.First(files, func(f interface{}) bool {
+				return f.(string) == desc
+			}) == nil {
+				e["files"] = append(e["files"].([]interface{}), desc)
+			}
+		}
+
+		newContent, err := yaml.Marshal(uris)
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(urisFile, newContent, 0666)
+		if err != nil {
+			return err
+		}
+	}
+
+	newURIAbrev := c.FormValue("abreviation")
+	newURI := c.FormValue("new-uri")
+	if newURIAbrev != "" && newURI != "" {
+		fmt.Printf("%s[%s]\n", newURIAbrev, newURI)
+
+		for _, e := range uris {
+			if e["abreviation"].(string) != uri {
+				e["files"] = util.Filter(e["files"].([]interface{}), func(f interface{}) bool {
+					return f.(string) != desc
+				})
+			}
+		}
+
+		uris = append(uris, map[string]interface{}{
+			"abreviation": newURIAbrev,
+			"uri":         newURI,
+			"files":       []string{desc},
+		})
+
+		newContent, err := yaml.Marshal(uris)
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(urisFile, newContent, 0666)
+		if err != nil {
+			return err
+		}
+	}
+
 	descriptions := util.Map(descs, func(d string) templates.SideBarListElement {
 		return templates.SideBarListElement{
 			Text: d,
@@ -300,11 +374,6 @@ func DescriptionEdit(c echo.Context) error {
 	})
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(desc))
-
-	newSchema := c.FormValue("schemas")
-	if newSchema != "" {
-		fmt.Println(newSchema)
-	}
 
 	return templates.Page(
 		"My page",
@@ -317,10 +386,11 @@ func DescriptionEdit(c echo.Context) error {
 		func() templ.Component {
 			return templates.DescriptionMetadata(
 				fmt.Sprintf("/descriptions/%s", c.Param("desc")),
-				"a",
-				[]string{"a", "b", "c"},
+				uri,
+				uriList,
 			)
 		},
+		// nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -1502,6 +1572,50 @@ func UpdateRequirements(c echo.Context) error {
 	*/
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	return nil
+}
+
+func UpdateURI(c echo.Context) error {
+	desc, err := url.QueryUnescape(c.Param("desc"))
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Desc: %s\n", desc)
+
+	/*
+		urisFile, err := fs.GetFile("uris.yml")
+		if err != nil {
+			return err
+		}
+		urisContent, err := os.ReadFile(urisFile)
+		if err != nil {
+			return err
+		}
+
+		uris := []interface{}{}
+		err = yaml.Unmarshal(urisContent, &uris)
+		if err != nil {
+			return err
+		}
+	*/
+
+	/*
+		uriList := util.Map(uris, func(uri interface{}) string {
+			uriObj := uri.(map[string]interface{})
+			return uriObj["abreviation"].(string)
+		})
+
+		uri := c.FormValue("uri")
+	*/
+	uri := c.FormValue("uri")
+	fmt.Printf("Old %s\n", uri)
+
+	newURIAbrev := c.FormValue("abreviation")
+	newURI := c.FormValue("new-uri")
+	//if newURIAbrev != "" && newURI != "" {
+	fmt.Printf("%s[%s]\n", newURIAbrev, newURI)
+	//}
 
 	return nil
 }
