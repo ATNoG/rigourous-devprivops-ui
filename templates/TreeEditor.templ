@@ -1,0 +1,128 @@
+package templates
+
+import "fmt"
+
+templ TreeEditor(language string, content string, fileURL string, tree *string) {
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
+	// <script src="/static/js/gen_schema.js"></script>
+
+    <div id="tree-editor">
+        <h1>Create Attack Tree</h1>
+        <div id="object-tree" class="object-container"></div>
+        <button onclick={templ.ComponentScript {
+            Call: fmt.Sprintf("saveTree('%s')", fileURL),
+        }}>Save Tree</button>
+    </div>
+
+    <script>
+    let objectIdCounter = 1;
+
+    function createObjectElement(object = { description: '', query: '', children: [] }, isRoot = false) {
+        const objectId = `object-${objectIdCounter++}`;
+        const container = document.createElement('div');
+        container.id = objectId;
+        container.classList.add('object-container');
+
+        container.innerHTML = `
+            <label>Description: <input type="text" name="description" value="${object.description}"></label>
+            <label>Query: <input type="text" name="query" value="${object.query}"></label>
+            <button type="button" onclick="addChild('${objectId}')">Add Child</button>
+            <button type="button" onclick="deleteObject('${objectId}')">Delete</button>
+            <div class="child-container"></div>
+        `;
+
+        if (isRoot) {
+            container.querySelector('button[onclick="deleteObject(\'' + objectId + '\')"]').style.display = 'none';
+        }
+
+        const childContainer = container.querySelector('.child-container');
+        object.children.forEach(child => {
+            childContainer.appendChild(createObjectElement(child));
+        });
+
+        return container;
+    }
+
+    function addChild(parentId) {
+        const parent = document.getElementById(parentId).querySelector('.child-container');
+        parent.appendChild(createObjectElement());
+    }
+
+    function deleteObject(objectId) {
+        document.getElementById(objectId).remove();
+    }
+
+    function getObjectData(element) {
+        const description = element.querySelector('input[name="description"]').value;
+        const query = element.querySelector('input[name="query"]').value;
+        const childrenElements = element.querySelector('.child-container').children;
+        const children = Array.from(childrenElements).map(childElement => getObjectData(childElement));
+
+        return { description, query, children };
+    }
+
+    function saveTree(file) {
+        const rootElement = document.getElementById('object-tree');
+        const objectData = getObjectData(rootElement);
+        console.log(JSON.stringify(objectData))
+
+        const path = file.split('/')
+        console.log(path[path.length-1])
+        fetch(`/save-tree/${path[path.length-1]}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(objectData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function initializeFromJson(json) {
+        const rootElement = document.getElementById('object-tree');
+        rootElement.innerHTML = '';
+        rootElement.appendChild(createObjectElement(json, true));
+    }
+
+    // Example initialization
+    /*
+    const exampleJson = {
+        description: 'Root Object',
+        query: 'root-query',
+        children: [
+            {
+                description: 'Child 1',
+                query: 'child-query-1',
+                children: []
+            },
+            {
+                description: 'Child 2',
+                query: 'child-query-2',
+                children: []
+            }
+        ]
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeFromJson(exampleJson);
+    });
+    */
+    </script>
+    @TreeInitialization(tree)
+}
+
+script TreeInitialization(tree *string) {
+    console.log(typeof tree)
+    document.addEventListener('DOMContentLoaded', () => {
+        // initializeFromJson(JSON.stringify(tree));
+        initializeFromJson(JSON.parse(tree));
+    });
+}

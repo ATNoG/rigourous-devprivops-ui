@@ -1,5 +1,7 @@
 package templates
 
+import "fmt"
+
 type SideBarListElement struct {
 	Text string
 	Link string
@@ -52,6 +54,164 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 	</form>
 }
 
+templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
+	/*
+	<ul>
+		for _, e := range files {
+			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+		}
+		<li><a href={ templ.SafeURL(createFileEndpoint) }>New File</a></li>
+	</ul>
+	*/
+	
+	// @FileListScript()
+
+	<ul id="fileList">
+		for _, e := range files {
+			<li>
+				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+				// <button onclick={ fmt.Sprintf("deleteFile(this, %s)", fileName) }>Delete</button>
+				<button onclick={ templ.ComponentScript{
+					Call: fmt.Sprintf("deleteFile(this, '%s%s')", baseDir, e.Text),
+				} }>Delete</button>
+			</li>
+		}
+	</ul>
+	<div class="new-file">
+		<input type="text" id="newFileName" placeholder="New file name"/>
+		<button onclick={ templ.ComponentScript{
+			Call: fmt.Sprintf("addFile('%s', '%s')", baseURL, baseDir),
+		} }>Create</button>
+	</div>
+
+	@FileScript()
+}
+
+templ RegulationList(baseDir string, files []SideBarListElement) {
+	<ul id="fileList">
+		for _, e := range files {
+			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+		}
+	</ul>
+	<div class="new-file">
+		<input type="text" id="newFileName" placeholder="New file name"/>
+		<button onclick={ templ.ComponentScript{
+			Call: fmt.Sprintf("addRegulation('%s')", baseDir),
+		} }>Add</button>
+	</div>
+
+	@FileScript()
+}
+
+templ FileScript() {
+	<script>
+	async function addFile(baseURL, baseDir) {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("File name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create?path=${encodeURIComponent(baseDir + '/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			console.log(`'${baseURL}' '${fileName}'`)
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			li.innerHTML = `
+				<span><a href='${baseURL}/${fileName}'>${fileName}</a></span>
+				<button onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
+	
+	async function addRegulation(baseDir) {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("Regulation name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create-regulation?path=${encodeURIComponent(baseDir + '/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			/*
+			li.innerHTML = `
+				<span>${fileName}</span>
+				<button onclick="deleteRegulation(this, '${fileName}')">Delete</button>
+			`;
+			*/
+			li.innerHTML = `
+				<span><a href='/regulations/${fileName}'>${fileName}</a></span>
+				<button onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
+			`;
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
+
+	async function deleteFile(button, fileName) {
+		try {
+			const response = await fetch(`/delete?path=${encodeURIComponent(fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const li = button.parentElement;
+			li.remove();
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			alert('Failed to delete file.');
+		}
+	}
+	
+	async function deleteRegulation(button, fileName) {
+		try {
+			const response = await fetch(`/delete-regulation?path=${encodeURIComponent(fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const li = button.parentElement;
+			li.remove();
+		} catch (error) {
+			console.error('Error deleting file:', error);
+			alert('Failed to delete file.');
+		}
+	}
+	</script>
+}
+
 templ VerticalList(elements ...func() templ.Component) {
 	for _, e := range elements {
 		@e()
@@ -59,16 +219,30 @@ templ VerticalList(elements ...func() templ.Component) {
 	}
 }
 
-templ DescriptionMetadata(endpoint string, scehma string, schemaList []string) {
-	<form action={templ.SafeURL(endpoint)}>
-		<label for="schemas">Schema</label>
+templ DescriptionMetadata(endpoint string, current string, uriList []string) {
+	<form id="form1" action={templ.SafeURL(endpoint)}>
+		<label for="uri">URI</label>
 
-		<select name="schemas" id="schemas">
-			for _, s := range schemaList {
-				<option value={s}>{s}</option>
+		<select name="uri" id="uri">
+			for _, s := range uriList {
+				if s != current {
+					<option value={s}>{s}</option>
+				} else {
+					<option value={s} selected>{s}</option>
+				}
 			}
 		</select>
 		<br/>
-        <input type="submit" value="Submit"/>
+        <input id="1" type="submit" value="Submit"/>
+	</form>
+	<br/>
+	<form id="form2" action={templ.SafeURL(endpoint)}>
+		<label for="abreviation">Abreviation</label>
+		<input id="abreviation" type="text" name="abreviation"/>
+		
+		<label for="new-uri">New URI</label>
+		<input id="new-uri" type="text" name="new-uri"/>
+
+        <input id="2" type="submit" value="Submit"/>
 	</form>
 }

@@ -1,0 +1,83 @@
+package templates
+
+templ SchemaEditor(language string, content string, fileURL string) {
+    <div id="editorContainer" class="editor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    @EditorScript(language, content, fileURL)
+
+    <script src="/static/js/gen_schema.js"></script>
+    <div id="schemaEditorContainer" class="editor">
+        /*
+        <h1>JSON Schema Generator</h1>
+        <div id="type-definitions">
+            <div class="type-section" data-type="Main">
+                <h3>Main <button onclick="removeType(this)">Remove type</button></h3>
+                <button onclick="addProperty(this)">Add property</button>
+            </div>
+        </div>
+        <div id="add-type-section">
+            <h3>Add New Type</h3>
+            <label>Type name: <input type="text" id="new-type-name"/></label>
+            <button onclick="addType()">Add type</button>
+        </div>
+        <button onclick="generateSchema()">Generate schema</button>
+        <pre id="json-schema"></pre>
+        */
+        <h1>JSON Schema Generator</h1>
+        <div id="type-definitions"></div>
+        <div id="add-type-section">
+            <h3>Add New Type</h3>
+            <label>Type name: <input type="text" id="new-type-name"/></label>
+            <button onclick="addType()">Add type</button>
+        </div>
+        <button id="gen-schema" onclick="generateSchema()">Generate schema</button>
+        <pre id="json-schema"></pre>
+        </div>
+
+        <script>
+        function waitForEditor() {
+          return new Promise((resolve) => {
+            const checkEditor = setInterval(() => {
+              if (window.editor && window.editorReady) {
+                clearInterval(checkEditor);
+                resolve(window.editor);
+              }
+            }, 100);
+          });
+        }
+
+        document.getElementById('gen-schema').addEventListener('click', function(event) {
+          event.preventDefault();
+          waitForEditor();
+          const schema = generateSchema();
+          console.log(schema);
+          editor.getModel().setValue(schema); 
+          // const editorContent = editor.getValue();
+          // console.log(editorContent);
+        
+          /*
+          fetch(fileURL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            // body: JSON.stringify({ content: editorContent })
+            body: editorContent
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+          */
+        });
+
+        waitForEditor().then((editor) => {
+          var rawData = editor.getValue()
+        
+          initializePageWithSchema(rawData)
+        })
+        </script>
+}

@@ -1,6 +1,6 @@
 package templates
 
-templ Page(title string, left, center, right func() templ.Component) {
+templ Page(title string, altView string, toggleBtnName string, left, center, right func() templ.Component) {
     <!DOCTYPE html>
     <html>
     <head>
@@ -20,12 +20,14 @@ templ Page(title string, left, center, right func() templ.Component) {
                 <a class="text-white" href="/schemas">Schemas</a>
             </div>
             <div class="flex space-x-4">
+                <a id="toggleView" class="text-white" href="#">{toggleBtnName}</a>
                 <a id="save-btn" class="text-white" href="#">Save</a>
                 <a id="test-btn" class="text-white" href="#">Test</a>
                 <a id="analyse-btn" class="text-white" href="#">Analyse</a>
             </div>
         </div>
     </nav>
+
    
     <script>
         document.getElementById('analyse-btn').addEventListener('click', function(event) {
@@ -73,9 +75,7 @@ templ Page(title string, left, center, right func() templ.Component) {
         <div class="side-bar" style="width: 15%;">
             if left != nil {
                 @left()
-            }/* else {
-                <p>Left Panel</p>
-            }*/
+            }
         </div>
         
         <!-- Center Panel -->
@@ -89,14 +89,78 @@ templ Page(title string, left, center, right func() templ.Component) {
         <div class="side-bar" style="width: 15%;">
             if right != nil {
                 @right()
-            }/* else {
-                <p>Right Panel</p>
-            }*/
+            }
         </div>
     </div>
-    
+   
+   /*
+    <script>
+        const toggleButton = document.getElementById('toggleView');
+        let isEditorVisible = true;
+
+        toggleButton.addEventListener('click', function() {
+            console.log(window.editor.getValue())
+
+            if (isEditorVisible) {
+                document.getElementById('editorContainer').style.display = 'none';
+                document.getElementById('graphContainer').style.display = 'block';
+                window.network.redraw();
+                window.network.fit();
+                toggleButton.textContent = 'Editor';
+            } else {
+                document.getElementById('editorContainer').style.display = 'block';
+                document.getElementById('graphContainer').style.display = 'none';
+                toggleButton.textContent = 'Graph';
+            }
+            isEditorVisible = !isEditorVisible;
+        });
+
+        // Show editor by default
+        document.getElementById('editorContainer').style.display = 'block';
+    </script> 
+    */
+    @toggleButton(altView, toggleBtnName)
     </body>
     </html>
+}
+
+script toggleButton(altView string, toggleBtnName string) {
+    const toggleButton = document.getElementById('toggleView');
+    let isEditorVisible = true;
+
+    if (altView === "") {
+        toggleButton.style.display = 'none';
+    }
+
+    toggleButton.addEventListener('click', function() {
+        // console.log(window.editor.getValue())
+
+        if (altView === "") {
+            return
+        }
+
+        if (isEditorVisible) {
+            document.getElementById('editorContainer').style.display = 'none';
+            document.getElementById(altView).style.display = 'block';
+            if (window.network !== undefined) {
+                window.network.redraw();
+                window.network.fit();
+            }
+            toggleButton.textContent = 'Editor';
+        } else {
+            document.getElementById('editorContainer').style.display = 'block';
+            document.getElementById(altView).style.display = 'none';
+            toggleButton.textContent = toggleBtnName;
+        }
+        isEditorVisible = !isEditorVisible;
+    });
+
+    // Show editor by default
+    edCont = document.getElementById('editorContainer')
+    
+    if (edCont !== null) {
+        edCont.style.display = 'block';
+    }
 }
 
 templ head(title string) {
@@ -118,8 +182,10 @@ templ head(title string) {
     <!--HTMX-->
     <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
 
+    <!-- GraphVis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" />
     <!--Tree helpers-->
     <!--<link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet" />-->
-
 }
 

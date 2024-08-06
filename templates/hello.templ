@@ -17,18 +17,33 @@ templ DemoPage() {
                 margin: 0;
                 padding: 0;
             }
-            #editorContainer {
+            #editorContainer, #graphContainer {
                 height: 100%;
+                display: none; /* Initially hidden */
             }
             #mynetwork {
                 width: 100%;
-                height: 600px;
+                height: 100%;
                 border: 1px solid lightgray;
+            }
+            .navbar {
+                background-color: #1a202c; /* Tailwind bg-gray-800 */
+                color: white;
+                padding: 1rem;
+                display: flex;
+            }
+            .navbar a {
+                margin-right: 1rem;
+                cursor: pointer;
+            }
+            .navbar a:hover {
+                text-decoration: underline;
             }
         </style>
     </head>
     <body class="h-full">
-        <div class="bg-gray-800 text-white p-4 flex">
+        <div class="navbar">
+            <a id="toggleView" class="mr-4">Graph</a>
             <a href="#home" class="mr-4">Home</a>
             <a href="#about" class="mr-4">About</a>
             <a href="#contact">Contact</a>
@@ -47,6 +62,9 @@ templ DemoPage() {
             </div>
 
             <div class="flex-grow p-4 bg-gray-50" id="editorContainer"></div>
+            <div class="flex-grow p-4 bg-gray-50" id="graphContainer">
+                <div id="mynetwork"></div>
+            </div>
 
             <div class="w-48 bg-gray-100 p-4 overflow-y-auto">
                 <h3 class="font-semibold mb-4">Sidebar Right</h3>
@@ -72,27 +90,35 @@ templ DemoPage() {
             });
         </script>
 
-        <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
-            <h1 class="text-3xl font-bold mb-4 text-center">GraphVis Demo</h1>
-            <div id="mynetwork"></div>
-        </div>
         <!-- Load Graphviz-->
         <script>
+        /*
             // Create a data set with nodes
             var nodes = new vis.DataSet([
-                { id: 1, label: "Node 1" },
-                { id: 2, label: "Node 2" },
-                { id: 3, label: "Node 3" },
-                { id: 4, label: "Node 4" },
-                { id: 5, label: "Node 5" }
+                { id: "1", label: "Node 1" },
+                { id: "2", label: "Node 2" },
+                { id: "3", label: "Node 3" },
+                { id: "4", label: "Node 4" },
+                { id: "5", label: "Node 5" }
             ]);
 
             // Create a data set with edges
             var edges = new vis.DataSet([
-                { from: 1, to: 2 },
-                { from: 1, to: 3 },
-                { from: 2, to: 4 },
-                { from: 2, to: 5 }
+                { from: "1", to: "2" },
+                { from: "1", to: "3" },
+                { from: "2", to: "4" },
+                { from: "2", to: "5" }
+            ]);
+            */
+            // Create a data set with nodes
+            var nodes = new vis.DataSet([
+                { id: ":send message", label: ":send message" },
+                { id: "2", label: "Node 2" }
+            ]);
+
+            // Create a data set with edges
+            var edges = new vis.DataSet([
+                { from: "dpia:User", to: "5" }
             ]);
 
             // Create a network
@@ -101,165 +127,57 @@ templ DemoPage() {
                 nodes: nodes,
                 edges: edges
             };
-            var options = {};
+            var options = {
+                layout: {
+                    improvedLayout: true
+                },
+                physics: {
+                    enabled: true
+                }
+            };
             var network = new vis.Network(container, data, options);
+
+            // Center the graph
+            network.once('stabilizationIterationsDone', function () {
+                network.fit({
+                    animation: {
+                        duration: 500,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            const toggleButton = document.getElementById('toggleView');
+            let isEditorVisible = true;
+
+            toggleButton.addEventListener('click', function() {
+                if (isEditorVisible) {
+                    document.getElementById('editorContainer').style.display = 'none';
+                    document.getElementById('graphContainer').style.display = 'block';
+                    network.redraw();
+                    network.fit();
+                    toggleButton.textContent = 'Editor';
+                } else {
+                    document.getElementById('editorContainer').style.display = 'block';
+                    document.getElementById('graphContainer').style.display = 'none';
+                    toggleButton.textContent = 'Graph';
+                }
+                isEditorVisible = !isEditorVisible;
+            });
+
+            // Show editor by default
+            document.getElementById('editorContainer').style.display = 'block';
+        </script>
+
+        <script type="module">
+            import init, { greet } from "/static/dfd/dfd.js";
+            init().then(() => {
+                console.log(greet("Hello world"));
+                // greet();
+            });
         </script>
     </body>
     </html>
 }
-
-/*
-templ Hello2(data string) {
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GraphVis Demo</title>
-    <!-- TailwindCSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-    <!-- GraphVis CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" />
-    <style>
-        #mynetwork {
-            width: 100%;
-            height: 600px;
-            border: 1px solid lightgray;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="container mx-auto p-4 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold mb-4 text-center">GraphVis Demo with TailwindCSS</h1>
-        <div id="mynetwork"></div>
-    </div>
-
-    <script>
-        // Create a data set with nodes
-        var nodes = new vis.DataSet([
-            { id: 1, label: "Node 1" },
-            { id: 2, label: "Node 2" },
-            { id: 3, label: "Node 3" },
-            { id: 4, label: "Node 4" },
-            { id: 5, label: "Node 5" }
-        ]);
-
-        // Create a data set with edges
-        var edges = new vis.DataSet([
-            { from: 1, to: 2 },
-            { from: 1, to: 3 },
-            { from: 2, to: 4 },
-            { from: 2, to: 5 }
-        ]);
-
-        // Create a network
-        var container = document.getElementById('mynetwork');
-        var data = {
-            nodes: nodes,
-            edges: edges
-        };
-        var options = {};
-        var network = new vis.Network(container, data, options);
-    </script>
-</body>
-</html>
-}
-*/
-
-/*
-templ Hello(data string) {
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Monaco Code Editor Layout with Graphviz</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        #editorContainer {
-            height: 100%;
-        }
-        #graphvizContainer {
-            margin-top: 1rem;
-        }
-    </style>
-</head>
-<body class="h-full">
-    <div class="bg-gray-800 text-white p-4 flex">
-        <a href="#home" class="mr-4">Home</a>
-        <a href="#about" class="mr-4">About</a>
-        <a href="#contact">Contact</a>
-    </div>
-
-    <div class="flex h-full">
-        <div class="w-48 bg-gray-100 p-4 overflow-y-auto">
-            <h3 class="font-semibold mb-4">Sidebar Left</h3>
-            <ul class="space-y-2">
-                <li>Item 1</li>
-                <li>Item 2</li>
-                <li>Item 3</li>
-                <li>Item 4</li>
-                <li>Item 5</li>
-            </ul>
-        </div>
-
-        <div class="flex-grow p-4 bg-gray-50" id="editorContainer"></div>
-
-        <div class="w-48 bg-gray-100 p-4 overflow-y-auto">
-            <h3 class="font-semibold mb-4">Sidebar Right</h3>
-            <button class="w-full mb-2 bg-blue-500 text-white py-2 rounded" onclick="alert('Button 1 clicked!')">Button 1</button>
-            <button class="w-full mb-2 bg-blue-500 text-white py-2 rounded" onclick="alert('Button 2 clicked!')">Button 2</button>
-            <button class="w-full bg-blue-500 text-white py-2 rounded" onclick="alert('Button 3 clicked!')">Button 3</button>
-            <div id="graphvizContainer"></div>
-        </div>
-    </div>
-
-    <!-- Load Monaco Editor -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-    <script>
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            monaco.editor.create(document.getElementById('editorContainer'), {
-                value: [
-                    'function x() {',
-                    '\tconsole.log("Hello, world!");',
-                    '}'
-                ].join('\n'),
-                language: 'javascript'
-            });
-        });
-    </script>
-
-    <!-- Load Viz.js for Graphviz -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const graphvizContainer = document.getElementById('graphvizContainer');
-            const graphvizCode = `
-                digraph G {
-                    A -> B;
-                    B -> C;
-                    C -> A;
-                }
-            `;
-            const viz = new Viz();
-            viz.renderSVGElement(graphvizCode)
-                .then(function(element) {
-                    graphvizContainer.appendChild(element);
-                })
-                .catch(error => {
-                    console.error("Error rendering Graphviz:", error);
-                });
-        });
-    </script>
-</body>
-</html>
-}
-*/
