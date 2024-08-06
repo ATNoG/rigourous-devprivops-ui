@@ -26,11 +26,9 @@ func HomePage(c echo.Context) error {
 	return templates.Page(
 		"Home page",
 		"", "",
-		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
+		nil,
 		func() templ.Component { return templates.LoginForm() },
-		func() templ.Component {
-			return templates.SideBarForm("Test", templates.SideBarFormElement{templates.TEXT, "idd", "label"})
-		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -50,11 +48,9 @@ func LogIn(c echo.Context) error {
 	return templates.Page(
 		"Home page",
 		"", "",
-		func() templ.Component { return templates.SideBarList([]templates.SideBarListElement{{"Link", "#"}}) },
+		nil,
 		func() templ.Component { return templates.LoginForm() },
-		func() templ.Component {
-			return templates.SideBarForm("Test", templates.SideBarFormElement{templates.TEXT, "idd", "label"})
-		},
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 
