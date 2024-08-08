@@ -2,6 +2,7 @@
 package util
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -144,6 +145,26 @@ func Any[T any](arr []T, condition func(T) bool) bool {
 	return false
 }
 
+func Contains[T comparable](collection []T, element T) bool {
+	for _, e := range collection {
+		if e == element {
+			return true
+		}
+	}
+
+	return false
+}
+
+func Flatten[T any](arr [][]T) []T {
+	res := []T{}
+
+	for _, inn := range arr {
+		res = append(res, inn...)
+	}
+
+	return res
+}
+
 // Compares two arrays disregarding order, as if they were sets
 //
 // `set1`: the first array
@@ -203,4 +224,37 @@ func DeleteFileAndParentPath(filePath string) {
 		slog.Info("deleting", "full", filePath, "to delete", path)
 		os.Remove(path)
 	}
+}
+
+func SyncFileList(directory string, expectedFiles []string) error {
+	list, err := os.ReadDir(directory)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	dirContents := Map(list, func(d os.DirEntry) string {
+		fmt.Println(d.Name())
+		return d.Name()
+	})
+
+	for _, e := range dirContents {
+		if !Contains(expectedFiles, e) {
+			os.Remove(fmt.Sprintf("%s/%s", directory, e))
+			fmt.Printf("REMOVING %s/%s\n", directory, e)
+		}
+	}
+
+	for _, e := range expectedFiles {
+		if !Contains(dirContents, e) {
+			fmt.Printf("CREATING %s/%s\n", directory, e)
+
+			if err = os.WriteFile(fmt.Sprintf("%s/%s", directory, e), []byte{}, 0666); err != nil {
+				return err
+			}
+
+		}
+	}
+
+	return nil
 }

@@ -31,6 +31,7 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
     function addObjectForm(object = null) {
         const form = document.createElement('div');
         form.classList.add('object-form');
+        if (object != null) {
         form.innerHTML = `
             <h3>Object ${objectCount + 1}</h3>
             <label for="file-${objectCount}">File</label>
@@ -49,6 +50,26 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
             <label for="mapping-message-${objectCount}">Mapping Message</label>
             <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="${object.mapping_message ? object.mapping_message : ''}">
         `;
+        } else {
+            form.innerHTML = `
+                <h3>Object ${objectCount + 1}</h3>
+                <label for="file-${objectCount}">File</label>
+                <input type="text" id="file-${objectCount}" name="file-${objectCount}" value="">
+                <label for="title-${objectCount}">Title</label>
+                <input type="text" id="title-${objectCount}" name="title-${objectCount}" value="">
+                <label for="description-${objectCount}">Description</label>
+                <input type="text" id="description-${objectCount}" name="description-${objectCount}" value="">
+                <label for="consistency-${objectCount}">Is Consistency</label>
+                <select id="consistency-${objectCount}" name="consistency-${objectCount}">
+                    <option value="true" selected>True</option>
+                    <option value="false">False</option>
+                </select>
+                <label for="max-violations-${objectCount}">Maximum Violations</label>
+                <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="">
+                <label for="mapping-message-${objectCount}">Mapping Message</label>
+                <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="">
+            `;
+        }
         objectList.appendChild(form);
         objectCount++;
     }
@@ -126,7 +147,7 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
         */
     // });
   </script>
-  @RegulationInitialization(regulation)
+	@RegulationInitialization(regulation)
 }
 
 script RegulationInitialization(regulation *string) {

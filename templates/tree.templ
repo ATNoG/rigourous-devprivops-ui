@@ -9,6 +9,16 @@ type TreeNode struct {
     Children []*TreeNode `json:"children"`
 }
 
+func (n *TreeNode) GetQueries() []string {
+    res := []string{n.Query}
+
+    for _, c := range n.Children {
+        res = append(res, c.GetQueries()...)
+    }
+
+    return res
+}
+
 templ Tree(treeUrl string, root *TreeNode) {
     <ul>
         @Node(treeUrl, root)

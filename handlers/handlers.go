@@ -1149,6 +1149,7 @@ func SchemaEditPage(c echo.Context) error {
 }
 
 func SaveEndpoint(c echo.Context) error {
+	fmt.Println("SAVING")
 	out, err := exec.Command("git", "-h").Output()
 	if err != nil {
 		fmt.Printf(">%s\n>%s\n", string(out), err)
@@ -1228,12 +1229,11 @@ func DeleteFile(c echo.Context) error {
 
 	fmt.Printf("Delete '%s'\n", path)
 
-	/*
-		err := os.Remove(path)
-		if err != nil {
-			return err
-		}
-	*/
+	err := os.Remove(path)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
 	return nil
 }
@@ -1244,13 +1244,12 @@ func CreateFile(c echo.Context) error {
 
 	fmt.Printf("Create '%s'\n", path)
 
-	/*
-		f, err := os.Create(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-	*/
+	f, err := os.Create(path)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer f.Close()
 
 	return nil
 }
@@ -1274,10 +1273,7 @@ func CreateRegulation(c echo.Context) error {
 		return err
 	}
 
-	if err := os.WriteFile(
-		fmt.Sprintf("%s/policies.yml", path),
-		[]byte("[]"),
-		0666); err != nil {
+	if err := os.WriteFile(fmt.Sprintf("%s/policies.yml", path), []byte("[]"), 0666); err != nil {
 		fmt.Println(err)
 		return err
 	}
@@ -1295,28 +1291,6 @@ func DeleteRegulation(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
-	/*
-		if err := os.Mkdir(path, 0777); err != nil {
-			fmt.Println(err)
-			return err
-		}
-		if err := os.Mkdir(fmt.Sprintf("%s/consistency", path), 0755); err != nil {
-			fmt.Println(err)
-			return err
-		}
-		if err := os.Mkdir(fmt.Sprintf("%s/policies", path), 0755); err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		if err := os.WriteFile(
-			fmt.Sprintf("%s/policies.yml", path),
-			[]byte("[]"),
-			0666); err != nil {
-			fmt.Println(err)
-			return err
-		}
-	*/
 
 	return nil
 }
@@ -1337,10 +1311,8 @@ func UpdateRegulation(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Printf("\\ %s\n", fName)
 
 	body, err := io.ReadAll(c.Request().Body)
-
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -1349,9 +1321,28 @@ func UpdateRegulation(c echo.Context) error {
 	contents := []interface{}{}
 	json.Unmarshal(body, &contents)
 
+	// sync files with the config
+	pathComponents := strings.Split(fName, "/")
+	regPath := strings.Join(pathComponents[:len(pathComponents)-1], "/") + "/consistency"
+	realRegPath, err := fs.GetFile(regPath)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Printf("Syncing files at %s\n", realRegPath)
+	err = util.SyncFileList(realRegPath, util.Map(contents, func(e interface{}) string {
+		m := e.(map[string]interface{})
+		components := strings.Split(m["file"].(string), "/")
+		return components[len(components)-1]
+	}))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Files synced")
+
 	data, err := yaml.Marshal(contents)
-	// _, err = yaml.Marshal(contents)
-	// fmt.Printf("%+v\n", contents)
 
 	if err != nil {
 		fmt.Println(err)
@@ -1402,11 +1393,65 @@ func UpdateTree(c echo.Context) error {
 	}
 	fmt.Println(string(body))
 
-	var contents interface{}
+	var contents templates.TreeNode // interface{}
 	err = json.Unmarshal(body, &contents)
 	if err != nil {
 		fmt.Println(err)
 		return err
+	}
+
+	// sync files with the config
+	// file sync may be unnecessary, as once deleted files may be used in other queries
+	// by the same assumptions that put all queries in the same directory, accessible by all trees
+	/*
+		pathComponents := strings.Split(fName, "/")
+		regPath := strings.Join(pathComponents[:len(pathComponents)-1], "/") + "/consistency"
+		realRegPath, err := fs.GetFile(regPath)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Printf("Syncing files at %s\n", realRegPath)
+		err = util.SyncFileList(realRegPath, contents.GetQueries())
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println("Files synced")
+	*/
+	// However, we still need to ensure all mentioned files exist
+	queries := util.Map(contents.GetQueries(), func(path string) string {
+		parts := strings.Split(path, "/")
+		return parts[len(parts)-1]
+	})
+	dir, err := fs.GetFile("attack_trees/queries/")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Printf("It's here: %s\n", dir)
+
+	list, err := os.ReadDir(dir)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	dirContents := util.Map(list, func(d os.DirEntry) string {
+		fmt.Println(d.Name())
+		return d.Name()
+	})
+
+	for _, e := range queries {
+		if !util.Contains(dirContents, e) {
+			fmt.Printf("CREATING %s%s\n", dir, e)
+
+			if err = os.WriteFile(fmt.Sprintf("%s%s", dir, e), []byte{}, 0666); err != nil {
+				fmt.Println(err)
+				return err
+			}
+		}
 	}
 
 	data, err := yaml.Marshal(contents)
@@ -1421,19 +1466,17 @@ func UpdateTree(c echo.Context) error {
 	fmt.Println("Data to write \\/")
 	fmt.Println(string(data))
 
-	/*
-		file, err := fs.GetFile(fName)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
+	file, err := fs.GetFile(fName)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-		fmt.Printf("Writing to %s: %s \n", file, string(data))
+	fmt.Printf("Writing to %s: %s \n", file, string(data))
 
-		if err := os.WriteFile(file, data, 0666); err != nil {
-			return err
-		}
-	*/
+	if err := os.WriteFile(file, data, 0666); err != nil {
+		return err
+	}
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
@@ -1468,12 +1511,31 @@ func UpdateExtraData(c echo.Context) error {
 	}
 	fmt.Println(string(body))
 
-	var contents interface{}
+	var contents []interface{}
 	err = json.Unmarshal(body, &contents)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+
+	// sync files with the config
+	dataDir, err := fs.GetFile("report_data/queries")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Printf("Syncing files at %s\n", dataDir)
+	err = util.SyncFileList(dataDir, util.Map(contents, func(e interface{}) string {
+		m := e.(map[string]interface{})
+		components := strings.Split(m["query"].(string), "/")
+		return components[len(components)-1]
+	}))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Files synced")
 
 	data, err := yaml.Marshal(contents)
 	// _, err = yaml.Marshal(contents)
@@ -1534,12 +1596,40 @@ func UpdateRequirements(c echo.Context) error {
 	}
 	fmt.Println(string(body))
 
-	var contents interface{}
+	var contents []interface{}
 	err = json.Unmarshal(body, &contents)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+
+	// sync files with the config
+	reqPath, err := fs.GetFile("requirements")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Printf("Syncing files at %s\n", reqPath)
+	fileList := util.Flatten(util.Map(contents, func(e interface{}) []string {
+		useCase := e.(map[string]interface{})
+		requirements := useCase["requirements"].([]interface{})
+		queryFiles := util.Map(requirements, func(r interface{}) string {
+			req := r.(map[string]interface{})
+			query := req["query"].(string)
+			components := strings.Split(query, "/")
+			return components[len(components)-1]
+		})
+
+		return queryFiles
+	}))
+	fileList = append(fileList, "requirements.yml")
+	err = util.SyncFileList(reqPath, fileList)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Files synced")
 
 	data, err := yaml.Marshal(contents)
 	// _, err = yaml.Marshal(contents)
