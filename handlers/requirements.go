@@ -75,6 +75,10 @@ func RequirementsMainPage(c echo.Context) error {
 	*/
 
 	rawJsonUCs, err := json.Marshal(&useCases)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	jsonUCs := string(rawJsonUCs)
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))

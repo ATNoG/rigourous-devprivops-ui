@@ -19,6 +19,21 @@ func (n *TreeNode) GetQueries() []string {
     return res
 }
 
+func (n *TreeNode) GetNodeDescription(file string) string {
+    if n.Query == file {
+        return n.Description
+    }
+
+    for _, node := range n.Children {
+        description := node.GetNodeDescription(file)
+        if description != "" {
+            return description
+        }
+    } 
+
+    return ""
+}
+
 templ Tree(treeUrl string, root *TreeNode) {
     <ul>
         @Node(treeUrl, root)

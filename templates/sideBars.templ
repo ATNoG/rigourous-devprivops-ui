@@ -30,9 +30,10 @@ func (input InputType) String() string {
 }
 
 type SideBarFormElement struct {
-	Type  InputType // The input type
-	Id    string // The HTML id of the field
-	Label string // The label text
+	Type  	InputType 	// The input type
+	Id    	string 		// The HTML id of the field
+	Label 	string 		// The label text
+	Default string 		// The default value of the field
 }
 
 templ SideBarList(elements []SideBarListElement) {
@@ -47,7 +48,7 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 	<form action={templ.SafeURL(endpoint)}>
 		for _, e := range elements {
 			<label for={ e.Id }>{ e.Label }</label>
-			<input id={ e.Id } type={ e.Type.String() } name={ e.Id }/>
+			<input id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
 			<br/>
 		}
         <input type="submit" value="Submit"/>

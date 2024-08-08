@@ -174,6 +174,12 @@ func EditTreeNode(c echo.Context) error {
 		}
 	}
 
+	nodeDescription := tree.GetNodeDescription(nodeFileName)
+	if nodeDescription == "" {
+		fmt.Printf("Could not find '%s' in tree\n", nodeFileName)
+		return fmt.Errorf("Could not find '%s' in tree", nodeFileName)
+	}
+
 	return templates.Page(
 		"Trees",
 		"", "",
@@ -187,9 +193,10 @@ func EditTreeNode(c echo.Context) error {
 				func() templ.Component {
 					return templates.SideBarForm("#",
 						templates.SideBarFormElement{
-							Type:  "text",
-							Id:    "description",
-							Label: "Description",
+							Type:    "text",
+							Id:      "description",
+							Label:   "Description",
+							Default: nodeDescription,
 						},
 					)
 				},
