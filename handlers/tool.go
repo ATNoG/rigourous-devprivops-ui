@@ -7,6 +7,7 @@ import (
 	"github.com/Joao-Felisberto/devprivops-ui/tool"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
+	"github.com/robert-nix/ansihtml"
 )
 
 func Analyse(c echo.Context) error {
@@ -17,11 +18,13 @@ func Analyse(c echo.Context) error {
 
 	fmt.Println(res)
 
+	htmlRes := ansihtml.ConvertToHTML([]byte(res))
+
 	return templates.Page(
 		"Analysis",
 		"", "",
 		nil,
-		func() templ.Component { return templates.SimpleResult(res) },
+		func() templ.Component { return templates.SimpleResult(string(htmlRes)) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
@@ -34,11 +37,13 @@ func Test(c echo.Context) error {
 
 	fmt.Println(res)
 
+	htmlRes := ansihtml.ConvertToHTML([]byte(res))
+
 	return templates.Page(
 		"Test",
 		"", "",
 		nil,
-		func() templ.Component { return templates.SimpleResult(res) },
+		func() templ.Component { return templates.SimpleResult(string(htmlRes)) },
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }

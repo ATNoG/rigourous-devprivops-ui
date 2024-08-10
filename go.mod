@@ -6,6 +6,7 @@ require (
 	github.com/a-h/templ v0.2.707
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo v3.3.10+incompatible
+	github.com/robert-nix/ansihtml v1.0.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
