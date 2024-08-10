@@ -11,7 +11,6 @@ import (
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
-	"github.com/Joao-Felisberto/devprivops-ui/tool"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/labstack/echo"
 )
@@ -73,22 +72,6 @@ func SaveEndpoint(c echo.Context) error {
 	fmt.Sprintln(res)
 
 	return nil
-}
-
-func Analyse(c echo.Context) error {
-	res, err := tool.Analyse("")
-
-	fmt.Println(res)
-
-	return err
-}
-
-func Test(c echo.Context) error {
-	res, err := tool.Test()
-
-	fmt.Println(res)
-
-	return err
 }
 
 func DeleteFile(c echo.Context) error {

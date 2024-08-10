@@ -64,8 +64,8 @@ func main() {
 
 	e.POST("/save/:file", handlers.SaveEndpoint)
 
-	e.POST("/analyse", handlers.Analyse)
-	e.POST("/test", handlers.Test)
+	e.GET("/analyse", handlers.Analyse)
+	e.GET("/test", handlers.Test)
 
 	e.POST("/delete", handlers.DeleteFile)
 	e.POST("/create", handlers.CreateFile)
