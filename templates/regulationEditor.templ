@@ -32,24 +32,25 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
         const form = document.createElement('div');
         form.classList.add('object-form');
         if (object != null) {
-        form.innerHTML = `
-            <h3>Object ${objectCount + 1}</h3>
-            <label for="file-${objectCount}">File</label>
-            <input type="text" id="file-${objectCount}" name="file-${objectCount}" value="${object.file ? object.file : ''}">
-            <label for="title-${objectCount}">Title</label>
-            <input type="text" id="title-${objectCount}" name="title-${objectCount}" value="${object.title ? object.title : ''}">
-            <label for="description-${objectCount}">Description</label>
-            <input type="text" id="description-${objectCount}" name="description-${objectCount}" value="${object.description ? object.description : ''}">
-            <label for="consistency-${objectCount}">Is Consistency</label>
-            <select id="consistency-${objectCount}" name="consistency-${objectCount}">
-                <option value="true" ${object && object.consistency ? 'selected' : ''}>True</option>
-                <option value="false" ${object && !object.consistency ? 'selected' : ''}>False</option>
-            </select>
-            <label for="max-violations-${objectCount}">Maximum Violations</label>
-            <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="${object["maximum violations"] !== undefined ? object["maximum violations"] : 'nope'}">
-            <label for="mapping-message-${objectCount}">Mapping Message</label>
-            <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="${object.mapping_message ? object.mapping_message : ''}">
-        `;
+            form.innerHTML = `
+                <h3>Object ${objectCount + 1}</h3>
+                <label for="file-${objectCount}">File</label>
+                <input type="text" id="file-${objectCount}" name="file-${objectCount}" value="${object.file ? object.file : ''}">
+                <label for="title-${objectCount}">Title</label>
+                <input type="text" id="title-${objectCount}" name="title-${objectCount}" value="${object.title ? object.title : ''}">
+                <label for="description-${objectCount}">Description</label>
+                <input type="text" id="description-${objectCount}" name="description-${objectCount}" value="${object.description ? object.description : ''}">
+                <label for="consistency-${objectCount}">Is Consistency</label>
+                <select id="consistency-${objectCount}" name="consistency-${objectCount}">
+                    <option value="true" ${object && object.consistency ? 'selected' : ''}>True</option>
+                    <option value="false" ${object && !object.consistency ? 'selected' : ''}>False</option>
+                </select>
+                <label for="max-violations-${objectCount}">Maximum Violations</label>
+                <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="${object["maximum violations"] !== undefined ? object["maximum violations"] : 'nope'}">
+                <label for="mapping-message-${objectCount}">Mapping Message</label>
+                <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="${object.mapping_message ? object.mapping_message : ''}">
+                <button id="del-btn-${objectCount}" type="button">Delete</button>
+            `;
         } else {
             form.innerHTML = `
                 <h3>Object ${objectCount + 1}</h3>
@@ -68,9 +69,24 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
                 <input type="max-violations" id="max-violations-${objectCount}" name="max-violations-${objectCount}" value="">
                 <label for="mapping-message-${objectCount}">Mapping Message</label>
                 <input type="text" id="mapping-message-${objectCount}" name="mapping-message-${objectCount}" value="">
+                <button id="del-btn-${objectCount}" type="button">Delete</button>
             `;
         }
+        
         objectList.appendChild(form);
+        
+        // add onclick to del-btn
+        delBtn = document.getElementById(`del-btn-${objectCount}`)
+        if (delBtn == null) {
+            console.log(`Did not find button 'del-btn-${objectCount}'`)
+        } else {
+            delBtn.textContent = 'Delete';
+            delBtn.className = 'delete-button';
+            delBtn.addEventListener('click', () => {
+                form.remove();
+            });
+        }
+
         objectCount++;
     }
 
