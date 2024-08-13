@@ -102,6 +102,7 @@ func RequirementEdit(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
+	// fmt.Printf(">>> %s\n", reqName)
 
 	requirementFile, err := fs.GetFile(reqName)
 	if err != nil {
@@ -130,6 +131,8 @@ func RequirementEdit(c echo.Context) error {
 	}
 	fmt.Println(string(requriementsContent))
 
+	var presentRequirement *templates.Requirement = nil
+
 	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
 		uc := ucRaw.(map[string]interface{})
 
@@ -144,11 +147,17 @@ func RequirementEdit(c echo.Context) error {
 			description := req["description"].(string)
 			query := req["query"].(string)
 
-			return templates.Requirement{
+			res := templates.Requirement{
 				Title:       title,
 				Description: description,
 				Query:       query,
 			}
+
+			if res.Query == reqName {
+				presentRequirement = &res
+			}
+
+			return res
 		})
 
 		return templates.UseCase{
@@ -161,6 +170,43 @@ func RequirementEdit(c echo.Context) error {
 		fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
 	}
 
+	formTitle := c.FormValue("title")
+	formDescription := c.FormValue("description")
+	formQuery := c.FormValue("query")
+
+	if formTitle != "" || formDescription != "" || formQuery != "" {
+		if formTitle != "" {
+			presentRequirement.Title = formTitle
+		}
+		if formDescription != "" {
+			presentRequirement.Description = formDescription
+		}
+		if formQuery != "" {
+			presentRequirement.Query = formQuery
+		}
+
+		data, err := yaml.Marshal(useCases)
+		if err != nil {
+			return err
+		}
+
+		requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Printf("Writing to '%s'\n", requirementsFile)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		err = os.WriteFile(requirementsFile, data, 0666)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(reqName))
 	return templates.Page(
 		"Requirements",
@@ -171,10 +217,27 @@ func RequirementEdit(c echo.Context) error {
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(requriementQuery), saveEndpoint)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SideBarForm(
+				fmt.Sprintf("/requirements/%s", c.Param("req")),
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "title",
+					Label:   "Title",
+					Default: presentRequirement.Title,
+				},
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "description",
+					Label:   "Description",
+					Default: presentRequirement.Description,
+				},
+			)
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 
+/*
 func RequirementDetails(c echo.Context) error {
 	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
 	if err != nil {
@@ -192,13 +255,6 @@ func RequirementDetails(c echo.Context) error {
 		return err
 	}
 
-	/*
-		useCases := []templates.UseCase {}
-		err = yaml.Unmarshal(requriementsContent, &useCases)
-		if err != nil {
-			return err
-		}
-	*/
 	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
 		uc := ucRaw.(map[string]interface{})
 
@@ -242,37 +298,8 @@ func RequirementDetails(c echo.Context) error {
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
-
-	/*
-		return templates.Page(
-			"Requirements",
-		"",
-			func() templ.Component {
-				return templates.UCSideBar(&[]templates.UseCase{
-					{Title: "a", IsMisuseCase: false, Requirements: []templates.Requirement{
-						{Title: "b", Description: "b", Query: "b"},
-					}},
-				})
-			},
-			func() templ.Component { return templates.EditorComponent("yaml", "a: 1", "#") },
-			func() templ.Component {
-				return templates.UCDetails(
-					"#",
-					templates.UseCase{
-						Title:        "",
-						IsMisuseCase: false,
-						Requirements: []templates.Requirement{},
-					},
-					templates.Requirement{
-						Title:       "a",
-						Description: "a",
-						Query:       "a",
-					},
-				)
-			},
-		).Render(c.Request().Context(), c.Response())
-	*/
 }
+*/
 
 func UpdateRequirements(c echo.Context) error {
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
