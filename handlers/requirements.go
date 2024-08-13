@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	"github.com/Joao-Felisberto/devprivops-ui/objects"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -33,46 +34,38 @@ func RequirementsMainPage(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("raw file \\/")
 	fmt.Println(string(requriementsContent))
 
-	/*
-		useCases := []templates.UseCase {}
-		err = yaml.Unmarshal(requriementsContent, &useCases)
-		if err != nil {
-			return err
-		}
-	*/
-	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
+	fmt.Println("unmarshaled \\/")
+	fmt.Printf("%+v\n", contentList)
+
+	useCases := util.Map(contentList, func(ucRaw interface{}) objects.UseCase {
 		uc := ucRaw.(map[string]interface{})
 
 		useCase := uc["use case"].(string)
 		isMisuseCase := uc["is misuse case"].(bool)
 		reqsRaw := uc["requirements"].([]interface{})
-		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
+		requirements := util.Map(reqsRaw, func(reqRaw interface{}) objects.Requirement {
 			req := reqRaw.(map[string]interface{})
 
 			title := req["title"].(string)
 			description := req["description"].(string)
 			query := req["query"].(string)
 
-			return templates.Requirement{
+			return objects.Requirement{
 				Title:       title,
 				Description: description,
 				Query:       query,
 			}
 		})
 
-		return templates.UseCase{
+		return objects.UseCase{
 			UseCase:      useCase,
 			IsMisuseCase: isMisuseCase,
 			Requirements: requirements,
 		}
 	})
-	/*
-		for _, uc := range useCases {
-			fmt.Printf("'%s' '%v' '%d'\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
-		}
-	*/
 
 	rawJsonUCs, err := json.Marshal(&useCases)
 	if err != nil {
@@ -89,7 +82,6 @@ func RequirementsMainPage(c echo.Context) error {
 			return templates.UCSideBar(&useCases)
 		},
 		func() templ.Component {
-			// return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
 			return templates.UseCaseEditor("yaml", string(requriementsContent), saveEndpoint, &jsonUCs)
 		},
 		nil,
@@ -129,25 +121,29 @@ func RequirementEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("raw file \\/")
 	fmt.Println(string(requriementsContent))
 
-	var presentRequirement *templates.Requirement = nil
+	fmt.Println("unmarshaled \\/")
+	fmt.Printf("%+v\n", contentList)
 
-	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
+	var presentRequirement *objects.Requirement = nil
+
+	useCases := util.Map(contentList, func(ucRaw interface{}) objects.UseCase {
 		uc := ucRaw.(map[string]interface{})
 
 		useCase := uc["use case"].(string)
 		fmt.Printf("-- '%s'\n", useCase)
 		isMisuseCase := uc["is misuse case"].(bool)
 		reqsRaw := uc["requirements"].([]interface{})
-		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
+		requirements := util.Map(reqsRaw, func(reqRaw interface{}) objects.Requirement {
 			req := reqRaw.(map[string]interface{})
 
 			title := req["title"].(string)
 			description := req["description"].(string)
 			query := req["query"].(string)
 
-			res := templates.Requirement{
+			res := objects.Requirement{
 				Title:       title,
 				Description: description,
 				Query:       query,
@@ -160,7 +156,7 @@ func RequirementEdit(c echo.Context) error {
 			return res
 		})
 
-		return templates.UseCase{
+		return objects.UseCase{
 			UseCase:      useCase,
 			IsMisuseCase: isMisuseCase,
 			Requirements: requirements,
@@ -237,70 +233,6 @@ func RequirementEdit(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
-/*
-func RequirementDetails(c echo.Context) error {
-	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
-	if err != nil {
-		return err
-	}
-
-	requriementsContent, err := os.ReadFile(requirementsFile)
-	if err != nil {
-		return err
-	}
-
-	contentList := []interface{}{}
-	err = yaml.Unmarshal(requriementsContent, &contentList)
-	if err != nil {
-		return err
-	}
-
-	useCases := util.Map(contentList, func(ucRaw interface{}) templates.UseCase {
-		uc := ucRaw.(map[string]interface{})
-
-		useCase := uc["use case"].(string)
-		fmt.Printf("-- '%s'\n", useCase)
-		isMisuseCase := uc["is misuse case"].(bool)
-		reqsRaw := uc["requirements"].([]interface{})
-		requirements := util.Map(reqsRaw, func(reqRaw interface{}) templates.Requirement {
-			req := reqRaw.(map[string]interface{})
-
-			title := req["title"].(string)
-			description := req["description"].(string)
-			query := req["query"].(string)
-
-			return templates.Requirement{
-				Title:       title,
-				Description: description,
-				Query:       query,
-			}
-		})
-
-		return templates.UseCase{
-			UseCase:      useCase,
-			IsMisuseCase: isMisuseCase,
-			Requirements: requirements,
-		}
-	})
-	for _, uc := range useCases {
-		fmt.Printf("%s %v %d\n", uc.UseCase, uc.IsMisuseCase, len(uc.Requirements))
-	}
-
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
-	return templates.Page(
-		"Requirements",
-		"", "",
-		func() templ.Component {
-			return templates.UCSideBar(&useCases)
-		},
-		func() templ.Component {
-			return templates.EditorComponent("yaml", string(requriementsContent), saveEndpoint)
-		},
-		nil,
-	).Render(c.Request().Context(), c.Response())
-}
-*/
-
 func UpdateRequirements(c echo.Context) error {
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
@@ -311,15 +243,6 @@ func UpdateRequirements(c echo.Context) error {
 
 	userName := userCookie.Value
 	email := emailCookie.Value
-
-	/*
-		fName, err := url.QueryUnescape(c.Param("tree"))
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		fmt.Printf("Save to: %s\n", fName)
-	*/
 
 	body, err := io.ReadAll(c.Request().Body)
 
@@ -365,8 +288,6 @@ func UpdateRequirements(c echo.Context) error {
 	fmt.Println("Files synced")
 
 	data, err := yaml.Marshal(contents)
-	// _, err = yaml.Marshal(contents)
-	// fmt.Printf("%+v\n", contents)
 
 	if err != nil {
 		fmt.Println(err)
