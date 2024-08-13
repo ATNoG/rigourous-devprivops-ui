@@ -53,6 +53,7 @@ templ ExtraDataEditor(language string, content string, fileURL string, extraData
         const objectListDiv = document.getElementById('objectList');
         objectListDiv.innerHTML = '';
         objectList.forEach((obj, index) => {
+            console.log(JSON.stringify(obj))
             const objectDiv = document.createElement('div');
             objectDiv.className = 'object';
             objectDiv.innerHTML = `
@@ -60,7 +61,7 @@ templ ExtraDataEditor(language string, content string, fileURL string, extraData
                 <p><strong>Query:</strong> ${obj.query}</p>
                 <p><strong>Heading:</strong> ${obj.heading}</p>
                 <p><strong>Description:</strong> ${obj.description}</p>
-                <p><strong>Data Row Line:</strong> ${obj.dataRowLine}</p>
+                <p><strong>Data Row Line:</strong> ${obj["data row line"]}</p>
                 <span class="delete-button" onclick="deleteObject(${index})">Delete</span>
             `;
             objectListDiv.appendChild(objectDiv);
