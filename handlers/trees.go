@@ -97,7 +97,7 @@ func TreeView(c echo.Context) error {
 
 	return templates.Page(
 		"Trees",
-		"ree-editor", "Visual",
+		"tree-editor", "Visual",
 		func() templ.Component {
 			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},

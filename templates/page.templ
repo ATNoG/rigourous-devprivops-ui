@@ -28,51 +28,6 @@ templ Page(title string, altView string, toggleBtnName string, left, center, rig
         </div>
     </nav>
 
-   
-    <script>
-        /*
-        document.getElementById('analyse-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            fetch('/analyse', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: {a: 1}
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-        */
-        
-        /*
-        document.getElementById('test-btn').addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            fetch('/test', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: {a: 1}
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-        */
-    </script>
-
     <!-- Main Content -->
     <div class="panel-container">
         <!-- Left Panel -->
@@ -97,32 +52,6 @@ templ Page(title string, altView string, toggleBtnName string, left, center, rig
         </div>
     </div>
    
-   /*
-    <script>
-        const toggleButton = document.getElementById('toggleView');
-        let isEditorVisible = true;
-
-        toggleButton.addEventListener('click', function() {
-            console.log(window.editor.getValue())
-
-            if (isEditorVisible) {
-                document.getElementById('editorContainer').style.display = 'none';
-                document.getElementById('graphContainer').style.display = 'block';
-                window.network.redraw();
-                window.network.fit();
-                toggleButton.textContent = 'Editor';
-            } else {
-                document.getElementById('editorContainer').style.display = 'block';
-                document.getElementById('graphContainer').style.display = 'none';
-                toggleButton.textContent = 'Graph';
-            }
-            isEditorVisible = !isEditorVisible;
-        });
-
-        // Show editor by default
-        document.getElementById('editorContainer').style.display = 'block';
-    </script> 
-    */
     @toggleButton(altView, toggleBtnName)
     </body>
     </html>
@@ -142,6 +71,8 @@ script toggleButton(altView string, toggleBtnName string) {
         if (altView === "") {
             return
         }
+
+        console.log(`TT ${document.getElementById(altView)}`)
 
         if (isEditorVisible) {
             document.getElementById('editorContainer').style.display = 'none';
@@ -163,7 +94,9 @@ script toggleButton(altView string, toggleBtnName string) {
     edCont = document.getElementById('editorContainer')
     
     if (edCont !== null) {
-        edCont.style.display = 'block';
+            document.getElementById('editorContainer').style.display = 'block';
+            document.getElementById(altView).style.display = 'none';
+            toggleButton.textContent = toggleBtnName;
     }
 }
 
