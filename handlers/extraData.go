@@ -49,7 +49,8 @@ func ExtraDataMainPage(c echo.Context) error {
 		}
 	})
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	saveEndpoint := "/save-report-data"
 	return templates.Page(
 		"Extra Data",
 		"extra-data-editor", "Visual",
@@ -158,7 +159,8 @@ func ExtraDataQuery(c echo.Context) error {
 		}
 	}
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	saveEndpoint := "/save-report-data"
 	return templates.Page(
 		"Extra Data",
 		"", "",
@@ -199,6 +201,7 @@ func ExtraDataQuery(c echo.Context) error {
 }
 
 func UpdateExtraData(c echo.Context) error {
+	fmt.Println("CORRECT")
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
@@ -229,7 +232,7 @@ func UpdateExtraData(c echo.Context) error {
 	var contents []interface{}
 	err = json.Unmarshal(body, &contents)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("failed to unmarshal: %s", err)
 		return err
 	}
 

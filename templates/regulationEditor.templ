@@ -4,6 +4,7 @@ import "fmt"
 
 templ RegulationEditor(language string, content string, fileURL string, regulation *string) {
 	<div id="editorContainer" class="editor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@EditorScript(language, content, fileURL)
 	// <script src="/static/js/gen_schema.js"></script>

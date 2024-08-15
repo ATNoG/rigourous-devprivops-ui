@@ -74,7 +74,8 @@ func RequirementsMainPage(c echo.Context) error {
 	}
 	jsonUCs := string(rawJsonUCs)
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("requirements/requirements.yml"))
+	saveEndpoint := "/save-requirements"
 	return templates.Page(
 		"Requirements",
 		"uc-editor", "Visual",
@@ -234,6 +235,7 @@ func RequirementEdit(c echo.Context) error {
 }
 
 func UpdateRequirements(c echo.Context) error {
+	fmt.Println("You got it")
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]

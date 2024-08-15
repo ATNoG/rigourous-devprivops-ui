@@ -11,18 +11,29 @@ script EditorScript(language string, content string, fileURL string) {
 		window.editor = editor
 		window.editorReady = true;
 
+		// const language = Array.from(editor.languageConfigurationService.configurations.keys())[0]
+
 		document.getElementById('save-btn').addEventListener('click', function(event) {
 			event.preventDefault();
 			const editorContent = editor.getValue();
-			// console.log(editorContent);
+			console.log(`Editor for ${language}`);
 		
+			var body = editorContent
+			if (language === "yaml") {
+				console.log("HERE")
+			    const jsonObject = jsyaml.load(editorContent);
+                body = JSON.stringify(jsonObject);
+			}
+
+			console.log(`Sending the following: ${body}`)
+
 			fetch(fileURL, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				// body: JSON.stringify({ content: editorContent })
-				body: editorContent
+				body: body // editorContent
 			})
 			.then(response => response.json())
 			.then(data => {

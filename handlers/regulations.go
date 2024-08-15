@@ -93,7 +93,8 @@ func RegulationView(c echo.Context) error {
 
 	// regulations = append(regulations, policyFiles...)
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
+	saveEndpoint := fmt.Sprintf("/save-regulation/%s", url.QueryEscape(regCfgFileName))
 
 	// TODO: tests
 	return templates.Page(
