@@ -2,7 +2,9 @@ package templates
 
 import "net/url"
 import "fmt"
+import "github.com/Joao-Felisberto/devprivops-ui/objects"
 
+/*
 type UseCase struct {
     UseCase string              `json:"use case"`
     IsMisuseCase bool           `json:"is misuse case"`
@@ -14,8 +16,9 @@ type Requirement struct {
     Description string  `json:"description"`
     Query string        `json:"query"`
 }
+*/
 
-templ UCSideBar(useCases *[]UseCase) {
+templ UCSideBar(useCases *[]objects.UseCase) {
     <ul id="use-case-list">
         for _, uc := range *useCases {
             <li> 
@@ -70,7 +73,7 @@ templ UCSideBar(useCases *[]UseCase) {
     </script>
 }
 
-templ UCDetails(endpoint string, useCase UseCase, requiremet Requirement) {
+templ UCDetails(endpoint string, useCase objects.UseCase, requiremet objects.Requirement) {
 	<form action={templ.SafeURL(endpoint)}>
         <p>Use Case</p>
         <label for="uc">Use Case</label>

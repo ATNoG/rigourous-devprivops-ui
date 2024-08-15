@@ -49,7 +49,8 @@ func ExtraDataMainPage(c echo.Context) error {
 		}
 	})
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	saveEndpoint := "/save-report-data"
 	return templates.Page(
 		"Extra Data",
 		"extra-data-editor", "Visual",
@@ -103,7 +104,63 @@ func ExtraDataQuery(c echo.Context) error {
 		}
 	})
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	formLocation := c.FormValue("location")
+	formHeading := c.FormValue("heading")
+	formDescription := c.FormValue("description")
+	formDataRowLine := c.FormValue("data row line")
+
+	datum := util.First(contentList, func(d interface{}) bool {
+		extraData := d.(map[string]interface{})
+		file, err := fs.GetFile(extraData["query"].(string))
+		if err != nil {
+			panic(err)
+		}
+		return file == queryFile
+	})
+	if datum == nil {
+		fmt.Printf("Did not find corresponding extra data: '%s'\n", queryFile)
+		return fmt.Errorf("did not find corresponding extra data: '%s'", queryFile)
+	}
+	extraDatum := (*datum).(map[string]interface{})
+
+	if formLocation != "" || formHeading != "" || formDescription != "" || formDataRowLine != "" {
+		if formLocation != "" {
+			(*datum).(map[string]interface{})["location"] = formLocation
+		}
+		if formHeading != "" {
+			(*datum).(map[string]interface{})["heading"] = formHeading
+		}
+		if formDescription != "" {
+			(*datum).(map[string]interface{})["description"] = formDescription
+		}
+		if formDataRowLine != "" {
+			(*datum).(map[string]interface{})["data row line"] = formDataRowLine
+		}
+
+		data, err := yaml.Marshal(datum)
+		if err != nil {
+			return err
+		}
+
+		extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Printf("Writing to '%s'\n", extraDataFile)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		err = os.WriteFile(extraDataFile, data, 0666)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("report_data/report_data.yml"))
+	saveEndpoint := "/save-report-data"
 	return templates.Page(
 		"Extra Data",
 		"", "",
@@ -111,11 +168,40 @@ func ExtraDataQuery(c echo.Context) error {
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SideBarForm(
+				fmt.Sprintf("/extra-data/%s", c.Param("query")),
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "location",
+					Label:   "Location",
+					Default: extraDatum["location"].(string),
+				},
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "heading",
+					Label:   "Heading",
+					Default: extraDatum["heading"].(string),
+				},
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "description",
+					Label:   "Description",
+					Default: extraDatum["description"].(string),
+				},
+				templates.SideBarFormElement{
+					Type:    templates.TEXT,
+					Id:      "data row line",
+					Label:   "Data row line",
+					Default: extraDatum["data row line"].(string),
+				},
+			)
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 
 func UpdateExtraData(c echo.Context) error {
+	fmt.Println("CORRECT")
 	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
 		return cookie.Name == "username"
 	})[0]
@@ -146,7 +232,7 @@ func UpdateExtraData(c echo.Context) error {
 	var contents []interface{}
 	err = json.Unmarshal(body, &contents)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("failed to unmarshal: %s", err)
 		return err
 	}
 

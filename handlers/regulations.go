@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
@@ -92,7 +93,8 @@ func RegulationView(c echo.Context) error {
 
 	// regulations = append(regulations, policyFiles...)
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(regCfgFileName))
+	saveEndpoint := fmt.Sprintf("/save-regulation/%s", url.QueryEscape(regCfgFileName))
 
 	// TODO: tests
 	return templates.Page(
@@ -186,6 +188,11 @@ func PolicyEdit(c echo.Context) error {
 	formViolations := c.FormValue("violations")
 	formMapping := c.FormValue("mapping")
 
+	policyRaw := util.First(policies, func(pol interface{}) bool {
+		p := pol.(map[string]interface{})
+		return p["file"] == polName
+	})
+
 	if formTitle != "" || formDescription != "" || formConsistency != "" || formViolations != "" || formMapping != "" {
 		fmt.Printf("-> '%s' '%s' '%s' '%s' '%s'\n",
 			formTitle,
@@ -195,10 +202,6 @@ func PolicyEdit(c echo.Context) error {
 			formMapping,
 		)
 
-		policyRaw := util.First(policies, func(pol interface{}) bool {
-			p := pol.(map[string]interface{})
-			return p["file"] == polName
-		})
 		if policyRaw == nil {
 			fmt.Printf("ERROR No policy for '%s' found\n", polName)
 			return nil
@@ -242,7 +245,8 @@ func PolicyEdit(c echo.Context) error {
 		}
 	}
 
-	// TODO: tests
+	policy := (*policyRaw).(map[string]interface{})
+
 	return templates.Page(
 		"Regulations",
 		"", "",
@@ -253,29 +257,34 @@ func PolicyEdit(c echo.Context) error {
 		func() templ.Component {
 			return templates.SideBarForm(fmt.Sprintf("/policy/%s", c.Param("pol")),
 				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "title",
-					Label: "Title",
+					Type:    templates.TEXT,
+					Id:      "title",
+					Label:   "Title",
+					Default: policy["title"].(string),
 				},
 				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "description",
-					Label: "Description",
+					Type:    templates.TEXT,
+					Id:      "description",
+					Label:   "Description",
+					Default: policy["description"].(string),
 				},
 				templates.SideBarFormElement{
-					Type:  templates.CHECKBOX,
-					Id:    "consistency",
-					Label: "Is consistency",
+					Type:    templates.CHECKBOX,
+					Id:      "consistency",
+					Label:   "Is consistency",
+					Default: strconv.FormatBool(policy["is consistency"].(bool)),
 				},
 				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "violations",
-					Label: "Maximum violations",
+					Type:    templates.TEXT,
+					Id:      "violations",
+					Label:   "Maximum violations",
+					Default: fmt.Sprintf("%d", policy["maximum violations"].(int)),
 				},
 				templates.SideBarFormElement{
-					Type:  templates.TEXT,
-					Id:    "mapping",
-					Label: "Mapping message",
+					Type:    templates.TEXT,
+					Id:      "mapping",
+					Label:   "Mapping message",
+					Default: policy["mapping message"].(string),
 				},
 			)
 		},

@@ -81,7 +81,8 @@ func TreeView(c echo.Context) error {
 		}
 	})
 
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(treeFileName))
+	// saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(treeFileName))
+	saveEndpoint := fmt.Sprintf("/save-tree/%s", url.QueryEscape(treeFileName))
 
 	var tree templates.TreeNode
 	yaml.Unmarshal(treeContent, &tree)

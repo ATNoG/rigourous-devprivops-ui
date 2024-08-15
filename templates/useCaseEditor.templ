@@ -2,6 +2,7 @@ package templates
 
 templ UseCaseEditor(language string, content string, fileURL string, useCases *string) {
 	<div id="editorContainer" class="editor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@EditorScript(language, content, fileURL)
 
@@ -19,7 +20,8 @@ templ UseCaseEditor(language string, content string, fileURL string, useCases *s
     document.getElementById('add-use-case').addEventListener('click', addUseCase);
     document.getElementById('save-list').addEventListener('click', saveList);
 
-    function addUseCase(useCase = { useCase: '', isMisuseCase: false, requirements: [] }) {
+    function addUseCase(useCase = { "use case": '', "is misuse case": false, requirements: [] }) {
+        console.log(`Adding UC ${JSON.stringify(useCase)}`)
         useCaseIdCounter++;
         const useCaseDiv = document.createElement('div');
         useCaseDiv.className = 'use-case';
@@ -29,14 +31,14 @@ templ UseCaseEditor(language string, content string, fileURL string, useCases *s
         useCaseLabel.textContent = 'Use Case: ';
         const useCaseInput = document.createElement('input');
         useCaseInput.type = 'text';
-        useCaseInput.value = useCase.useCase; // undefined???
+        useCaseInput.value = useCase["use case"]; // undefined???
         useCaseLabel.appendChild(useCaseInput);
 
         const misuseLabel = document.createElement('label');
         misuseLabel.textContent = ' Is Misuse Case: ';
         const misuseInput = document.createElement('input');
         misuseInput.type = 'checkbox';
-        misuseInput.checked = useCase.isMisuseCase;
+        misuseInput.checked = useCase["is misuse case"];
         misuseLabel.appendChild(misuseInput);
 
         const deleteButton = document.createElement('button');
@@ -110,8 +112,8 @@ templ UseCaseEditor(language string, content string, fileURL string, useCases *s
         const useCases = [];
         document.querySelectorAll('.use-case').forEach(useCaseDiv => {
             const useCase = {
-                useCase: useCaseDiv.querySelector('input[type="text"]').value,
-                isMisuseCase: useCaseDiv.querySelector('input[type="checkbox"]').checked,
+                "use case": useCaseDiv.querySelector('input[type="text"]').value,
+                "is misuse case": useCaseDiv.querySelector('input[type="checkbox"]').checked,
                 requirements: []
             };
 
@@ -137,6 +139,7 @@ templ UseCaseEditor(language string, content string, fileURL string, useCases *s
     }
 
     function populateUI(useCases) {
+        console.log(useCases)
         useCases.forEach(useCase => addUseCase(useCase));
     }
     </script>
