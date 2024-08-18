@@ -7,22 +7,8 @@ templ SchemaEditor(language string, content string, fileURL string) {
 
     <script src="/static/js/gen_schema.js"></script>
     <div id="schemaEditorContainer" class="editor">
-        /*
-        <h1>JSON Schema Generator</h1>
-        <div id="type-definitions">
-            <div class="type-section" data-type="Main">
-                <h3>Main <button onclick="removeType(this)">Remove type</button></h3>
-                <button onclick="addProperty(this)">Add property</button>
-            </div>
-        </div>
-        <div id="add-type-section">
-            <h3>Add New Type</h3>
-            <label>Type name: <input type="text" id="new-type-name"/></label>
-            <button onclick="addType()">Add type</button>
-        </div>
-        <button onclick="generateSchema()">Generate schema</button>
-        <pre id="json-schema"></pre>
-        */
+
+      /*
         <h1>JSON Schema Generator</h1>
         <div id="type-definitions"></div>
         <div id="add-type-section">
@@ -32,7 +18,18 @@ templ SchemaEditor(language string, content string, fileURL string) {
         </div>
         <button id="gen-schema" onclick="generateSchema()">Generate schema</button>
         <pre id="json-schema"></pre>
-        </div>
+      */
+      <h1>JSON Schema Generator</h1>
+      <div id="type-definitions"></div>
+      <div id="add-type-section">
+          <h3>Add New Type</h3>
+          <label>Type name: <input type="text" id="new-type-name"/></label>
+          <button onclick="addSchemaType()">Add type</button>
+      </div>
+      <button id="gen-schema" onclick="generateSchema()">Generate schema</button>
+      <pre id="json-schema"></pre>
+
+    </div>
 
         <script>
         function waitForEditor() {
