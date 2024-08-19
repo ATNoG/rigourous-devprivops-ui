@@ -152,7 +152,7 @@ func ExtraDataQuery(c echo.Context) error {
 			fmt.Println(err)
 			return err
 		}
-		err = os.WriteFile(extraDataFile, data, 0666)
+		err = fs.WriteFileSync(extraDataFile, data, 0666)
 		if err != nil {
 			fmt.Println(err)
 			return err

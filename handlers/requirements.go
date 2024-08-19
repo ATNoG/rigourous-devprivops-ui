@@ -197,7 +197,7 @@ func RequirementEdit(c echo.Context) error {
 			fmt.Println(err)
 			return err
 		}
-		err = os.WriteFile(requirementsFile, data, 0666)
+		err = fs.WriteFileSync(requirementsFile, data, 0666)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -307,7 +307,7 @@ func UpdateRequirements(c echo.Context) error {
 
 	fmt.Printf("Writing to %s: %s \n", file, string(data))
 
-	if err := os.WriteFile(file, data, 0666); err != nil {
+	if err := fs.WriteFileSync(file, data, 0666); err != nil {
 		return err
 	}
 

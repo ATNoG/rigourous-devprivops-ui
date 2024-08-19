@@ -50,7 +50,7 @@ func SaveEndpoint(c echo.Context) error {
 
 	fmt.Printf("Writing to %s: %s \n", file, content)
 
-	if err := os.WriteFile(file, content, 0666); err != nil {
+	if err := fs.WriteFileSync(file, content, 0666); err != nil {
 		return err
 	}
 

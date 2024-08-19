@@ -238,7 +238,7 @@ func PolicyEdit(c echo.Context) error {
 			fmt.Println(err)
 			return err
 		}
-		err = os.WriteFile(regulationFile, data, 0666)
+		err = fs.WriteFileSync(regulationFile, data, 0666)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -310,7 +310,7 @@ func CreateRegulation(c echo.Context) error {
 		return err
 	}
 
-	if err := os.WriteFile(fmt.Sprintf("%s/policies.yml", path), []byte("[]"), 0666); err != nil {
+	if err := fs.WriteFileSync(fmt.Sprintf("%s/policies.yml", path), []byte("[]"), 0666); err != nil {
 		fmt.Println(err)
 		return err
 	}
@@ -395,7 +395,7 @@ func UpdateRegulation(c echo.Context) error {
 
 	fmt.Printf("Writing to %s: %s \n", file, string(data))
 
-	if err := os.WriteFile(file, data, 0666); err != nil {
+	if err := fs.WriteFileSync(file, data, 0666); err != nil {
 		return err
 	}
 

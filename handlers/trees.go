@@ -286,7 +286,7 @@ func UpdateTree(c echo.Context) error {
 		if !util.Contains(dirContents, e) {
 			fmt.Printf("CREATING %s%s\n", dir, e)
 
-			if err = os.WriteFile(fmt.Sprintf("%s%s", dir, e), []byte{}, 0666); err != nil {
+			if err = fs.WriteFileSync(fmt.Sprintf("%s%s", dir, e), []byte{}, 0666); err != nil {
 				fmt.Println(err)
 				return err
 			}
@@ -313,7 +313,7 @@ func UpdateTree(c echo.Context) error {
 
 	fmt.Printf("Writing to %s: %s \n", file, string(data))
 
-	if err := os.WriteFile(file, data, 0666); err != nil {
+	if err := fs.WriteFileSync(file, data, 0666); err != nil {
 		return err
 	}
 

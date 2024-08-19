@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"sync"
 
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
@@ -30,6 +31,7 @@ import (
 var (
 	LocalDir  = fmt.Sprintf("./.%s", util.AppName)   // The local directory
 	GlobalDir = fmt.Sprintf("/etc/%s", util.AppName) // The global directory
+	m         sync.Mutex
 )
 
 // Returns the path of a file relative to the local or global root using the pre-determined paths to the local and global directories
@@ -241,10 +243,19 @@ func SaveTreeDescription(tree *templates.TreeNode, file string) error {
 		return err
 	}
 
-	err = os.WriteFile(file, data, 0666)
+	err = WriteFileSync(file, data, 0666)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func WriteFileSync(file string, data []byte, permissions fs.FileMode) error {
+
+	m.Lock()
+	err := os.WriteFile(file, data, 0666)
+	m.Unlock()
+
+	return err
 }

@@ -102,7 +102,7 @@ func DescriptionEdit(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		err = os.WriteFile(urisFile, newContent, 0666)
+		err = fs.WriteFileSync(urisFile, newContent, 0666)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func DescriptionEdit(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		err = os.WriteFile(urisFile, newContent, 0666)
+		err = fs.WriteFileSync(urisFile, newContent, 0666)
 		if err != nil {
 			return err
 		}
