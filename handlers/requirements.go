@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -19,7 +18,13 @@ import (
 )
 
 func RequirementsMainPage(c echo.Context) error {
-	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
+	requirementsFile, err := fs.GetFile("requirements/requirements.yml", userName)
 	if err != nil {
 		return err
 	}
@@ -90,6 +95,12 @@ func RequirementsMainPage(c echo.Context) error {
 }
 
 func RequirementEdit(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	reqName, err := url.QueryUnescape(c.Param("req"))
 	if err != nil {
 		fmt.Println(err)
@@ -97,7 +108,7 @@ func RequirementEdit(c echo.Context) error {
 	}
 	// fmt.Printf(">>> %s\n", reqName)
 
-	requirementFile, err := fs.GetFile(reqName)
+	requirementFile, err := fs.GetFile(reqName, userName)
 	if err != nil {
 		return err
 	}
@@ -107,7 +118,7 @@ func RequirementEdit(c echo.Context) error {
 		return err
 	}
 
-	requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+	requirementsFile, err := fs.GetFile("requirements/requirements.yml", userName)
 	if err != nil {
 		return err
 	}
@@ -187,7 +198,7 @@ func RequirementEdit(c echo.Context) error {
 			return err
 		}
 
-		requirementsFile, err := fs.GetFile("requirements/requirements.yml")
+		requirementsFile, err := fs.GetFile("requirements/requirements.yml", userName)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -235,15 +246,16 @@ func RequirementEdit(c echo.Context) error {
 }
 
 func UpdateRequirements(c echo.Context) error {
-	fmt.Println("You got it")
-	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
-	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "email"
-	})[0]
-
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	userName := userCookie.Value
+
+	emailCookie, err := c.Cookie("email")
+	if err != nil {
+		return err
+	}
 	email := emailCookie.Value
 
 	body, err := io.ReadAll(c.Request().Body)
@@ -262,7 +274,7 @@ func UpdateRequirements(c echo.Context) error {
 	}
 
 	// sync files with the config
-	reqPath, err := fs.GetFile("requirements")
+	reqPath, err := fs.GetFile("requirements", userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -299,7 +311,7 @@ func UpdateRequirements(c echo.Context) error {
 	fmt.Println("Data to write \\/")
 	fmt.Println(string(data))
 
-	file, err := fs.GetFile("requirements/requirements.yml")
+	file, err := fs.GetFile("requirements/requirements.yml", userName)
 	if err != nil {
 		fmt.Println(err)
 		return err

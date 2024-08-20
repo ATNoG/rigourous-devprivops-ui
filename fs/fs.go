@@ -17,6 +17,7 @@ import (
 	"os"
 	"sync"
 
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"gopkg.in/yaml.v3"
@@ -29,9 +30,10 @@ import (
 */
 
 var (
-	LocalDir  = fmt.Sprintf("./.%s", util.AppName)   // The local directory
-	GlobalDir = fmt.Sprintf("/etc/%s", util.AppName) // The global directory
-	m         sync.Mutex
+	LocalDir       = fmt.Sprintf("./.%s", util.AppName)   // The local directory
+	GlobalDir      = fmt.Sprintf("/etc/%s", util.AppName) // The global directory
+	m              sync.Mutex
+	SessionManager *sessionmanament.SessionManager = sessionmanament.GetSessionManager()
 )
 
 // Returns the path of a file relative to the local or global root using the pre-determined paths to the local and global directories
@@ -39,11 +41,17 @@ var (
 // `relativePath`: the path relative to either root
 //
 // returns: the path to the provided file relative to the root it is in, or an error if reading any of the directories fails.
-func GetFile(relativePath string) (string, error) {
+func GetFile(relativePath string, user string) (string, error) {
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return "", fmt.Errorf("could not find %s's branch", user)
+	}
+
 	return getFile(
 		relativePath,
-		LocalDir,
-		GlobalDir,
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		fmt.Sprintf("%s/%s", GlobalDir, branch),
 	)
 }
 
@@ -73,11 +81,17 @@ func getFile(relativePath string, localRoot string, globalRoot string) (string, 
 // `relativePath` the path relative to either root
 //
 // returns: the relative paths of the system descriptions, or an error if reading any of the directories fails.
-func GetDescriptions(descriptionRoot string) ([]string, error) {
+func GetDescriptions(descriptionRoot string, user string) ([]string, error) {
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return []string{}, fmt.Errorf("could not find %s's branch", user)
+	}
+
 	return getDescriptions(
 		descriptionRoot,
-		LocalDir,
-		GlobalDir,
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		fmt.Sprintf("%s/%s", GlobalDir, branch),
 	)
 }
 
@@ -120,10 +134,16 @@ func getDescriptions(descriptionRoot string, localRoot string, globalRoot string
 // Returns the directory names of the system regulation directories under `regulations/` using the default paths to the local and global directories
 //
 // returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
-func GetRegulations() ([]string, error) {
+func GetRegulations(user string) ([]string, error) {
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return []string{}, fmt.Errorf("could not find %s's branch", user)
+	}
+
 	return getRegulations(
-		LocalDir,
-		GlobalDir,
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		fmt.Sprintf("%s/%s", GlobalDir, branch),
 	)
 }
 
@@ -179,10 +199,16 @@ func getDirsInDir(path string) ([]string, error) {
 // The returned directories contain the root
 //
 // returns: The list of configuration files, or an error if reading any of the directories fails.
-func GetConfigs() ([]string, error) {
+func GetConfigs(user string) ([]string, error) {
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return []string{}, fmt.Errorf("could not find %s's branch", user)
+	}
+
 	return getConfigs(
-		LocalDir,
-		GlobalDir,
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		fmt.Sprintf("%s/%s", GlobalDir, branch),
 	)
 }
 

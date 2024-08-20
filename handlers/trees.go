@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	iofs "io/fs"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -19,7 +18,13 @@ import (
 )
 
 func TreesMainPage(c echo.Context) error {
-	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
+	atkDir, err := fs.GetFile("attack_trees/descriptions/", userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -49,13 +54,19 @@ func TreesMainPage(c echo.Context) error {
 }
 
 func TreeView(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	treeName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
 		return err
 	}
 
 	treeFileName := fmt.Sprintf("attack_trees/descriptions/%s", treeName)
-	treeFile, err := fs.GetFile(treeFileName)
+	treeFile, err := fs.GetFile(treeFileName, userName)
 	if err != nil {
 		return err
 	}
@@ -65,7 +76,7 @@ func TreeView(c echo.Context) error {
 		return err
 	}
 
-	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	atkDir, err := fs.GetFile("attack_trees/descriptions/", userName)
 	if err != nil {
 		return err
 	}
@@ -111,13 +122,19 @@ func TreeView(c echo.Context) error {
 }
 
 func EditTreeNode(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	treeName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
 		return err
 	}
 
 	treeFileName := fmt.Sprintf("attack_trees/descriptions/%s", treeName)
-	treeFile, err := fs.GetFile(treeFileName)
+	treeFile, err := fs.GetFile(treeFileName, userName)
 	if err != nil {
 		return err
 	}
@@ -127,7 +144,7 @@ func EditTreeNode(c echo.Context) error {
 		return err
 	}
 
-	atkDir, err := fs.GetFile("attack_trees/descriptions/")
+	atkDir, err := fs.GetFile("attack_trees/descriptions/", userName)
 	if err != nil {
 		return err
 	}
@@ -148,7 +165,7 @@ func EditTreeNode(c echo.Context) error {
 		return err
 	}
 
-	nodeFile, err := fs.GetFile(nodeFileName)
+	nodeFile, err := fs.GetFile(nodeFileName, userName)
 	if err != nil {
 		return err
 	}
@@ -207,14 +224,16 @@ func EditTreeNode(c echo.Context) error {
 }
 
 func UpdateTree(c echo.Context) error {
-	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
-	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "email"
-	})[0]
-
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	userName := userCookie.Value
+
+	emailCookie, err := c.Cookie("email")
+	if err != nil {
+		return err
+	}
 	email := emailCookie.Value
 
 	fName, err := url.QueryUnescape(c.Param("tree"))
@@ -264,7 +283,7 @@ func UpdateTree(c echo.Context) error {
 		parts := strings.Split(path, "/")
 		return parts[len(parts)-1]
 	})
-	dir, err := fs.GetFile("attack_trees/queries/")
+	dir, err := fs.GetFile("attack_trees/queries/", userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -305,7 +324,7 @@ func UpdateTree(c echo.Context) error {
 	fmt.Println("Data to write \\/")
 	fmt.Println(string(data))
 
-	file, err := fs.GetFile(fName)
+	file, err := fs.GetFile(fName, userName)
 	if err != nil {
 		fmt.Println(err)
 		return err

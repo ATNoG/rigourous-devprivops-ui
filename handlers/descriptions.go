@@ -14,7 +14,13 @@ import (
 )
 
 func DescriptionsMainPage(c echo.Context) error {
-	descs, err := fs.GetDescriptions("descriptions")
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := cookie.Value
+
+	descs, err := fs.GetDescriptions("descriptions", userName)
 	if err != nil {
 		return err
 	}
@@ -40,6 +46,7 @@ func DescriptionEdit(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	userName := cookie.Value
 
 	fmt.Printf("User: %s\n", cookie.Value)
 
@@ -48,7 +55,7 @@ func DescriptionEdit(c echo.Context) error {
 		return err
 	}
 
-	descFile, err := fs.GetFile(desc)
+	descFile, err := fs.GetFile(desc, userName)
 	if err != nil {
 		return err
 	}
@@ -58,12 +65,12 @@ func DescriptionEdit(c echo.Context) error {
 		return err
 	}
 
-	descs, err := fs.GetDescriptions("descriptions")
+	descs, err := fs.GetDescriptions("descriptions", userName)
 	if err != nil {
 		return err
 	}
 
-	urisFile, err := fs.GetFile("uris.yml")
+	urisFile, err := fs.GetFile("uris.yml", userName)
 	if err != nil {
 		return err
 	}

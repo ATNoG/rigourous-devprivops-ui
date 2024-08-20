@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"strconv"
@@ -19,7 +18,13 @@ import (
 )
 
 func RegulationsMainPage(c echo.Context) error {
-	regulationDirs, err := fs.GetRegulations()
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
+	regulationDirs, err := fs.GetRegulations(userName)
 	if err != nil {
 		return err
 	}
@@ -43,11 +48,16 @@ func RegulationsMainPage(c echo.Context) error {
 }
 
 func RegulationView(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
 
 	regName := c.Param("reg")
 
 	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", regName)
-	regulationFile, err := fs.GetFile(regCfgFileName)
+	regulationFile, err := fs.GetFile(regCfgFileName, userName)
 	if err != nil {
 		return err
 	}
@@ -57,7 +67,7 @@ func RegulationView(c echo.Context) error {
 		return err
 	}
 
-	regulationDirs, err := fs.GetRegulations()
+	regulationDirs, err := fs.GetRegulations(userName)
 	if err != nil {
 		return err
 	}
@@ -116,6 +126,12 @@ func RegulationView(c echo.Context) error {
 }
 
 func PolicyEdit(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	polName, err := url.QueryUnescape(c.Param("pol"))
 	if err != nil {
 		fmt.Println(err)
@@ -124,7 +140,7 @@ func PolicyEdit(c echo.Context) error {
 
 	regulationName := strings.Split(polName, "/")[1]
 	regCfgFileName := fmt.Sprintf("regulations/%s/policies.yml", regulationName)
-	regCfgFile, err := fs.GetFile(regCfgFileName)
+	regCfgFile, err := fs.GetFile(regCfgFileName, userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -136,7 +152,7 @@ func PolicyEdit(c echo.Context) error {
 		return err
 	}
 
-	polFile, err := fs.GetFile(polName)
+	polFile, err := fs.GetFile(polName, userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -148,7 +164,7 @@ func PolicyEdit(c echo.Context) error {
 		return err
 	}
 
-	regulationDirs, err := fs.GetRegulations()
+	regulationDirs, err := fs.GetRegulations(userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -228,7 +244,7 @@ func PolicyEdit(c echo.Context) error {
 			return err
 		}
 
-		regulationFile, err := fs.GetFile(fmt.Sprintf("regulations/%s/policies.yml", regulationName))
+		regulationFile, err := fs.GetFile(fmt.Sprintf("regulations/%s/policies.yml", regulationName), userName)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -333,14 +349,16 @@ func DeleteRegulation(c echo.Context) error {
 }
 
 func UpdateRegulation(c echo.Context) error {
-	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
-	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "email"
-	})[0]
-
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	userName := userCookie.Value
+
+	emailCookie, err := c.Cookie("email")
+	if err != nil {
+		return err
+	}
 	email := emailCookie.Value
 
 	fName, err := url.QueryUnescape(c.Param("reg"))
@@ -361,7 +379,7 @@ func UpdateRegulation(c echo.Context) error {
 	// sync files with the config
 	pathComponents := strings.Split(fName, "/")
 	regPath := strings.Join(pathComponents[:len(pathComponents)-1], "/") + "/consistency"
-	realRegPath, err := fs.GetFile(regPath)
+	realRegPath, err := fs.GetFile(regPath, userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -388,7 +406,7 @@ func UpdateRegulation(c echo.Context) error {
 
 	fmt.Println(string(data))
 
-	file, err := fs.GetFile(fName)
+	file, err := fs.GetFile(fName, userName)
 	if err != nil {
 		return err
 	}

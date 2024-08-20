@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
-	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/labstack/echo"
 )
 
@@ -23,14 +21,16 @@ func SaveEndpoint(c echo.Context) error {
 		return err
 	}
 
-	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
-	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "email"
-	})[0]
-
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	userName := userCookie.Value
+
+	emailCookie, err := c.Cookie("email")
+	if err != nil {
+		return err
+	}
 	email := emailCookie.Value
 
 	content, err := io.ReadAll(c.Request().Body)
@@ -43,7 +43,7 @@ func SaveEndpoint(c echo.Context) error {
 		return err
 	}
 
-	file, err := fs.GetFile(fName)
+	file, err := fs.GetFile(fName, userName)
 	if err != nil {
 		return err
 	}

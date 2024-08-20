@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo"
@@ -30,6 +31,8 @@ func LogIn(c echo.Context) error {
 	mailCookie.Value = c.FormValue("email")
 	mailCookie.SameSite = http.SameSiteStrictMode
 	c.SetCookie(mailCookie)
+
+	fs.SessionManager.AddSession(c.FormValue("username"), "master")
 
 	return templates.Page(
 		"Home page",

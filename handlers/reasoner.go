@@ -14,7 +14,13 @@ import (
 )
 
 func ReasonerMainPage(c echo.Context) error {
-	reasonDir, err := fs.GetFile("reasoner")
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
+	reasonDir, err := fs.GetFile("reasoner", userName)
 	if err != nil {
 		return err
 	}
@@ -40,13 +46,19 @@ func ReasonerMainPage(c echo.Context) error {
 }
 
 func ReasonerRuleEditor(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	ruleName, err := url.QueryUnescape(c.Param("rule"))
 	if err != nil {
 		return err
 	}
 
 	ruleFileName := fmt.Sprintf("reasoner/%s", ruleName)
-	ruleFile, err := fs.GetFile(ruleFileName)
+	ruleFile, err := fs.GetFile(ruleFileName, userName)
 	if err != nil {
 		return err
 	}
@@ -56,7 +68,7 @@ func ReasonerRuleEditor(c echo.Context) error {
 		return err
 	}
 
-	reasonDir, err := fs.GetFile("reasoner")
+	reasonDir, err := fs.GetFile("reasoner", userName)
 	if err != nil {
 		return err
 	}

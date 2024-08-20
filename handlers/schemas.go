@@ -14,7 +14,13 @@ import (
 )
 
 func SchemasMainPage(c echo.Context) error {
-	schemasDir, err := fs.GetFile("schemas")
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
+	schemasDir, err := fs.GetFile("schemas", userName)
 	if err != nil {
 		return err
 	}
@@ -41,12 +47,18 @@ func SchemasMainPage(c echo.Context) error {
 }
 
 func SchemaEditPage(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	schemaName, err := url.QueryUnescape(c.Param("schema"))
 	if err != nil {
 		return err
 	}
 
-	schemaFile, err := fs.GetFile(fmt.Sprintf("schemas/%s", schemaName))
+	schemaFile, err := fs.GetFile(fmt.Sprintf("schemas/%s", schemaName), userName)
 	if err != nil {
 		return err
 	}
@@ -56,7 +68,7 @@ func SchemaEditPage(c echo.Context) error {
 		return err
 	}
 
-	schemasDir, err := fs.GetFile("schemas")
+	schemasDir, err := fs.GetFile("schemas", userName)
 	if err != nil {
 		return err
 	}

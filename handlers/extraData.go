@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -18,7 +17,13 @@ import (
 )
 
 func ExtraDataMainPage(c echo.Context) error {
-	extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := cookie.Value
+
+	extraDataFile, err := fs.GetFile("report_data/report_data.yml", userName)
 	if err != nil {
 		return err
 	}
@@ -64,12 +69,18 @@ func ExtraDataMainPage(c echo.Context) error {
 }
 
 func ExtraDataQuery(c echo.Context) error {
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := cookie.Value
+
 	queryName, err := url.QueryUnescape(c.Param("query"))
 	if err != nil {
 		return err
 	}
 
-	queryFile, err := fs.GetFile(queryName)
+	queryFile, err := fs.GetFile(queryName, userName)
 	if err != nil {
 		return err
 	}
@@ -79,7 +90,7 @@ func ExtraDataQuery(c echo.Context) error {
 		return err
 	}
 
-	extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+	extraDataFile, err := fs.GetFile("report_data/report_data.yml", userName)
 	if err != nil {
 		return err
 	}
@@ -111,7 +122,7 @@ func ExtraDataQuery(c echo.Context) error {
 
 	datum := util.First(contentList, func(d interface{}) bool {
 		extraData := d.(map[string]interface{})
-		file, err := fs.GetFile(extraData["query"].(string))
+		file, err := fs.GetFile(extraData["query"].(string), userName)
 		if err != nil {
 			panic(err)
 		}
@@ -142,7 +153,7 @@ func ExtraDataQuery(c echo.Context) error {
 			return err
 		}
 
-		extraDataFile, err := fs.GetFile("report_data/report_data.yml")
+		extraDataFile, err := fs.GetFile("report_data/report_data.yml", userName)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -201,15 +212,16 @@ func ExtraDataQuery(c echo.Context) error {
 }
 
 func UpdateExtraData(c echo.Context) error {
-	fmt.Println("CORRECT")
-	userCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "username"
-	})[0]
-	emailCookie := util.Filter(c.Request().Cookies(), func(cookie *http.Cookie) bool {
-		return cookie.Name == "email"
-	})[0]
-
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	userName := userCookie.Value
+
+	emailCookie, err := c.Cookie("email")
+	if err != nil {
+		return err
+	}
 	email := emailCookie.Value
 
 	/*
@@ -237,7 +249,7 @@ func UpdateExtraData(c echo.Context) error {
 	}
 
 	// sync files with the config
-	dataDir, err := fs.GetFile("report_data/queries")
+	dataDir, err := fs.GetFile("report_data/queries", userName)
 	if err != nil {
 		fmt.Println(err)
 		return err
