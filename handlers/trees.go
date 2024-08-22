@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	iofs "io/fs"
+	"math/rand"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
@@ -190,12 +192,27 @@ func EditTreeNode(c echo.Context) error {
 			fmt.Println(err)
 			return err
 		}
+
+		res, err := fs.AddAll(fs.LocalDir, userName)
+		if err != nil {
+			fmt.Println(res)
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println(res)
+		res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+		if err != nil {
+			fmt.Println(res)
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println(res)
 	}
 
 	nodeDescription := tree.GetNodeDescription(nodeFileName)
 	if nodeDescription == "" {
 		fmt.Printf("Could not find '%s' in tree\n", nodeFileName)
-		return fmt.Errorf("Could not find '%s' in tree", nodeFileName)
+		return fmt.Errorf("could not find '%s' in tree", nodeFileName)
 	}
 
 	return templates.Page(
@@ -337,6 +354,21 @@ func UpdateTree(c echo.Context) error {
 	}
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	res, err := fs.AddAll(fs.LocalDir, userName)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
 
 	return nil
 }

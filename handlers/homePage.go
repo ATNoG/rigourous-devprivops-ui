@@ -22,17 +22,20 @@ func HomePage(c echo.Context) error {
 func LogIn(c echo.Context) error {
 	userNameCookie := new(http.Cookie)
 	userNameCookie.Name = "username"
-	userNameCookie.Value = c.FormValue("username")
+	userName := c.FormValue("username")
+	userNameCookie.Value = userName
 	userNameCookie.SameSite = http.SameSiteStrictMode
 	c.SetCookie(userNameCookie)
 
-	mailCookie := new(http.Cookie)
-	mailCookie.Name = "email"
-	mailCookie.Value = c.FormValue("email")
-	mailCookie.SameSite = http.SameSiteStrictMode
-	c.SetCookie(mailCookie)
+	emailCookie := new(http.Cookie)
+	emailCookie.Name = "email"
+	email := c.FormValue("email")
+	emailCookie.Value = email
+	emailCookie.SameSite = http.SameSiteStrictMode
+	c.SetCookie(emailCookie)
 
-	fs.SessionManager.AddSession(c.FormValue("username"), "master")
+	fs.SessionManager.AddSession(userName, userName)
+	fs.SetupRepo(userName, userName, email)
 
 	return templates.Page(
 		"Home page",

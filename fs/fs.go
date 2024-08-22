@@ -51,7 +51,7 @@ func GetFile(relativePath string, user string) (string, error) {
 	return getFile(
 		relativePath,
 		fmt.Sprintf("%s/%s", LocalDir, branch),
-		fmt.Sprintf("%s/%s", GlobalDir, branch),
+		GlobalDir,
 	)
 }
 
@@ -91,7 +91,7 @@ func GetDescriptions(descriptionRoot string, user string) ([]string, error) {
 	return getDescriptions(
 		descriptionRoot,
 		fmt.Sprintf("%s/%s", LocalDir, branch),
-		fmt.Sprintf("%s/%s", GlobalDir, branch),
+		GlobalDir,
 	)
 }
 
@@ -143,7 +143,7 @@ func GetRegulations(user string) ([]string, error) {
 
 	return getRegulations(
 		fmt.Sprintf("%s/%s", LocalDir, branch),
-		fmt.Sprintf("%s/%s", GlobalDir, branch),
+		GlobalDir,
 	)
 }
 
@@ -208,7 +208,7 @@ func GetConfigs(user string) ([]string, error) {
 
 	return getConfigs(
 		fmt.Sprintf("%s/%s", LocalDir, branch),
-		fmt.Sprintf("%s/%s", GlobalDir, branch),
+		GlobalDir,
 	)
 }
 
@@ -284,4 +284,15 @@ func WriteFileSync(file string, data []byte, permissions fs.FileMode) error {
 	m.Unlock()
 
 	return err
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

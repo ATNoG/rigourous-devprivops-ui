@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
@@ -213,6 +215,21 @@ func RequirementEdit(c echo.Context) error {
 			fmt.Println(err)
 			return err
 		}
+
+		res, err := fs.AddAll(fs.LocalDir, userName)
+		if err != nil {
+			fmt.Println(res)
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println(res)
+		res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+		if err != nil {
+			fmt.Println(res)
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println(res)
 	}
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(reqName))
@@ -324,6 +341,21 @@ func UpdateRequirements(c echo.Context) error {
 	}
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	res, err := fs.AddAll(fs.LocalDir, userName)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
 
 	return nil
 }

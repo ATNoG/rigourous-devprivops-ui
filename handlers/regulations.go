@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/url"
 	"os"
 	"strconv"
@@ -308,6 +309,12 @@ func PolicyEdit(c echo.Context) error {
 }
 
 func CreateRegulation(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	file := c.QueryParam("path")
 	path := fmt.Sprintf("%s/%s", fs.LocalDir, file)
 
@@ -331,10 +338,31 @@ func CreateRegulation(c echo.Context) error {
 		return err
 	}
 
+	res, err := fs.AddAll(fs.LocalDir, userName)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+
 	return nil
 }
 
 func DeleteRegulation(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := userCookie.Value
+
 	file := c.QueryParam("path")
 	path := fmt.Sprintf("%s/regulations/%s", fs.LocalDir, file)
 
@@ -344,6 +372,21 @@ func DeleteRegulation(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
+
+	res, err := fs.AddAll(fs.LocalDir, userName)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
 
 	return nil
 }
@@ -418,6 +461,21 @@ func UpdateRegulation(c echo.Context) error {
 	}
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
+
+	res, err := fs.AddAll(fs.LocalDir, userName)
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	if err != nil {
+		fmt.Println(res)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println(res)
 
 	return nil
 }

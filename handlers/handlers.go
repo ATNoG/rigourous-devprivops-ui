@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
-	"os/exec"
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
@@ -14,13 +13,6 @@ import (
 )
 
 func SaveEndpoint(c echo.Context) error {
-	fmt.Println("SAVING")
-	out, err := exec.Command("git", "-h").Output()
-	if err != nil {
-		fmt.Printf(">%s\n>%s\n", string(out), err)
-		return err
-	}
-
 	userCookie, err := c.Cookie("username")
 	if err != nil {
 		return err
@@ -56,20 +48,20 @@ func SaveEndpoint(c echo.Context) error {
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
-	res, err := fs.AddAll(fs.LocalDir)
+	res, err := fs.AddAll(fs.LocalDir, userName)
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
 		return err
 	}
-	fmt.Sprintln(res)
-	res, err = fs.Commit(fs.LocalDir, strconv.Itoa(rand.Int()))
+	fmt.Println(res)
+	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
 		return err
 	}
-	fmt.Sprintln(res)
+	fmt.Println(res)
 
 	return nil
 }
