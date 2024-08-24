@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -101,8 +102,27 @@ func SolveMergeConflict(c echo.Context) error {
 		return err
 	}
 
-	// TODO: take the path and redirect to the propper save endpoint, may require editor changes
-	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(diffFile))
+	fileKind := strings.Split(diffFile, "/")[0]
+
+	var saveEndpoint string
+
+	if strings.HasSuffix(fileKind, ".yml") || strings.HasSuffix(fileKind, ".yaml") {
+		saveEndpoint = fmt.Sprintf("/save/%s", url.QueryEscape(diffFile))
+	} else {
+		switch fileKind {
+		case "regulations":
+			saveEndpoint = fmt.Sprintf("/save-regulation/%s", url.QueryEscape(diffFile))
+		case "attack_trees":
+			saveEndpoint = fmt.Sprintf("/save-tree/%s", url.QueryEscape(diffFile))
+		case "report_data":
+			saveEndpoint = "/save-report-data"
+		case "requirements":
+			saveEndpoint = "/save-requirements"
+		default:
+			saveEndpoint = fmt.Sprintf("/save/%s", url.QueryEscape(diffFile))
+		}
+	}
+
 	return templates.Page(
 		"Merge",
 		"", "",
