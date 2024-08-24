@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"fmt"
+	"net/url"
+	"os"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -29,7 +31,7 @@ func Push(c echo.Context) error {
 	conflictList := util.Map(conflictFiles, func(file string) templates.SideBarListElement {
 		return templates.SideBarListElement{
 			Text: file,
-			Link: "#",
+			Link: fmt.Sprintf("/push/%s", url.QueryEscape(file)),
 		}
 	})
 	// editor: https://github.com/microsoft/monaco-editor/issues/1529
@@ -41,20 +43,76 @@ func Push(c echo.Context) error {
 		func() templ.Component {
 			return templates.DiffEditor(
 				"yaml",
-				`config:
-  - id: dpia:last update
-<<<<<<< HEAD
-    value: 02/03/2006
-=======
-    value: 02/03/2005
->>>>>>> 8837fc1f3f6cc392f7e690be6f4ef3cc44d8a6bf
-  - id: dfd:as safeguards
-    value:
-      - encryption
-  - id: dfd:as options
-    value:
-      - some option`,
+				`aaa`,
+				`bbb`,
 				"#",
+			)
+		},
+		nil,
+	).Render(c.Request().Context(), c.Response())
+}
+
+func SolveMergeConflict(c echo.Context) error {
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := cookie.Value
+
+	diffFile, err := url.QueryUnescape(c.Param("file"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("!!! %s: %s\n", diffFile, userName)
+	modifiedFile, err := fs.GetFile(diffFile, userName)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	originalFile, err := fs.GetFile(diffFile, "master")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	repo := fmt.Sprintf("%s/%s", fs.LocalDir, userName)
+	fmt.Printf("In repo '%s'\n", repo)
+	conflictFiles, err := fs.GetConflicts(repo)
+	if err != nil && err.Error() != "exit status 128" {
+		fmt.Printf("Could not get conflicts: %s\n", err)
+		return err
+	}
+
+	conflictList := util.Map(conflictFiles, func(file string) templates.SideBarListElement {
+		return templates.SideBarListElement{
+			Text: file,
+			Link: fmt.Sprintf("/push/%s", url.QueryEscape(file)),
+		}
+	})
+	// editor: https://github.com/microsoft/monaco-editor/issues/1529
+
+	originalContent, err := os.ReadFile(originalFile)
+	if err != nil {
+		return err
+	}
+	modifiedContent, err := os.ReadFile(modifiedFile)
+	if err != nil {
+		return err
+	}
+
+	// TODO: take the path and redirect to the propper save endpoint, may require editor changes
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(diffFile))
+	return templates.Page(
+		"Merge",
+		"", "",
+		func() templ.Component { return templates.ConflictList(conflictList) },
+		func() templ.Component {
+			return templates.DiffEditor(
+				"yaml",
+				string(originalContent),
+				string(modifiedContent),
+				saveEndpoint,
 			)
 		},
 		nil,

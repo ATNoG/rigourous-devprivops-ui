@@ -46,18 +46,18 @@ script EditorScript(language string, content string, fileURL string) {
     });
 }
 
-script DiffEditorScript(language string, content string, fileURL string) {
+script DiffEditorScript(language string, original string, modified string, fileURL string) {
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
 		const editor = monaco.editor.createDiffEditor(document.getElementById('editorContainer'), {
-			value: content,
+			// value: content,
             language: language
         });
 		
 		// https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IStandaloneDiffEditor.html
 		editor.setModel({
-			original: monaco.editor.createModel("aaa"),
-			modified: monaco.editor.createModel("bbb"),
+			original: monaco.editor.createModel(original),
+			modified: monaco.editor.createModel(modified),
 		});
 
 		window.editor = editor
@@ -67,15 +67,17 @@ script DiffEditorScript(language string, content string, fileURL string) {
 
 		document.getElementById('save-btn').addEventListener('click', function(event) {
 			event.preventDefault();
-			const editorContent = editor.getValue();
+			const editorContent = editor.getModifiedEditor().getValue();
 			console.log(`Editor for ${language}`);
 		
 			var body = editorContent
+			/*
 			if (language === "yaml") {
 				console.log("HERE")
 			    const jsonObject = jsyaml.load(editorContent);
                 body = JSON.stringify(jsonObject);
 			}
+			*/
 
 			console.log(`Sending the following: ${body}`)
 
@@ -104,10 +106,11 @@ templ EditorComponent(language string, content string, fileURL string) {
 	@EditorScript(language, content, fileURL)
 }
 
-templ DiffEditor(language string, content string, fileURL string) {
+templ DiffEditor(language string, original string, modified string, fileURL string) {
 	<div id="editorContainer" class="editor"></div>
+    // <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-	@DiffEditorScript(language, content, fileURL)
+	@DiffEditorScript(language, original, modified, fileURL)
 }
 
 templ EditorWithVisualizer(language string, content string, fileURL string) {

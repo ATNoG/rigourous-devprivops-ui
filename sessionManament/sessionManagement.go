@@ -13,7 +13,7 @@ type SessionManager struct {
 func GetSessionManager() *SessionManager {
 	return &SessionManager{
 		m:                sync.Mutex{},
-		sessionBranchMap: map[string]string{},
+		sessionBranchMap: map[string]string{"master": "master"},
 	}
 }
 
