@@ -247,3 +247,13 @@ templ DescriptionMetadata(endpoint string, current string, uriList []string) {
         <input id="2" type="submit" value="Save Changes"/>
 	</form>
 }
+
+templ ConflictList(files []SideBarListElement) {
+	<ul id="conflictList">
+		for _, e := range files {
+			<li>
+				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+			</li>
+		}
+	</ul>
+}

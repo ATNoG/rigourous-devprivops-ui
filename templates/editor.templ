@@ -46,26 +46,83 @@ script EditorScript(language string, content string, fileURL string) {
     });
 }
 
+script DiffEditorScript(language string, content string, fileURL string) {
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+		const editor = monaco.editor.createDiffEditor(document.getElementById('editorContainer'), {
+			value: content,
+            language: language
+        });
+		
+		// https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IStandaloneDiffEditor.html
+		editor.setModel({
+			original: monaco.editor.createModel("aaa"),
+			modified: monaco.editor.createModel("bbb"),
+		});
+
+		window.editor = editor
+		window.editorReady = true;
+
+		// const language = Array.from(editor.languageConfigurationService.configurations.keys())[0]
+
+		document.getElementById('save-btn').addEventListener('click', function(event) {
+			event.preventDefault();
+			const editorContent = editor.getValue();
+			console.log(`Editor for ${language}`);
+		
+			var body = editorContent
+			if (language === "yaml") {
+				console.log("HERE")
+			    const jsonObject = jsyaml.load(editorContent);
+                body = JSON.stringify(jsonObject);
+			}
+
+			console.log(`Sending the following: ${body}`)
+
+			fetch(fileURL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				// body: JSON.stringify({ content: editorContent })
+				body: body // editorContent
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('Success:', data);
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+			});
+		});
+    });
+}
+
 templ EditorComponent(language string, content string, fileURL string) {
-    <div id="editorContainer" class="editor"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-    @EditorScript(language, content, fileURL)
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
+}
+
+templ DiffEditor(language string, content string, fileURL string) {
+	<div id="editorContainer" class="editor"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@DiffEditorScript(language, content, fileURL)
 }
 
 templ EditorWithVisualizer(language string, content string, fileURL string) {
-    <div id="editorContainer" class="editor"></div>
+	<div id="editorContainer" class="editor"></div>
 	<div id="graphContainer" class="flex-grow p-4 bg-gray-50">
 		<div id="mynetwork"></div>
 	</div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-    @EditorScript(language, content, fileURL)
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL)
 	/*
 	@GraphVizScript(
 		"[ { \"id\": 1, \"label\": \"Node 1\" }, { \"id\": 2, \"label\": \"Node 2\" }, { \"id\": 3, \"label\": \"Node 3\" }, { \"id\": 4, \"label\": \"Node 4\" }, { \"id\": 5, \"label\": \"Node 5\" } ]",
 		"[ { \"from\": 1, \"to\": 2 }, { \"from\": 1, \"to\": 3 }, { \"from\": 2, \"to\": 4 }, { \"from\": 2, \"to\": 5 }]",
 	)
 	*/
-	
 	<script type="module">
 		import init, { process } from "/static/dfd/dfd.js";
 

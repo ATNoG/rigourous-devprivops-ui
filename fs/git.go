@@ -1,9 +1,11 @@
 package fs
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // var Repo string
@@ -82,4 +84,47 @@ func SetupRepo(repo string, user string, email string) (string, error) {
 		fmt.Println(err)
 	}
 	return string(out), err
+}
+
+func GetConflicts(repo string) ([]string, error) {
+	out, err := exec.Command("git", "-C", repo, "pull", "origin", "master", "--no-rebase").Output()
+	if err != nil {
+		fmt.Println(string(out))
+		fmt.Printf("Could not pull origin: %s\n", err)
+		if err.Error() != "exit status 1" {
+			return []string{}, err
+		}
+	} else {
+		fmt.Println(string(out))
+	}
+
+	out, err = exec.Command("git", "-C", repo, "status").Output()
+	if err != nil {
+		fmt.Println("Error reading git status output:", err)
+		return []string{}, err
+	}
+	fmt.Println(string(out))
+
+	conflictFiles := []string{}
+	scanner := bufio.NewScanner(strings.NewReader(string(out)))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.Contains(line, "both modified:") {
+			file := strings.TrimSpace(strings.TrimPrefix(line, "	both modified:   "))
+			conflictFiles = append(conflictFiles, file)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading git status output:", err)
+		return []string{}, err
+	}
+
+	out, err = exec.Command("git", "-C", repo, "merge", "--abort").Output()
+	fmt.Println(string(out))
+	fmt.Println(err)
+
+	return conflictFiles, err
 }

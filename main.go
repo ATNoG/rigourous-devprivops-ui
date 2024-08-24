@@ -67,6 +67,8 @@ func main() {
 	e.GET("/analyse", handlers.Analyse)
 	e.GET("/test", handlers.Test)
 
+	e.GET("/push", handlers.Push)
+
 	e.POST("/delete", handlers.DeleteFile)
 	e.POST("/create", handlers.CreateFile)
 	e.POST("/create-regulation", handlers.CreateRegulation)

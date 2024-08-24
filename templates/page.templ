@@ -18,6 +18,7 @@ templ Page(title string, altView string, toggleBtnName string, left, center, rig
                 <a class="text-white" href="/extra-data">Extra data</a>
                 <a class="text-white" href="/requirements">Requirements</a>
                 <a class="text-white" href="/schemas">Schemas</a>
+                <a class="text-white" href="/push">P</a>
             </div>
             <div class="flex space-x-4">
                 <a id="toggleView" class="text-white" href="#">{toggleBtnName}</a>
@@ -94,9 +95,12 @@ script toggleButton(altView string, toggleBtnName string) {
     edCont = document.getElementById('editorContainer')
     
     if (edCont !== null) {
-            document.getElementById('editorContainer').style.display = 'block';
-            document.getElementById(altView).style.display = 'none';
-            toggleButton.textContent = toggleBtnName;
+        document.getElementById('editorContainer').style.display = 'block';
+        const alt = document.getElementById(altView)
+        if (alt != null) {
+            alt.style.display = 'none';
+        }
+        toggleButton.textContent = toggleBtnName;
     }
 }
 
