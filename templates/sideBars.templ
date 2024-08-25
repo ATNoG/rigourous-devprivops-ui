@@ -257,3 +257,34 @@ templ ConflictList(files []SideBarListElement) {
 		}
 	</ul>
 }
+
+templ ConflictSideBar() {
+	<ul>
+		// <li><button id="pull-btn" type="button">Pull</button></li>
+		<li><button id="push-btn" type="button">Push</button></li>
+	</ul>
+
+	<script>
+		/*
+		document.getElementById("pull-btn").addEventListener('click', function() {
+		})
+		*/
+		
+		document.getElementById("push-btn").addEventListener('click', function() {
+			fetch("/push", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: {}
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('Success:', data);
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+			});
+		})
+	</script>
+}

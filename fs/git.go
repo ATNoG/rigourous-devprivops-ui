@@ -37,24 +37,26 @@ func Clone(newRepoPath string) (string, error) {
 	return "repo already exists", nil
 }
 
-func AddAll(dir string, user string) (string, error) {
+func AddAll(user string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
 	out, err := exec.Command("/usr/bin/git", "-C", repoPath, "add", ".").Output()
 
 	return string(out), err
 }
 
-func Commit(dir string, user string, message string) (string, error) {
+func Commit(user string, message string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
 	out, err := exec.Command("/usr/bin/git", "-C", repoPath, "commit", "-m", message).Output()
 
 	return string(out), err
 }
 
-func Push(dir string, user string) (string, error) {
+func Push(user string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
+	fmt.Println("/usr/bin/git", "-C", repoPath, "push", "origin", "master")
 	out, err := exec.Command("/usr/bin/git", "-C", repoPath, "push", "origin", "master").Output()
 
+	fmt.Printf(">>> %s\n", string(out))
 	return string(out), err
 }
 

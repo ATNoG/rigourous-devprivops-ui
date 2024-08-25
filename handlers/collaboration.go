@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func Push(c echo.Context) error {
+func MergeConflicts(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
 		return err
@@ -41,15 +41,8 @@ func Push(c echo.Context) error {
 		"Merge",
 		"", "",
 		func() templ.Component { return templates.ConflictList(conflictList) },
-		func() templ.Component {
-			return templates.DiffEditor(
-				"yaml",
-				`aaa`,
-				`bbb`,
-				"#",
-			)
-		},
 		nil,
+		func() templ.Component { return templates.ConflictSideBar() },
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -135,6 +128,40 @@ func SolveMergeConflict(c echo.Context) error {
 				saveEndpoint,
 			)
 		},
-		nil,
+		func() templ.Component { return templates.ConflictSideBar() },
 	).Render(c.Request().Context(), c.Response())
+}
+
+func Push(c echo.Context) error {
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
+	userName := cookie.Value
+
+	// Do not push if there are still conflicts
+	repo := fmt.Sprintf("%s/%s", fs.LocalDir, userName)
+	conflictFiles, err := fs.GetConflicts(repo)
+	if err != nil && err.Error() != "exit status 128" {
+		fmt.Printf("Could not get conflicts: %s\n", err)
+		return err
+	}
+
+	if len(conflictFiles) == 0 {
+
+		fmt.Println("!!!!")
+		out, err := fs.Push(userName)
+		fmt.Println("!!!!")
+		if err != nil && err.Error() != "exit status 128" {
+			fmt.Println(out)
+			fmt.Println(err)
+			return err
+		}
+	} else {
+		fmt.Println("There are still conflicts, please solve them first")
+	}
+
+	fmt.Println("Pushed to central repo")
+
+	return nil
 }

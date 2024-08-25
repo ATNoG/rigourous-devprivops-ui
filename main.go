@@ -67,7 +67,8 @@ func main() {
 	e.GET("/analyse", handlers.Analyse)
 	e.GET("/test", handlers.Test)
 
-	e.GET("/push", handlers.Push)
+	e.GET("/conflicts", handlers.MergeConflicts)
+	e.POST("/push", handlers.Push)
 	e.GET("/push/:file", handlers.SolveMergeConflict)
 
 	e.POST("/delete", handlers.DeleteFile)

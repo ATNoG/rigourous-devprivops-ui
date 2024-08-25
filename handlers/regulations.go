@@ -338,14 +338,14 @@ func CreateRegulation(c echo.Context) error {
 		return err
 	}
 
-	res, err := fs.AddAll(fs.LocalDir, userName)
+	res, err := fs.AddAll(userName)
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
 		return err
 	}
 	fmt.Println(res)
-	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	res, err = fs.Commit(userName, strconv.Itoa(rand.Int()))
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
@@ -373,14 +373,14 @@ func DeleteRegulation(c echo.Context) error {
 		return err
 	}
 
-	res, err := fs.AddAll(fs.LocalDir, userName)
+	res, err := fs.AddAll(userName)
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
 		return err
 	}
 	fmt.Println(res)
-	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	res, err = fs.Commit(userName, strconv.Itoa(rand.Int()))
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
@@ -462,14 +462,14 @@ func UpdateRegulation(c echo.Context) error {
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
-	res, err := fs.AddAll(fs.LocalDir, userName)
+	res, err := fs.AddAll(userName)
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
 		return err
 	}
 	fmt.Println(res)
-	res, err = fs.Commit(fs.LocalDir, userName, strconv.Itoa(rand.Int()))
+	res, err = fs.Commit(userName, strconv.Itoa(rand.Int()))
 	if err != nil {
 		fmt.Println(res)
 		fmt.Println(err)
