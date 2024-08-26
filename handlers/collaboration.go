@@ -55,13 +55,13 @@ func MergeConflicts(c echo.Context) error {
 func SolveMergeConflict(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := cookie.Value
 
 	diffFile, err := url.QueryUnescape(c.Param("file"))
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 
 	fmt.Printf("!!! %s: %s\n", diffFile, userName)
@@ -82,6 +82,10 @@ func SolveMergeConflict(c echo.Context) error {
 	if err != nil && err.Error() != "exit status 128" {
 		fmt.Printf("Could not get conflicts: %s\n", err)
 		return err
+	}
+
+	if !util.Contains(conflictFiles, diffFile) {
+		return templates.Redirect("/conflicts").Render(c.Request().Context(), c.Response())
 	}
 
 	conflictList := util.Map(conflictFiles, func(file string) templates.SideBarListElement {
