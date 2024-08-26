@@ -1,0 +1,9 @@
+package templates
+
+script RedirectScript(pageURL string) {
+    window.location.replace(pageURL);
+}
+
+templ Redirect(pageURL string) {
+    @RedirectScript(pageURL)
+}

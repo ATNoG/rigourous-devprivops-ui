@@ -250,11 +250,15 @@ templ DescriptionMetadata(endpoint string, current string, uriList []string) {
 
 templ ConflictList(files []SideBarListElement) {
 	<ul id="conflictList">
+	if len(files) > 0 {
 		for _, e := range files {
 			<li>
 				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
 			</li>
 		}
+	} else {
+		<p> There are no conflicts </p>
+	}
 	</ul>
 }
 

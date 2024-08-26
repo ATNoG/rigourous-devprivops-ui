@@ -9,19 +9,20 @@ import (
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/labstack/echo"
 )
 
 func SaveEndpoint(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
 	emailCookie, err := c.Cookie("email")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	email := emailCookie.Value
 

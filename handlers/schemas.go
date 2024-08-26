@@ -16,7 +16,7 @@ import (
 func SchemasMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -49,7 +49,7 @@ func SchemasMainPage(c echo.Context) error {
 func SchemaEditPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 

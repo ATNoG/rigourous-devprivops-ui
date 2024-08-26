@@ -21,7 +21,7 @@ import (
 func RegulationsMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -51,7 +51,7 @@ func RegulationsMainPage(c echo.Context) error {
 func RegulationView(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -129,7 +129,7 @@ func RegulationView(c echo.Context) error {
 func PolicyEdit(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -311,7 +311,7 @@ func PolicyEdit(c echo.Context) error {
 func CreateRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -359,7 +359,7 @@ func CreateRegulation(c echo.Context) error {
 func DeleteRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -394,13 +394,13 @@ func DeleteRegulation(c echo.Context) error {
 func UpdateRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
 	emailCookie, err := c.Cookie("email")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	email := emailCookie.Value
 

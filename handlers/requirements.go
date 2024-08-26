@@ -22,7 +22,7 @@ import (
 func RequirementsMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -99,7 +99,7 @@ func RequirementsMainPage(c echo.Context) error {
 func RequirementEdit(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -265,13 +265,13 @@ func RequirementEdit(c echo.Context) error {
 func UpdateRequirements(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
 	emailCookie, err := c.Cookie("email")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	email := emailCookie.Value
 

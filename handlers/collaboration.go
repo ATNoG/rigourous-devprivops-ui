@@ -16,7 +16,8 @@ import (
 func MergeConflicts(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		// return err
 	}
 	userName := cookie.Value
 	fmt.Printf("Username: %s\n", userName)
@@ -37,12 +38,17 @@ func MergeConflicts(c echo.Context) error {
 	})
 	// editor: https://github.com/microsoft/monaco-editor/issues/1529
 
+	var rightBar func() templ.Component = nil
+	if len(conflictFiles) == 0 {
+		rightBar = func() templ.Component { return templates.ConflictSideBar() }
+	}
+
 	return templates.Page(
 		"Merge",
 		"", "",
 		func() templ.Component { return templates.ConflictList(conflictList) },
 		nil,
-		func() templ.Component { return templates.ConflictSideBar() },
+		rightBar,
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -128,7 +134,8 @@ func SolveMergeConflict(c echo.Context) error {
 				saveEndpoint,
 			)
 		},
-		func() templ.Component { return templates.ConflictSideBar() },
+		// func() templ.Component { return templates.ConflictSideBar() },
+		nil,
 	).Render(c.Request().Context(), c.Response())
 }
 

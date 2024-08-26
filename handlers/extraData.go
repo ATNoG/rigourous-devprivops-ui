@@ -21,7 +21,7 @@ import (
 func ExtraDataMainPage(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := cookie.Value
 
@@ -73,7 +73,7 @@ func ExtraDataMainPage(c echo.Context) error {
 func ExtraDataQuery(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := cookie.Value
 
@@ -216,13 +216,13 @@ func ExtraDataQuery(c echo.Context) error {
 func UpdateExtraData(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
 	emailCookie, err := c.Cookie("email")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	email := emailCookie.Value
 

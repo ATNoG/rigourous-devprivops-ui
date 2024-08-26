@@ -22,7 +22,7 @@ import (
 func TreesMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -58,7 +58,7 @@ func TreesMainPage(c echo.Context) error {
 func TreeView(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -126,7 +126,7 @@ func TreeView(c echo.Context) error {
 func EditTreeNode(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
@@ -243,13 +243,13 @@ func EditTreeNode(c echo.Context) error {
 func UpdateTree(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
 
 	emailCookie, err := c.Cookie("email")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	email := emailCookie.Value
 

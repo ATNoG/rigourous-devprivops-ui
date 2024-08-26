@@ -16,7 +16,7 @@ import (
 func DescriptionsMainPage(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := cookie.Value
 
@@ -44,7 +44,7 @@ func DescriptionsMainPage(c echo.Context) error {
 func DescriptionEdit(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := cookie.Value
 
