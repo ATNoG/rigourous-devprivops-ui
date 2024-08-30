@@ -18,22 +18,27 @@ const (
 )
 
 func (input InputType) String() string {
-    switch input {
-        case TEXT: return "text"
-        case RADIO: return "radio"
-        case CHECKBOX: return "checkbox"
-        case SUBMIT: return "submit"
-        case BUTTON: return "button"
-    }
+	switch input {
+	case TEXT:
+		return "text"
+	case RADIO:
+		return "radio"
+	case CHECKBOX:
+		return "checkbox"
+	case SUBMIT:
+		return "submit"
+	case BUTTON:
+		return "button"
+	}
 
-    return ""
+	return ""
 }
 
 type SideBarFormElement struct {
-	Type  	InputType 	// The input type
-	Id    	string 		// The HTML id of the field
-	Label 	string 		// The label text
-	Default string 		// The default value of the field
+	Type    InputType // The input type
+	Id      string    // The HTML id of the field
+	Label   string    // The label text
+	Default string    // The default value of the field
 }
 
 templ SideBarList(elements []SideBarListElement) {
@@ -45,16 +50,16 @@ templ SideBarList(elements []SideBarListElement) {
 }
 
 templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
-	<form action={templ.SafeURL(endpoint)}>
+	<form action={ templ.SafeURL(endpoint) }>
 		<ul>
-		for _, e := range elements {
-			<li class="grid grid-cols-2 mb-2">
-			<label for={ e.Id }>{ e.Label }</label>
-			<input class="text-slate-400" id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
-			</li>
-		}
+			for _, e := range elements {
+				<li class="grid grid-cols-2 mb-2">
+					<label for={ e.Id }>{ e.Label }</label>
+					<input class="text-slate-400" id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
+				</li>
+			}
 		</ul>
-        <input class="mt-10" type="submit" value="Submit"/>
+		<input class="mt-10" type="submit" value="Submit"/>
 	</form>
 }
 
@@ -67,43 +72,56 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 		<li><a href={ templ.SafeURL(createFileEndpoint) }>New File</a></li>
 	</ul>
 	*/
-	
 	// @FileListScript()
-
 	<ul id="fileList">
 		for _, e := range files {
 			<li class="grid grid-cols-2 mb-2">
-				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+				<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
 				// <button onclick={ fmt.Sprintf("deleteFile(this, %s)", fileName) }>Delete</button>
-				<button class="text-slate-400" onclick={ templ.ComponentScript{
+				<button
+					class="text-slate-400"
+					onclick={ templ.ComponentScript{
 					Call: fmt.Sprintf("deleteFile(this, '%s%s')", baseDir, e.Text),
-				} }>Delete</button>
+				} }
+				>Delete</button>
 			</li>
 		}
 	</ul>
 	<div class="mt-10 new-file">
 		<input type="text" id="newFileName" placeholder="New file name"/>
-		<button onclick={ templ.ComponentScript{
+		<button
+			onclick={ templ.ComponentScript{
 			Call: fmt.Sprintf("addFile('%s', '%s')", baseURL, baseDir),
-		} }>Create</button>
+		} }
+		>Create</button>
 	</div>
-
 	@FileScript()
 }
 
 templ RegulationList(baseDir string, files []SideBarListElement) {
 	<ul id="fileList">
 		for _, e := range files {
-			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+			// <li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
+			<li class="grid grid-cols-2 mb-2">
+				<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></span>
+				// <button class="text-slate-400" onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
+				<button
+					class="text-slate-400"
+					onclick={ templ.ComponentScript{
+					Call: fmt.Sprintf("deleteFile(this, '%s')", e.Link),
+				} }
+				>Delete</button>
+			</li>
 		}
 	</ul>
 	<div class="mt-5 new-file">
 		<input type="text" id="newFileName" placeholder="New regulation name"/>
-		<button onclick={ templ.ComponentScript{
+		<button
+			onclick={ templ.ComponentScript{
 			Call: fmt.Sprintf("addRegulation('%s')", baseDir),
-		} }>Add</button>
+		} }
+		>Add</button>
 	</div>
-
 	@FileScript()
 }
 
@@ -169,8 +187,9 @@ templ FileScript() {
 			*/
 			li.innerHTML = `
 				<span><a href='/regulations/${fileName}'>${fileName}</a></span>
-				<button onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
+				<button class="text-slate-400" onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
 			`;
+			li.classList.add("grid", "grid-cols-2", "mb-2")
 			fileList.appendChild(li);
 
 			fileNameInput.value = '';
@@ -224,48 +243,45 @@ templ VerticalList(elements ...func() templ.Component) {
 }
 
 templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
-	<form class="mb-5" id="form1" action={templ.SafeURL(endpoint)}>
+	<form class="mb-5" id="form1" action={ templ.SafeURL(endpoint) }>
 		<label class="mr-5" for="uri">URI</label>
-
 		<select name="uri" id="uri">
 			for _, s := range uriList {
 				if s != currentURI {
-					<option value={s}>{s}</option>
+					<option value={ s }>{ s }</option>
 				} else {
-					<option value={s} selected>{s}</option>
+					<option value={ s } selected>{ s }</option>
 				}
 			}
 		</select>
 		<br class="mb-5"/>
-        <input id="1" type="submit" value="Change URI"/>
+		<input id="1" type="submit" value="Change URI"/>
 	</form>
 	<br/>
-	<form id="form2" action={templ.SafeURL(endpoint)}>
+	<form id="form2" action={ templ.SafeURL(endpoint) }>
 		<label for="abreviation">Abreviation</label>
 		<br/>
-		<input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={currentURI}/>
+		<input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
 		<br class="mb-5"/>
-		
 		<label for="new-uri">New URI</label>
 		<br/>
-		<input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={extendedCurrentURI}/>
+		<input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
 		<br class="mb-5"/>
-
 		<input id="2" type="submit" value="Save Changes"/>
 	</form>
 }
 
 templ ConflictList(files []SideBarListElement) {
 	<ul id="conflictList">
-	if len(files) > 0 {
-		for _, e := range files {
-			<li>
-				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
-			</li>
+		if len(files) > 0 {
+			for _, e := range files {
+				<li>
+					<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+				</li>
+			}
+		} else {
+			<p>There are no conflicts </p>
 		}
-	} else {
-		<p> There are no conflicts </p>
-	}
 	</ul>
 }
 
@@ -274,7 +290,6 @@ templ ConflictSideBar() {
 		// <li><button id="pull-btn" type="button">Pull</button></li>
 		<li><button id="push-btn" type="button">Push</button></li>
 	</ul>
-
 	<script>
 		/*
 		document.getElementById("pull-btn").addEventListener('click', function() {

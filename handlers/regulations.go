@@ -33,7 +33,7 @@ func RegulationsMainPage(c echo.Context) error {
 	regulations := util.Map(regulationDirs, func(r string) templates.SideBarListElement {
 		return templates.SideBarListElement{
 			Text: r,
-			Link: fmt.Sprintf("/regulations/%s", r),
+			Link: fmt.Sprintf("regulations/%s", r),
 		}
 	})
 
@@ -314,14 +314,18 @@ func CreateRegulation(c echo.Context) error {
 		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
+	branch, exists := fs.SessionManager.GetBranch(userName)
+	if !exists {
+		return fmt.Errorf("user is not logged in")
+	}
 
 	file := c.QueryParam("path")
-	path := fmt.Sprintf("%s/%s", fs.LocalDir, file)
+	path := fmt.Sprintf("%s/%s/%s", fs.LocalDir, branch, file)
 
 	fmt.Printf("Create REGULATION '%s'\n", path)
 
 	if err := os.Mkdir(path, 0777); err != nil {
-		fmt.Println(err)
+		fmt.Println("Could not create path: ", err)
 		return err
 	}
 	if err := os.Mkdir(fmt.Sprintf("%s/consistency", path), 0755); err != nil {

@@ -68,12 +68,22 @@ func SaveEndpoint(c echo.Context) error {
 }
 
 func DeleteFile(c echo.Context) error {
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+	}
+	userName := userCookie.Value
+	branch, exists := fs.SessionManager.GetBranch(userName)
+	if !exists {
+		return fmt.Errorf("user is not logged in")
+	}
+
 	file := c.QueryParam("path")
-	path := fmt.Sprintf("'%s/%s'", fs.LocalDir, file)
+	path := fmt.Sprintf("%s/%s/%s", fs.LocalDir, branch, file)
 
 	fmt.Printf("Delete '%s'\n", path)
 
-	err := os.Remove(path)
+	err = os.RemoveAll(path)
 	if err != nil {
 		fmt.Println(err)
 		return err
