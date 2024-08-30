@@ -46,12 +46,15 @@ templ SideBarList(elements []SideBarListElement) {
 
 templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 	<form action={templ.SafeURL(endpoint)}>
+		<ul>
 		for _, e := range elements {
+			<li class="grid grid-cols-2 mb-2">
 			<label for={ e.Id }>{ e.Label }</label>
-			<input id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
-			<br/>
+			<input class="text-slate-400" id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
+			</li>
 		}
-        <input type="submit" value="Submit"/>
+		</ul>
+        <input class="mt-10" type="submit" value="Submit"/>
 	</form>
 }
 
@@ -69,16 +72,16 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 
 	<ul id="fileList">
 		for _, e := range files {
-			<li>
+			<li class="grid grid-cols-2 mb-2">
 				<span> <a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
 				// <button onclick={ fmt.Sprintf("deleteFile(this, %s)", fileName) }>Delete</button>
-				<button onclick={ templ.ComponentScript{
+				<button class="text-slate-400" onclick={ templ.ComponentScript{
 					Call: fmt.Sprintf("deleteFile(this, '%s%s')", baseDir, e.Text),
 				} }>Delete</button>
 			</li>
 		}
 	</ul>
-	<div class="new-file">
+	<div class="mt-10 new-file">
 		<input type="text" id="newFileName" placeholder="New file name"/>
 		<button onclick={ templ.ComponentScript{
 			Call: fmt.Sprintf("addFile('%s', '%s')", baseURL, baseDir),
@@ -94,8 +97,8 @@ templ RegulationList(baseDir string, files []SideBarListElement) {
 			<li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
 		}
 	</ul>
-	<div class="new-file">
-		<input type="text" id="newFileName" placeholder="New file name"/>
+	<div class="mt-5 new-file">
+		<input type="text" id="newFileName" placeholder="New regulation name"/>
 		<button onclick={ templ.ComponentScript{
 			Call: fmt.Sprintf("addRegulation('%s')", baseDir),
 		} }>Add</button>
@@ -220,31 +223,35 @@ templ VerticalList(elements ...func() templ.Component) {
 	}
 }
 
-templ DescriptionMetadata(endpoint string, current string, uriList []string) {
-	<form id="form1" action={templ.SafeURL(endpoint)}>
-		<label for="uri">URI</label>
+templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
+	<form class="mb-5" id="form1" action={templ.SafeURL(endpoint)}>
+		<label class="mr-5" for="uri">URI</label>
 
 		<select name="uri" id="uri">
 			for _, s := range uriList {
-				if s != current {
+				if s != currentURI {
 					<option value={s}>{s}</option>
 				} else {
 					<option value={s} selected>{s}</option>
 				}
 			}
 		</select>
-		<br/>
-        <input id="1" type="submit" value="Submit"/>
+		<br class="mb-5"/>
+        <input id="1" type="submit" value="Change URI"/>
 	</form>
 	<br/>
 	<form id="form2" action={templ.SafeURL(endpoint)}>
 		<label for="abreviation">Abreviation</label>
-		<input id="abreviation" type="text" name="abreviation"/>
+		<br/>
+		<input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={currentURI}/>
+		<br class="mb-5"/>
 		
 		<label for="new-uri">New URI</label>
-		<input id="new-uri" type="text" name="new-uri"/>
+		<br/>
+		<input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={extendedCurrentURI}/>
+		<br class="mb-5"/>
 
-        <input id="2" type="submit" value="Save Changes"/>
+		<input id="2" type="submit" value="Save Changes"/>
 	</form>
 }
 

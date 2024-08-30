@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"regexp"
+	"slices"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -153,6 +155,20 @@ func DescriptionEdit(c echo.Context) error {
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(desc))
 
+	actualURI := util.First(uris, func(metadata map[string]interface{}) bool {
+		files := util.Map(metadata["files"].([]interface{}), func(e interface{}) string {
+			fmt.Println(e.(string))
+			return e.(string)
+		})
+		return slices.ContainsFunc(files, func(f string) bool {
+			matched, err := regexp.Match(f, []byte(desc))
+			if err != nil {
+				panic(err)
+			}
+
+			return matched
+		})
+	})
 	return templates.Page(
 		"My page",
 		"graphContainer", "Visual",
@@ -164,7 +180,8 @@ func DescriptionEdit(c echo.Context) error {
 		func() templ.Component {
 			return templates.DescriptionMetadata(
 				fmt.Sprintf("/descriptions/%s", c.Param("desc")),
-				uri,
+				(*actualURI)["abreviation"].(string),
+				(*actualURI)["uri"].(string),
 				uriList,
 			)
 		},

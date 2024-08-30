@@ -5,18 +5,20 @@ import (
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
-	"github.com/a-h/templ"
 	"github.com/labstack/echo"
 )
 
 func HomePage(c echo.Context) error {
-	return templates.Page(
-		"Home page",
-		"", "",
-		nil,
-		func() templ.Component { return templates.LoginForm() },
-		nil,
-	).Render(c.Request().Context(), c.Response())
+	/*
+		return templates.Page(
+			"Home page",
+			"", "",
+			nil,
+			func() templ.Component { return templates.LoginForm() },
+			nil,
+		).Render(c.Request().Context(), c.Response())
+	*/
+	return templates.LoginPage().Render(c.Request().Context(), c.Response())
 }
 
 func LogIn(c echo.Context) error {
@@ -41,7 +43,7 @@ func LogIn(c echo.Context) error {
 		"Home page",
 		"", "",
 		nil,
-		func() templ.Component { return templates.LoginForm() },
+		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }

@@ -218,8 +218,13 @@ func EditTreeNode(c echo.Context) error {
 	return templates.Page(
 		"Trees",
 		"", "",
+		/*
+			func() templ.Component {
+				return templates.SideBarList(treeList)
+			},
+		*/
 		func() templ.Component {
-			return templates.SideBarList(treeList)
+			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},
 		func() templ.Component { return templates.EditorComponent("yaml", string(nodeContent), saveEndpoint) },
 		func() templ.Component {
