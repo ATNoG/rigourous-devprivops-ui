@@ -11,7 +11,14 @@ import (
 )
 
 func Analyse(c echo.Context) error {
-	res, err := tool.Analyse("")
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+	}
+	userName := userCookie.Value
+
+	fmt.Printf("User is '%s'\n", userName)
+	res, err := tool.Analyse("", userName)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -30,7 +37,13 @@ func Analyse(c echo.Context) error {
 }
 
 func Test(c echo.Context) error {
-	res, err := tool.Test()
+	userCookie, err := c.Cookie("username")
+	if err != nil {
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+	}
+	userName := userCookie.Value
+
+	res, err := tool.Test(userName)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"fmt"
 	"os/exec"
 	"strconv"
 
@@ -13,20 +14,7 @@ var DBIP string
 var DBPort int
 var Dataset string
 
-func Analyse(
-	/*
-		username string,
-		password string,
-		databaseIp string,
-		databasePort int,
-		dataset string,
-	*/
-	/*
-		globalDir string,
-		localDir string,
-	*/
-	reportEndpoint string,
-) (string, error) {
+func Analyse(reportEndpoint string, user string) (string, error) {
 	command := []string{
 		"analyse",
 		Username, Password, DBIP, strconv.Itoa(DBPort), Dataset,
@@ -37,32 +25,21 @@ func Analyse(
 	}
 
 	if fs.LocalDir != "" {
-		command = append(command, "--local-dir", fs.LocalDir)
+		localDir := fmt.Sprintf("%s/%s", fs.LocalDir, user)
+		command = append(command, "--local-dir", localDir)
 	}
 
 	if reportEndpoint != "" {
 		command = append(command, "--report-endpoint", reportEndpoint)
 	}
 
+	fmt.Println(command)
 	out, err := exec.Command("./devprivops", command...).Output()
 
 	return string(out), err
 }
 
-func Test(
-/*
-	username string,
-	password string,
-	databaseIp string,
-	databasePort int,
-	dataset string,
-*/
-/*
-	globalDir string,
-	localDir string,
-*/
-
-) (string, error) {
+func Test(user string) (string, error) {
 	command := []string{
 		"test",
 		Username, Password, DBIP, strconv.Itoa(DBPort), Dataset,
@@ -73,9 +50,11 @@ func Test(
 	}
 
 	if fs.LocalDir != "" {
-		command = append(command, "--local-dir", fs.LocalDir)
+		localDir := fmt.Sprintf("%s/%s", fs.LocalDir, user)
+		command = append(command, "--local-dir", localDir)
 	}
 
+	fmt.Println(command)
 	out, err := exec.Command("./devprivops", command...).Output()
 
 	return string(out), err
