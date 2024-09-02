@@ -40,6 +40,7 @@ func SchemasMainPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"", "",
+		templates.SCHEMAS,
 		func() templ.Component { return templates.FileList("/schemas/", "schemas", schemas) },
 		nil,
 		nil,
@@ -89,6 +90,7 @@ func SchemaEditPage(c echo.Context) error {
 	return templates.Page(
 		"Schemas",
 		"schemaEditorContainer", "Visual",
+		templates.SCHEMAS,
 		func() templ.Component { return templates.FileList("/schemas/", "schemas", schemas) },
 		func() templ.Component {
 			return templates.SchemaEditor("yaml", string(schemaContent), saveEndpoint)

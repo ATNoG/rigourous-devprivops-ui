@@ -61,6 +61,7 @@ func ExtraDataMainPage(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"extra-data-editor", "Visual",
+		templates.EXTRA_DATA,
 		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
 			// return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
@@ -177,6 +178,7 @@ func ExtraDataQuery(c echo.Context) error {
 	return templates.Page(
 		"Extra Data",
 		"", "",
+		templates.EXTRA_DATA,
 		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
 			return templates.EditorComponent("sparql", string(queryContent), saveEndpoint)

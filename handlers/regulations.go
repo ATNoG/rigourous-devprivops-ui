@@ -40,6 +40,7 @@ func RegulationsMainPage(c echo.Context) error {
 	return templates.Page(
 		"Regulations",
 		"", "",
+		templates.REGULATIONS,
 		func() templ.Component {
 			return templates.RegulationList("regulations", regulations)
 		},
@@ -111,6 +112,7 @@ func RegulationView(c echo.Context) error {
 	return templates.Page(
 		"Regulations",
 		"regulation-editor", "Visual",
+		templates.REGULATIONS,
 		func() templ.Component {
 			return templates.VerticalList(
 				func() templ.Component { return templates.RegulationList("regulations", regulations) },
@@ -267,6 +269,7 @@ func PolicyEdit(c echo.Context) error {
 	return templates.Page(
 		"Regulations",
 		"", "",
+		templates.REGULATIONS,
 		func() templ.Component {
 			return templates.SideBarList(regulations)
 		},

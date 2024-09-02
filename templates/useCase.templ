@@ -4,20 +4,6 @@ import "net/url"
 import "fmt"
 import "github.com/Joao-Felisberto/devprivops-ui/objects"
 
-/*
-type UseCase struct {
-    UseCase string              `json:"use case"`
-    IsMisuseCase bool           `json:"is misuse case"`
-    Requirements []Requirement  `json:"requirements"`
-}
-
-type Requirement struct {
-    Title string        `json:"title"`
-    Description string  `json:"description"`
-    Query string        `json:"query"`
-}
-*/
-
 templ UCSideBar(useCases *[]objects.UseCase) {
     <ul id="use-case-list">
         for _, uc := range *useCases {
@@ -31,11 +17,6 @@ templ UCSideBar(useCases *[]objects.UseCase) {
             </li>
         }
     </ul>
-
-	<div class="new-file">
-		<input type="text" id="new-use-case" placeholder="New use case name"/>
-		<button onclick="addUseCase()">Create</button>
-	</div>
 
     <script>
 	async function addUseCase() {

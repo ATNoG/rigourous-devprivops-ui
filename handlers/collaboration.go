@@ -46,6 +46,7 @@ func MergeConflicts(c echo.Context) error {
 	return templates.Page(
 		"Merge",
 		"", "",
+		templates.CONFLICTS,
 		func() templ.Component { return templates.ConflictList(conflictList) },
 		nil,
 		rightBar,
@@ -129,6 +130,7 @@ func SolveMergeConflict(c echo.Context) error {
 	return templates.Page(
 		"Merge",
 		"", "",
+		templates.CONFLICTS,
 		func() templ.Component { return templates.ConflictList(conflictList) },
 		func() templ.Component {
 			return templates.DiffEditor(

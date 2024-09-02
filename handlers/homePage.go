@@ -42,6 +42,7 @@ func LogIn(c echo.Context) error {
 	return templates.Page(
 		"Home page",
 		"", "",
+		-1,
 		nil,
 		nil,
 		nil,

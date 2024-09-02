@@ -47,6 +47,7 @@ func TreesMainPage(c echo.Context) error {
 	return templates.Page(
 		"Trees",
 		"", "",
+		templates.TREES,
 		func() templ.Component {
 			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},
@@ -111,6 +112,7 @@ func TreeView(c echo.Context) error {
 	return templates.Page(
 		"Trees",
 		"tree-editor", "Visual",
+		templates.TREES,
 		func() templ.Component {
 			return templates.FileList("/trees/", "attack_trees/descriptions", treeList)
 		},
@@ -218,6 +220,7 @@ func EditTreeNode(c echo.Context) error {
 	return templates.Page(
 		"Trees",
 		"", "",
+		templates.TREES,
 		/*
 			func() templ.Component {
 				return templates.SideBarList(treeList)

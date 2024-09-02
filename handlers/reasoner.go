@@ -39,6 +39,7 @@ func ReasonerMainPage(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
+		templates.REASONER,
 		func() templ.Component { return templates.FileList("/reasoner/", "reasoner", ruleList) },
 		nil,
 		nil,
@@ -89,6 +90,7 @@ func ReasonerRuleEditor(c echo.Context) error {
 	return templates.Page(
 		"Reasoner",
 		"", "",
+		templates.REASONER,
 		func() templ.Component { return templates.FileList("/reasoner/", "reasoner/", ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
 		nil,

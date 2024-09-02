@@ -86,6 +86,7 @@ func RequirementsMainPage(c echo.Context) error {
 	return templates.Page(
 		"Requirements",
 		"uc-editor", "Visual",
+		templates.REQUIREMENTS,
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},
@@ -236,6 +237,7 @@ func RequirementEdit(c echo.Context) error {
 	return templates.Page(
 		"Requirements",
 		"", "",
+		templates.REQUIREMENTS,
 		func() templ.Component {
 			return templates.UCSideBar(&useCases)
 		},

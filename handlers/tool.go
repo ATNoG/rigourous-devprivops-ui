@@ -30,6 +30,7 @@ func Analyse(c echo.Context) error {
 	return templates.Page(
 		"Analysis",
 		"", "",
+		templates.ANALYSE,
 		nil,
 		func() templ.Component { return templates.SimpleResult(string(htmlRes)) },
 		nil,
@@ -55,6 +56,7 @@ func Test(c echo.Context) error {
 	return templates.Page(
 		"Test",
 		"", "",
+		templates.TEST,
 		nil,
 		func() templ.Component { return templates.SimpleResult(string(htmlRes)) },
 		nil,

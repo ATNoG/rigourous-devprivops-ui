@@ -55,7 +55,8 @@ templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
 			for _, e := range elements {
 				<li class="grid grid-cols-2 mb-2">
 					<label for={ e.Id }>{ e.Label }</label>
-					<input class="text-slate-400" id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
+					// <input class="text-slate-400" id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
+					<input id={ e.Id } type={ e.Type.String() } name={ e.Id } value={ e.Default }/>
 				</li>
 			}
 		</ul>
@@ -261,11 +262,13 @@ templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI
 	<form id="form2" action={ templ.SafeURL(endpoint) }>
 		<label for="abreviation">Abreviation</label>
 		<br/>
-		<input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+		// <input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+		<input id="abreviation" type="text" name="abreviation" value={ currentURI }/>
 		<br class="mb-5"/>
 		<label for="new-uri">New URI</label>
 		<br/>
-		<input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+		// <input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+		<input id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
 		<br class="mb-5"/>
 		<input id="2" type="submit" value="Save Changes"/>
 	</form>

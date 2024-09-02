@@ -37,6 +37,7 @@ func DescriptionsMainPage(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"", "",
+		templates.DESCRIPTIONS,
 		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
 		nil,
 		nil,
@@ -172,6 +173,7 @@ func DescriptionEdit(c echo.Context) error {
 	return templates.Page(
 		"My page",
 		"graphContainer", "Visual",
+		templates.DESCRIPTIONS,
 		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
 		//		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
 		func() templ.Component {
