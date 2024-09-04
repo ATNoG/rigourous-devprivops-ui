@@ -255,7 +255,7 @@ func UpdateExtraData(c echo.Context) error {
 	// sync files with the config
 	dataDir, err := fs.GetFile("report_data/queries", userName)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Right here", err)
 		return err
 	}
 
