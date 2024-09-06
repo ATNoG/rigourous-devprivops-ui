@@ -6,8 +6,12 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/github"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/handlers"
@@ -36,8 +40,12 @@ func main() {
 
 	// Routes
 	e.GET("/", handlers.HomePage)
-	e.GET("/login", handlers.LogIn)
+	e.GET("/login", handlers.SimpleLogIn)
 	e.GET("/demo", handlers.DemoPage)
+
+	e.GET("/auth/callback", handlers.Callback)
+	e.GET("/logout", handlers.Logout)
+	e.GET("/auth", handlers.Login)
 
 	e.GET("/trees", handlers.TreesMainPage)
 	e.GET("/trees/:tree", handlers.TreeView)
@@ -84,6 +92,22 @@ func main() {
 		slog.Error("Error loading .env file")
 		return
 	}
+
+	gothic.Store = sessions.NewCookieStore([]byte("<your secret here>"))
+
+	gh_key, found := os.LookupEnv("GITHUB_KEY")
+	if !found {
+		slog.Error("'GITHUB_KEY' variable not found in environment")
+		return
+	}
+	gh_secret, found := os.LookupEnv("GITHUB_SECRET")
+	if !found {
+		slog.Error("'GITHUB_SECRET' variable not found in environment")
+		return
+	}
+	goth.UseProviders(
+		github.New(gh_key, gh_secret, "http://localhost:8082/auth/callback?provider=github"),
+	)
 
 	host, found := os.LookupEnv("HOST")
 	if !found {
