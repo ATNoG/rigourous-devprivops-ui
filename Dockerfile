@@ -18,3 +18,4 @@ RUN go build
 RUN mv devprivops-ui /bin/devprivops-ui
 RUN rm -rf /src/
 
+ENTRYPOINT /opt/fuseki/fuseki-server & devprivops-ui
