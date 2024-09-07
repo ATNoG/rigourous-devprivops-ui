@@ -40,6 +40,7 @@ func main() {
 
 	// Routes
 	e.GET("/", handlers.HomePage)
+	e.GET("/credentials", handlers.GetCredentials)
 	e.GET("/login", handlers.SimpleLogIn)
 	e.GET("/demo", handlers.DemoPage)
 
@@ -89,8 +90,8 @@ func main() {
 	e.POST("/save-requirements", handlers.UpdateRequirements)
 
 	if err := godotenv.Load(); err != nil {
-		slog.Error("Error loading .env file")
-		return
+		slog.Error("Error loading .env file: %s", err)
+		// return
 	}
 
 	gothic.Store = sessions.NewCookieStore([]byte("<your secret here>"))

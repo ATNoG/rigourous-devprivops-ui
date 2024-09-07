@@ -7,7 +7,28 @@ It provides not only text editors (powered by [monaco](https://microsoft.github.
 
 ## Deployment
 
-To deploy the editor:
+The UI can be deployed either through the docker container or building the binary from source.
+
+### Docker Container
+
+To use the docker container, we run the following command
+
+```sh
+docker run \ 
+    --env-file .env \ 
+    -p 8082:8082 \ 
+    -v "/tmp/.devprivops:/tmp/.devprivops" \ 
+    --name devprivops-ui \ 
+    devprivops-ui 
+```
+
+- The environment variables can be passed at once through the `--env-file` argument.
+- The UI requires an exposed port, dictated by the `PORT` variable.
+- The tool's local directory can be on the host machine and be passed to the container through the `-v` argument
+
+### Manual Compilation
+
+To manually compile the UI and execute it:
 
 1. Set an adequate `.env` file. All the documentation for the relevant variables is in the `.env.example` file
 2. Build the editor with `go build`

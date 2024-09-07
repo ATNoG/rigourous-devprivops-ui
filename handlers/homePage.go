@@ -16,6 +16,23 @@ func HomePage(c echo.Context) error {
 	return templates.Redirect("/auth?provider=github").Render(c.Request().Context(), c.Response())
 }
 
+func GetCredentials(c echo.Context) error {
+	prevUser := c.QueryParam("username")
+	prevMail := c.QueryParam("email")
+
+	/*
+		return templates.Page(
+			"Home page",
+			"", "",
+			-1,
+			nil,
+			nil,
+			nil,
+		).Render(c.Request().Context(), c.Response())
+	*/
+	return templates.LoginPage(prevUser, prevMail).Render(c.Request().Context(), c.Response())
+}
+
 func SimpleLogIn(c echo.Context) error {
 	userNameCookie := new(http.Cookie)
 	userNameCookie.Name = "username"
@@ -82,13 +99,18 @@ func Callback(c echo.Context) error {
 	*/
 	fmt.Printf("DATA: %+v\n", user)
 
-	return templates.Page(
-		"Home page",
-		"", "",
-		-1,
-		nil,
-		nil,
-		nil,
+	/*
+		return templates.Page(
+			"Home page",
+			"", "",
+			-1,
+			nil,
+			nil,
+			nil,
+		).Render(c.Request().Context(), c.Response())
+	*/
+	return templates.Redirect(
+		fmt.Sprintf("/credentials?username=%s&email=%s", user.NickName, user.Email),
 	).Render(c.Request().Context(), c.Response())
 }
 
