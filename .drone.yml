@@ -3,6 +3,11 @@ type: docker
 name: default
 
 steps:
+- name: code-analysis
+  image: aosapps/drone-sonar-plugin
+  settings:
+      sonar_host: 10.0.2.2:9000
+      sonar_token: sqp_9fef1c4fcbc67720411d33e040f935c0c91d363f
 - name: package
   image: plugins/docker
   settings:
