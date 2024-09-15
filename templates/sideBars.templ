@@ -102,10 +102,8 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 templ RegulationList(baseDir string, files []SideBarListElement) {
 	<ul id="fileList">
 		for _, e := range files {
-			// <li><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></li>
 			<li class="grid grid-cols-2 mb-2">
 				<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></span>
-				// <button class="text-slate-400" onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
 				<button
 					class="text-slate-400"
 					onclick={ templ.ComponentScript{
@@ -126,6 +124,30 @@ templ RegulationList(baseDir string, files []SideBarListElement) {
 	@FileScript()
 }
 
+templ TestList(baseDir string, files []SideBarListElement) {
+	<ul id="fileList">
+		for _, e := range files {
+			<li class="grid grid-cols-2 mb-2">
+				<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a></span>
+				<button
+					class="text-slate-400"
+					onclick={ templ.ComponentScript{
+					Call: fmt.Sprintf("deleteFile(this, '%s')", e.Link),
+				} }
+				>Delete</button>
+			</li>
+		}
+	</ul>
+	<div class="mt-5 new-file">
+		<input type="text" id="newFileName" placeholder="New test name"/>
+		<button
+			onclick={ templ.ComponentScript{
+			Call: fmt.Sprintf("addTest('%s')", baseDir),
+		} }
+		>Add</button>
+	</div>
+	@FileScript()
+}
 templ FileScript() {
 	<script>
 	async function addFile(baseURL, baseDir) {
@@ -167,6 +189,45 @@ templ FileScript() {
 
 		if (fileName === "") {
 			alert("Regulation name cannot be empty!");
+			return;
+		}
+
+		try {
+			const response = await fetch(`/create-regulation?path=${encodeURIComponent(baseDir + '/' + fileName)}`,
+				{method: 'POST'}
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const fileList = document.getElementById('fileList');
+			const li = document.createElement('li');
+			/*
+			li.innerHTML = `
+				<span>${fileName}</span>
+				<button onclick="deleteRegulation(this, '${fileName}')">Delete</button>
+			`;
+			*/
+			li.innerHTML = `
+				<span><a href='/regulations/${fileName}'>${fileName}</a></span>
+				<button class="text-slate-400" onclick="deleteFile(this, '${baseDir}/${fileName}')">Delete</button>
+			`;
+			li.classList.add("grid", "grid-cols-2", "mb-2")
+			fileList.appendChild(li);
+
+			fileNameInput.value = '';
+		} catch (error) {
+			console.error('Error creating file:', error);
+			alert('Failed to create file.');
+		}
+	}
+
+	async function addTest(baseDir) {
+		const fileNameInput = document.getElementById('newFileName');
+		const fileName = fileNameInput.value.trim();
+
+		if (fileName === "") {
+			alert("Test name cannot be empty!");
 			return;
 		}
 

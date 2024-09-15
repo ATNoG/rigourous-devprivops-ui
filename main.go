@@ -73,6 +73,10 @@ func main() {
 
 	e.POST("/save/:file", handlers.SaveEndpoint)
 
+	e.GET("/tests", handlers.TestOverview)
+	e.GET("/tests/:scenario", handlers.TestScenarioSelect)
+	e.GET("/tests/:scenario/:desc", handlers.TestScenarioEdit)
+
 	e.GET("/analyse", handlers.Analyse)
 	e.GET("/test", handlers.Test)
 
