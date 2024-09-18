@@ -64,20 +64,77 @@ templ Page(title string, altView string, toggleBtnName string, active int, left,
                 } else {
                     <a class="text-white" href="/conflicts">Push</a>
                 }
+                if active == TEST {
+                    <a id="test-btn" class="bg-emerald-200" href="/tests">Tests</a>
+                } else {
+                    <a id="test-btn" class="text-white" href="/tests">Tests</a>
+                }
             </div>
             <div class="flex space-x-4">
-                <a id="toggleView" class="text-white" href="#">{toggleBtnName}</a>
                 <a id="save-btn" class="text-white" href="#">Save</a>
-                if active == TEST {
-                    <a id="test-btn" class="bg-emerald-200" href="/test">Test</a>
-                } else {
-                    <a id="test-btn" class="text-white" href="/test">Test</a>
-                }
+                <a id="toggleView" class="text-white" href="#">{toggleBtnName}</a>
                 if active == ANALYSE {
                     <a id="analyse-btn" class="bg-emerald-200" href="/analyse">Analyse</a>
                 } else {
                     <a id="analyse-btn" class="text-white" href="/analyse">Analyse</a>
                 }
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="panel-container">
+        <!-- Left Panel -->
+        <div class="side-bar" style="width: 15%;">
+            if left != nil {
+                @left()
+            }
+        </div>
+        
+        <!-- Center Panel -->
+        <div class="center-container" style="width: 70%;">
+            if center != nil {
+                @center()
+            }
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="side-bar" style="width: 15%;">
+            if right != nil {
+                @right()
+            }
+        </div>
+    </div>
+   
+    @toggleButton(altView, toggleBtnName)
+    </body>
+    </html>
+}
+
+templ TestPage(title string, altView string, toggleBtnName string, active int, left, center, right func() templ.Component) {
+    <!DOCTYPE html>
+    <html>
+    <head>
+        @head(title)
+    </head>
+    <body class="page">
+    <!-- Navbar -->
+    <nav class="bg-green-800 p-4">
+        <div class="container mx-auto flex justify-between">
+            <div class="flex space-x-4">
+                <a class="text-white" href="/trees">Trees</a>
+                <a class="text-white" href="/descriptions">Descriptions</a>
+                <a class="text-white" href="/reasoner">Reasoner</a>
+                <a class="text-white" href="/regulations">Regulations</a>
+                <a class="text-white" href="/extra-data">Extra data</a>
+                <a class="text-white" href="/requirements">Requirements</a>
+                <a class="text-white" href="/schemas">Schemas</a>
+                <a class="text-white" href="/conflicts">Push</a>
+            </div>
+            <div class="flex space-x-4">
+                <a id="toggleView" class="text-white" href="#">{toggleBtnName}</a>
+                <a id="test-btn" class="bg-emerald-200" href="/test">Tests</a>
+                <!--<a id="analyse-btn" class="text-white" href="/analyse">Analyse</a>-->
             </div>
         </div>
     </nav>

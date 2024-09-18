@@ -32,12 +32,25 @@ func TestOverview(c echo.Context) error {
 		}
 	})
 
+	testSpecsFile, err := fs.GetFile("tests/spec.json", userName)
+	if err != nil {
+		return err
+	}
+
+	testSpecs, err := os.ReadFile(testSpecsFile)
+	if err != nil {
+		return err
+	}
+
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("tests/spec.json"))
 	return templates.Page(
-		"Regulations",
-		"regulation-editor", "Visual",
+		"Tests",
+		"", "",
 		templates.REGULATIONS,
 		func() templ.Component { return templates.RegulationList("tests", testScenarios) },
-		nil,
+		func() templ.Component {
+			return templates.EditorComponent("json", string(testSpecs), saveEndpoint)
+		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
 }
@@ -80,8 +93,8 @@ func TestScenarioSelect(c echo.Context) error {
 	})
 
 	return templates.Page(
-		"Regulations",
-		"regulation-editor", "Visual",
+		"Tests",
+		"", "",
 		templates.REGULATIONS,
 		func() templ.Component {
 			return templates.VerticalList(
@@ -141,7 +154,7 @@ func TestScenarioEdit(c echo.Context) error {
 		}
 	})
 
-	fmt.Printf(">>> ! %s", descFile)
+	fmt.Printf(">>> ! %s\n", descFile)
 	descPath, err := fs.GetFile(descFile, userName)
 	if err != nil {
 		fmt.Println("ERROR: ", err)
@@ -153,9 +166,10 @@ func TestScenarioEdit(c echo.Context) error {
 		return err
 	}
 
+	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(descPath))
 	return templates.Page(
-		"Regulations",
-		"regulation-editor", "Visual",
+		"Tests",
+		"", "",
 		templates.REGULATIONS,
 		func() templ.Component {
 			return templates.VerticalList(
@@ -164,7 +178,7 @@ func TestScenarioEdit(c echo.Context) error {
 			)
 		},
 		func() templ.Component {
-			return templates.EditorComponent("yaml", string(cfgContent), "/")
+			return templates.EditorWithVisualizer("yaml", string(cfgContent), saveEndpoint)
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())

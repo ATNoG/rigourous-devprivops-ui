@@ -28,22 +28,26 @@ func SaveEndpoint(c echo.Context) error {
 
 	content, err := io.ReadAll(c.Request().Body)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	fName, err := url.QueryUnescape(c.Param("file"))
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	file, err := fs.GetFile(fName, userName)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	fmt.Printf("Writing to %s: %s \n", file, content)
 
 	if err := fs.WriteFileSync(file, content, 0666); err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -115,31 +119,6 @@ func UpdateURI(c echo.Context) error {
 	}
 	fmt.Printf("Desc: %s\n", desc)
 
-	/*
-		urisFile, err := fs.GetFile("uris.yml")
-		if err != nil {
-			return err
-		}
-		urisContent, err := os.ReadFile(urisFile)
-		if err != nil {
-			return err
-		}
-
-		uris := []interface{}{}
-		err = yaml.Unmarshal(urisContent, &uris)
-		if err != nil {
-			return err
-		}
-	*/
-
-	/*
-		uriList := util.Map(uris, func(uri interface{}) string {
-			uriObj := uri.(map[string]interface{})
-			return uriObj["abreviation"].(string)
-		})
-
-		uri := c.FormValue("uri")
-	*/
 	uri := c.FormValue("uri")
 	fmt.Printf("Old %s\n", uri)
 

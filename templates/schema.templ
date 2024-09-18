@@ -3,7 +3,7 @@ package templates
 templ SchemaEditor(language string, content string, fileURL string) {
     <div id="editorContainer" class="editor"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-    @EditorScript(language, content, fileURL)
+    @EditorScript(language, content, fileURL, true)
 
     <script src="/static/js/gen_schema.js"></script>
     <div id="schemaEditorContainer" class="editor">

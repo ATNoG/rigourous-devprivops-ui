@@ -61,8 +61,9 @@ This interface allows to:
 - Edit the raw files for trees, descriptions, reasoner rules, regulations, extra data queries, requirements and schemas;
 - Edit those files visually with user-friendly editors;
 - Colaborate seamlessly in the development and maintenance of the files;
-- Safely resolve conflicts arising from the colaboration
-- Run analysis and tests
+- Safely resolve conflicts arising from the colaboration;
+- Use custom visualizers for groups of descriptions;
+- Run analysis and tests;
 
 # Usage
 
