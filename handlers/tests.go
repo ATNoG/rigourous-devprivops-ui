@@ -45,11 +45,12 @@ func TestOverview(c echo.Context) error {
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape("tests/spec.json"))
 	return templates.Page(
 		"Tests",
-		"", "",
+		"test-editor", "Visual",
 		templates.REGULATIONS,
 		func() templ.Component { return templates.RegulationList("tests", testScenarios) },
 		func() templ.Component {
-			return templates.EditorComponent("json", string(testSpecs), saveEndpoint)
+			// return templates.EditorComponent("json", string(testSpecs), saveEndpoint)
+			return templates.TestEditor("json", string(testSpecs), saveEndpoint)
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())
@@ -102,11 +103,6 @@ func TestScenarioSelect(c echo.Context) error {
 				func() templ.Component { return templates.SideBarList(scenarioDescs) },
 			)
 		},
-		/*
-			func() templ.Component {
-				return templates.RegulationEditor("yaml", string(cfgContent), saveEndpoint, &jsonString)
-			},
-		*/
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())

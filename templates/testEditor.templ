@@ -1,0 +1,158 @@
+package templates
+
+templ TestEditor(language string, content string, fileURL string) {
+	<div id="editorContainer" class="editor"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL, true)
+
+    <div id="test-editor">
+        <h1>JSON Editor</h1>
+        <div id="container" class="container"></div>
+        <button onclick="addState()">Add State</button>
+        <button onclick="saveJSON()">Save JSON</button>
+    </div>
+
+    <script>
+        /*
+        let jsonData = [
+            {
+                "stateDir": "State 1",
+                "tests": [
+                    {
+                        "query": "SELECT ?s WHERE { ?s ?p ?o }",
+                        "expectedResult": [{ "s": "result1" }, { "s": "result2" }]
+                    }
+                ]
+            }
+        ];
+        */
+
+        function renderData(jsonData) {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            jsonData.forEach((state, index) => {
+                const stateDiv = document.createElement('div');
+                stateDiv.className = 'state';
+
+                const stateInput = document.createElement('input');
+                stateInput.value = state.stateDir;
+                stateInput.placeholder = 'State Directory';
+                stateInput.oninput = () => {
+                    state.stateDir = stateInput.value;
+                };
+
+                const removeStateButton = document.createElement('button');
+                removeStateButton.innerText = 'Remove State';
+                removeStateButton.onclick = () => {
+                    jsonData.splice(index, 1);
+                    renderData(jsonData);
+                };
+
+                const testsDiv = document.createElement('div');
+                state.tests.forEach((test, testIndex) => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test';
+
+                    const queryInput = document.createElement('input');
+                    queryInput.value = test.query;
+                    queryInput.placeholder = 'Query';
+                    queryInput.oninput = () => {
+                        test.query = queryInput.value;
+                    };
+
+                    const removeTestButton = document.createElement('button');
+                    removeTestButton.innerText = 'Remove Test';
+                    removeTestButton.onclick = () => {
+                        state.tests.splice(testIndex, 1);
+                        renderData(jsonData);
+                    };
+
+                    const resultsDiv = document.createElement('div');
+                    test.expectedResult.forEach((result, resultIndex) => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'result';
+
+                        const rowDiv = document.createElement('div');
+                        rowDiv.className = 'result-row';
+
+                        // Create input fields for existing results
+                        const variableInput = document.createElement('input');
+                        variableInput.value = Object.keys(result)[0] || ''; // Use existing key or empty
+                        variableInput.placeholder = 'Variable Name';
+                        variableInput.oninput = () => {
+                            const key = variableInput.value;
+                            result[key] = result[key] || ''; // Initialize with empty value if not exists
+                            delete result[Object.keys(result)[0]]; // Remove the old key
+                        };
+
+                        const valueInput = document.createElement('input');
+                        valueInput.value = result[variableInput.value] || ''; // Use existing value or empty
+                        valueInput.placeholder = 'Value';
+                        valueInput.oninput = () => {
+                            result[variableInput.value] = valueInput.value;
+                        };
+
+                        const removeResultButton = document.createElement('button');
+                        removeResultButton.innerText = 'Remove Row';
+                        removeResultButton.onclick = () => {
+                            test.expectedResult.splice(resultIndex, 1);
+                            renderData(jsonData);
+                        };
+
+                        rowDiv.appendChild(variableInput);
+                        rowDiv.appendChild(valueInput);
+                        rowDiv.appendChild(removeResultButton); // Add remove button to the row
+                        resultDiv.appendChild(rowDiv);
+                        resultsDiv.appendChild(resultDiv);
+                    });
+
+                    const addRowButton = document.createElement('button');
+                    addRowButton.innerText = 'Add Row';
+                    addRowButton.onclick = () => {
+                        test.expectedResult.push({}); // Add an empty object for the new row
+                        renderData(jsonData);
+                    };
+
+                    testsDiv.appendChild(testDiv);
+                    testDiv.appendChild(queryInput);
+                    testDiv.appendChild(removeTestButton);
+                    testDiv.appendChild(resultsDiv);
+                    testDiv.appendChild(addRowButton);
+                });
+
+                const addTestButton = document.createElement('button');
+                addTestButton.innerText = 'Add Test';
+                addTestButton.onclick = () => {
+                    state.tests.push({ query: '', expectedResult: [{}] });
+                    renderData(jsonData);
+                };
+
+                stateDiv.appendChild(stateInput);
+                stateDiv.appendChild(removeStateButton);
+                stateDiv.appendChild(testsDiv);
+                stateDiv.appendChild(addTestButton);
+                container.appendChild(stateDiv);
+            });
+        }
+
+        function addState(jsonData) {
+            jsonData.push({ stateDir: '', tests: [{ query: '', expectedResult: [{}] }] });
+            renderData(jsonData);
+        }
+
+        function saveJSON() {
+            const jsonToSend = JSON.stringify(jsonData, null, 2);
+            console.log(jsonToSend); // You can send this to your server
+            alert("JSON saved! Check the console for output.");
+        }
+
+        // renderData(); // Initial render
+    </script>
+
+    @TestInitialization(&content)
+}
+
+script TestInitialization(tests *string) {
+    renderData(JSON.parse(tests))
+}
