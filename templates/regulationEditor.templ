@@ -130,7 +130,7 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
             body: yamlData
         })
         .then(response => response.text())
-        .then(data => alert('Objects saved successfully!'))
+        .then(data => console.log('Objects saved successfully!'))
         .catch(error => console.error('Error saving objects:', error));
     }
 

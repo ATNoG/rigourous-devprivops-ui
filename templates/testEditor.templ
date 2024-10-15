@@ -2,42 +2,28 @@ package templates
 
 templ TestEditor(language string, content string, fileURL string) {
 	<div id="editorContainer" class="editor"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@EditorScript(language, content, fileURL, true)
-
-    <div id="test-editor">
-        <h1>JSON Editor</h1>
-        <div id="container" class="container"></div>
-        <button onclick="addState()">Add State</button>
-        <button onclick="saveJSON()">Save JSON</button>
-    </div>
-
-    <script>
-        /*
-        let jsonData = [
-            {
-                "stateDir": "State 1",
-                "tests": [
-                    {
-                        "query": "SELECT ?s WHERE { ?s ?p ?o }",
-                        "expectedResult": [{ "s": "result1" }, { "s": "result2" }]
-                    }
-                ]
-            }
-        ];
-        */
-
+	<div id="test-editor">
+		<h1>JSON Editor</h1>
+		<div id="container" class="container"></div>
+		<button onclick="addState()">Add State</button>
+		<button onclick="saveJSON()">Save JSON</button>
+	</div>
+	<script>
+    /*
         function renderData(jsonData) {
             const container = document.getElementById('container');
             container.innerHTML = '';
             jsonData.forEach((state, index) => {
                 const stateDiv = document.createElement('div');
-                stateDiv.className = 'state';
+                stateDiv.className = 'state object-form';
 
                 const stateInput = document.createElement('input');
                 stateInput.value = state.stateDir;
                 stateInput.placeholder = 'State Directory';
+                stateInput.className = 'input-header'
                 stateInput.oninput = () => {
                     state.stateDir = stateInput.value;
                 };
@@ -135,6 +121,199 @@ templ TestEditor(language string, content string, fileURL string) {
                 container.appendChild(stateDiv);
             });
         }
+        */
+
+let jsonData = [
+    {
+        stateDir: "State1",
+        tests: [
+            {
+                query: "Query1",
+                expectedResult: [
+                    { 
+                        result1: "Value1", 
+                        result2: "Value2" 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        stateDir: "State2",
+        tests: [
+            {
+                query: "Query1",
+                expectedResult: [
+                    { 
+                        result1: "Value1", 
+                        result2: "Value2" 
+                    },
+                    { 
+                        result5: "ANOTHER 1", 
+                        result6: "ANOTHER 2" 
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+function renderData(data) {
+    if (data) {
+        jsonData = data; // Update the global jsonData
+    }
+
+    const container = document.getElementById('container');
+    container.innerHTML = '';
+
+    const stateHtml = jsonData.map((state, index) => {
+        const testHtml = state.tests.map((test, testIndex) => {
+            const resultHtml = test.expectedResult.map((result, resultIndex) => {
+                const propertiesHtml = Object.keys(result).map(key => {
+                    const value = result[key] || '';
+                    return createPropertyHtml(key, value, index, testIndex, resultIndex);
+                }).join('');
+
+                return `
+                    <div class="result-object" id="result-container-${index}-${testIndex}-${resultIndex}">
+                        <div class="properties-container">${propertiesHtml}</div>
+                        <button onclick="addNewPropertyRow(${index}, ${testIndex}, ${resultIndex})">Add Property</button>
+                        <button onclick="removeResult(${index}, ${testIndex}, ${resultIndex})">Remove Row</button>
+                    </div>`;
+            }).join('');
+
+            return `
+                <div class="w-2/3 m-5 grid grid-cols-3 gap-4 content-start">
+                    <input value="${test.query}" placeholder="Query" 
+                           oninput="updateTestQuery(event, ${index}, ${testIndex})" />
+                    <button onclick="removeTest(${index}, ${testIndex})">Remove Test</button>
+                    <button onclick="addResult(${index}, ${testIndex})">Add Row</button>
+                </div>
+                <div>${resultHtml}</div>
+            `;
+        }).join('');
+
+        return `
+            <div class="state object-form ">
+                <div class="grid grid-cols-3 gap-4 content-start">
+                    <input class="input-header" value="${state.stateDir}" placeholder="State Directory" 
+                           oninput="updateStateDir(event, ${index})" />
+                    <button onclick="removeState(${index})">Remove State</button>
+                </div>
+                <div>${testHtml}</div>
+                <button onclick="addTest(${index})">Add Test</button>
+            </div>`;
+    }).join('');
+
+    container.innerHTML = stateHtml;
+}
+
+// Function to create HTML for property-value pairs
+function createPropertyHtml(key, value, stateIndex, testIndex, resultIndex) {
+    return `
+        <div class="result-row w-2/3 m-5 grid grid-cols-4 gap-4 content-start">
+            <input type="text" value="${key}" placeholder="Variable Name" 
+                   data-old-key="${key}" 
+                   oninput="updateResultKey(event, ${stateIndex}, ${testIndex}, ${resultIndex}, this)" />
+            <input type="text" value="${value}" placeholder="Value" 
+                   oninput="updateResultValue(event, ${stateIndex}, ${testIndex}, ${resultIndex}, this)" />
+            <button onclick="removeProperty(${stateIndex}, ${testIndex}, ${resultIndex}, '${key}', this)">Remove Property</button>
+        </div>`;
+}
+
+function addNewPropertyRow(stateIndex, testIndex, resultIndex) {
+    const resultContainer = document.getElementById(`result-container-${stateIndex}-${testIndex}-${resultIndex}`);
+    const propertiesContainer = resultContainer.querySelector('.properties-container');
+
+    if (propertiesContainer) {
+        const newRow = createPropertyHtml('', '', stateIndex, testIndex, resultIndex);
+        propertiesContainer.insertAdjacentHTML('beforeend', newRow);
+    }
+}
+
+// Update functions
+function updateStateDir(event, index) {
+    const newValue = event.target.value;
+    jsonData[index].stateDir = newValue;
+}
+
+function removeState(index) {
+    jsonData.splice(index, 1);
+    renderData();
+}
+
+function addTest(stateIndex) {
+    jsonData[stateIndex].tests.push({ query: '', expectedResult: [{}] });
+    renderData();
+}
+
+function updateTestQuery(event, stateIndex, testIndex) {
+    const newValue = event.target.value;
+    jsonData[stateIndex].tests[testIndex].query = newValue;
+}
+
+function removeTest(stateIndex, testIndex) {
+    jsonData[stateIndex].tests.splice(testIndex, 1);
+    renderData();
+}
+
+function addResult(stateIndex, testIndex) {
+    jsonData[stateIndex].tests[testIndex].expectedResult.push({});
+    renderData();
+}
+
+function updateResultKey(event, stateIndex, testIndex, resultIndex, inputElement) {
+    const newKey = inputElement.value.trim();
+    const result = jsonData[stateIndex].tests[testIndex].expectedResult[resultIndex];
+    const currentKey = inputElement.dataset.oldKey; // Get the old key from the dataset
+
+    console.log(`${JSON.stringify(currentKey)} -> ${JSON.stringify(newKey)}: ${JSON.stringify(result)}`);
+
+    // If the new key is empty, just remove the old key
+    if (!newKey) {
+        delete result[currentKey];
+        return;
+    }
+
+    if (currentKey) {
+        // If the key changes, update the JSON
+        result[newKey] = result[currentKey]; // Copy the value to the new key
+        delete result[currentKey]; // Remove the old key
+    } else {
+        // If it's a new property, set the value to empty
+        result[newKey] = ''; 
+    }
+
+    inputElement.dataset.oldKey = newKey; // Update the dataset for tracking
+}
+
+function updateResultValue(event, stateIndex, testIndex, resultIndex, inputElement) {
+    const key = inputElement.previousElementSibling.value.trim(); // Get the key from the previous input
+    const value = event.target.value;
+    const result = jsonData[stateIndex].tests[testIndex].expectedResult[resultIndex];
+
+    console.log(`${JSON.stringify(key)} -> ${JSON.stringify(value)}: ${JSON.stringify(result)}`);
+
+    // Update the JSON with the current key's value
+    if (key && result[key] !== undefined) {
+        result[key] = value; // Update the corresponding key
+    }
+}
+
+function removeProperty(stateIndex, testIndex, resultIndex, key, button) {
+    const result = jsonData[stateIndex].tests[testIndex].expectedResult[resultIndex];
+    delete result[key]; // Remove the specific property
+
+    // Remove the UI row
+    button.closest('.result-row').remove();
+}
+
+function removeNewPropertyRow(button) {
+    button.closest('.result').remove();
+}
+
+// Initial rendering
+// renderData();
 
         function addState(jsonData) {
             jsonData.push({ stateDir: '', tests: [{ query: '', expectedResult: [{}] }] });
@@ -144,13 +323,23 @@ templ TestEditor(language string, content string, fileURL string) {
         function saveJSON() {
             const jsonToSend = JSON.stringify(jsonData, null, 2);
             console.log(jsonToSend); // You can send this to your server
-            alert("JSON saved! Check the console for output.");
+            // alert("JSON saved! Check the console for output.");
+
+            fetch(`/save/tests%2Fspec.json`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonToSend
+            })
+            .then(response => response.text())
+            .then(data => console.log('Objects saved successfully!'))
+            .catch(error => console.error('Error saving objects:', error));
         }
 
         // renderData(); // Initial render
     </script>
-
-    @TestInitialization(&content)
+	@TestInitialization(&content)
 }
 
 script TestInitialization(tests *string) {
