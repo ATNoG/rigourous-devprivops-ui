@@ -10,7 +10,7 @@ import (
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 
 	"github.com/a-h/templ"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func TestOverview(c echo.Context) error {

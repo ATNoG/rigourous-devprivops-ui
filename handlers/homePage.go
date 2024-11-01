@@ -7,7 +7,7 @@ import (
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth/gothic"
 )
 
@@ -48,7 +48,8 @@ func SimpleLogIn(c echo.Context) error {
 	emailCookie.SameSite = http.SameSiteStrictMode
 	c.SetCookie(emailCookie)
 
-	fs.SessionManager.AddSession(userName, userName)
+	fmt.Println("HERE!")
+	fs.SessionManager.AddSession(c.Request(), userName, userName)
 	fs.SetupRepo(userName, userName, email)
 
 	return templates.Page(

@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
@@ -98,7 +98,22 @@ func main() {
 		// return
 	}
 
-	gothic.Store = sessions.NewCookieStore([]byte("<your secret here>"))
+	/*
+		jwt_secret, found := os.LookupEnv("JWT_SECRET")
+		if !found {
+			slog.Error("'JWT_SECRET' variable not found in environment")
+			return
+		}
+		e.Use(echojwt.JWT([]byte(jwt_secret)))
+	*/
+
+	store_key, found := os.LookupEnv("SESSION_STORE_KEY")
+	if !found {
+		slog.Error("'SESSION_STORE_KEY' variable not found in environment")
+		return
+	}
+
+	gothic.Store = sessions.NewCookieStore([]byte(store_key))
 
 	gh_key, found := os.LookupEnv("GITHUB_KEY")
 	if !found {
