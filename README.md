@@ -39,8 +39,11 @@ docker run \
 
 To manually compile the UI and execute it:
 
+1. Install [PrivGuide](https://github.com/ATNoG/rigourous-devprivops) **natively** and copy the executable to the root of this repository.
 1. Set an adequate `.env` file. All the documentation for the relevant variables is in the `.env.example` file
 2. Build the editor with `go build`
+    - On the first execution, it is needed to generate the styles and templates with `tailwindcss -i static/css/source.css -o static/css/style.css --minify` and `templ generate`
+    - Running `air` will also execute these commands and is advised during development
 2. Run `./devprivops-ui`
 3. Access the endpoint specified in the `.env` file in any web browser
 
@@ -48,11 +51,20 @@ To manually compile the UI and execute it:
 
 While developing, we provide a configuration for [air](https://github.com/air-verse/air) that not only reloads the go code, but also the templates and styles.
 
-To turn on the air server, run `air .` on the repository's root.
+To turn on the air server, run `air` on the repository's root.
 Then, whenever files change the tool will automatically be rerun and ready to test.
+
+To manually generate these files and compile the code, run the following commands:
+
+```sh
+tailwindcss -i static/css/source.css -o static/css/style.css --minify
+templ generate
+go build
+```
 
 For better dependency management, we provide a `shell.nix` file with all needed dependencies.
 To use it, install `nix` and execute `nix-shell --extra-experimental-features "flakes"`.
+All dependencies can also be installed manually through other means.
 
 # Features
 
