@@ -115,19 +115,22 @@ func main() {
 
 	gothic.Store = sessions.NewCookieStore([]byte(store_key))
 
-	gh_key, found := os.LookupEnv("GITHUB_KEY")
-	if !found {
-		slog.Error("'GITHUB_KEY' variable not found in environment")
-		return
+	gh_key, gh_key_found := os.LookupEnv("GITHUB_KEY")
+	gh_secret, gh_sec_found := os.LookupEnv("GITHUB_SECRET")
+	if gh_key_found && gh_sec_found {
+		goth.UseProviders(
+			github.New(gh_key, gh_secret, "http://localhost:8082/auth/callback?provider=github"),
+		)
+	} else if !(!gh_key_found && !gh_sec_found) {
+		if !gh_key_found {
+			slog.Error("'GITHUB_KEY' variable not found in environment")
+			return
+		}
+		if !gh_sec_found {
+			slog.Error("'GITHUB_SECRET' variable not found in environment")
+			return
+		}
 	}
-	gh_secret, found := os.LookupEnv("GITHUB_SECRET")
-	if !found {
-		slog.Error("'GITHUB_SECRET' variable not found in environment")
-		return
-	}
-	goth.UseProviders(
-		github.New(gh_key, gh_secret, "http://localhost:8082/auth/callback?provider=github"),
-	)
 
 	host, found := os.LookupEnv("HOST")
 	if !found {

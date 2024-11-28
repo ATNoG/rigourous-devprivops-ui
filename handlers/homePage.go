@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
@@ -12,8 +13,17 @@ import (
 )
 
 func HomePage(c echo.Context) error {
-	// return templates.LoginPage().Render(c.Request().Context(), c.Response())
-	return templates.Redirect("/auth?provider=github").Render(c.Request().Context(), c.Response())
+	_, gh_key_found := os.LookupEnv("GITHUB_KEY")
+	_, gh_sec_found := os.LookupEnv("GITHUB_SECRET")
+
+	if gh_key_found && gh_sec_found {
+		return templates.Redirect("/auth?provider=github").Render(c.Request().Context(), c.Response())
+	} else {
+		prevUser := c.QueryParam("username")
+		prevMail := c.QueryParam("email")
+
+		return templates.LoginPage(prevUser, prevMail).Render(c.Request().Context(), c.Response())
+	}
 }
 
 func GetCredentials(c echo.Context) error {
