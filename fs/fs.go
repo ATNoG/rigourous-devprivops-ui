@@ -178,6 +178,109 @@ func getRegulations(localRoot string, globalRoot string) ([]string, error) {
 	return files, nil
 }
 
+// Returns the directory names of the system regulation directories under `regulations/` using the default paths to the local and global directories
+//
+// returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
+func GetTests(user string) ([]string, error) {
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return []string{}, fmt.Errorf("could not find %s's branch", user)
+	}
+
+	return getTests(
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		GlobalDir,
+	)
+}
+
+// Returns the directory names of the system regulation directories under `regulations/` using the default paths to the local and global directories
+//
+// `localRoot`: the root of the local directory
+//
+// `globalRoot`: the root of the global directory
+//
+// returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
+func getTests(localRoot string, globalRoot string) ([]string, error) {
+	localPath := fmt.Sprintf("%s/tests/", localRoot)
+	defaultPath := fmt.Sprintf("%s/tests/", globalRoot)
+
+	files := []string{}
+
+	localRegulations, err := getDirsInDir(localPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	defaultRegulations, err := getDirsInDir(defaultPath)
+	if err != nil {
+		files = append(files, localRegulations...)
+
+		return files, nil
+	}
+
+	files = append(files, localRegulations...)
+	files = append(files, defaultRegulations...)
+
+	return files, nil
+}
+
+// Returns the directory names of the system regulation directories under `regulations/` using the default paths to the local and global directories
+//
+// returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
+func GetTestScenarios(scenario string, user string) ([]string, error) {
+	fmt.Printf("Tests in %s for %s\n", scenario, user)
+	branch, ok := SessionManager.GetBranch(user)
+
+	if !ok {
+		return []string{}, fmt.Errorf("could not find %s's branch", user)
+	}
+
+	return getTestScenarios(
+		scenario,
+		fmt.Sprintf("%s/%s", LocalDir, branch),
+		GlobalDir,
+	)
+}
+
+// Returns the directory names of the system regulation directories under `regulations/` using the default paths to the local and global directories
+//
+// `localRoot`: the root of the local directory
+//
+// `globalRoot`: the root of the global directory
+//
+// returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
+func getTestScenarios(scenario string, localRoot string, globalRoot string) ([]string, error) {
+	relativePath := fmt.Sprintf("tests/%s/", scenario)
+	localPath := fmt.Sprintf("%s/%s/", localRoot, relativePath)
+	defaultPath := fmt.Sprintf("%s/%s/", globalRoot, relativePath)
+
+	files := []string{}
+
+	localRegulations, err := os.ReadDir(localPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	defaultRegulations, err := os.ReadDir(defaultPath)
+	if err != nil {
+		files = append(files, util.Map(localRegulations, func(d fs.DirEntry) string {
+			return fmt.Sprintf("%s%s", relativePath, d.Name())
+		})...)
+
+		return files, nil
+	}
+
+	files = append(files, util.Map(localRegulations, func(d fs.DirEntry) string {
+		return fmt.Sprintf("%s%s", relativePath, d.Name())
+	})...)
+	files = append(files, util.Map(defaultRegulations, func(d fs.DirEntry) string {
+		return fmt.Sprintf("%s%s", relativePath, d.Name())
+	})...)
+
+	return files, nil
+}
+
 // Find all top level directories inside a directory
 //
 // `path`: The parent directory of which we want to know the subdirectories

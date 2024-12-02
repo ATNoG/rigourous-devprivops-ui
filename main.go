@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
@@ -73,6 +73,10 @@ func main() {
 
 	e.POST("/save/:file", handlers.SaveEndpoint)
 
+	e.GET("/tests", handlers.TestOverview)
+	e.GET("/tests/:scenario", handlers.TestScenarioSelect)
+	e.GET("/tests/:scenario/:desc", handlers.TestScenarioEdit)
+
 	e.GET("/analyse", handlers.Analyse)
 	e.GET("/test", handlers.Test)
 
@@ -94,21 +98,39 @@ func main() {
 		// return
 	}
 
-	gothic.Store = sessions.NewCookieStore([]byte("<your secret here>"))
+	/*
+		jwt_secret, found := os.LookupEnv("JWT_SECRET")
+		if !found {
+			slog.Error("'JWT_SECRET' variable not found in environment")
+			return
+		}
+		e.Use(echojwt.JWT([]byte(jwt_secret)))
+	*/
 
-	gh_key, found := os.LookupEnv("GITHUB_KEY")
+	store_key, found := os.LookupEnv("SESSION_STORE_KEY")
 	if !found {
-		slog.Error("'GITHUB_KEY' variable not found in environment")
+		slog.Error("'SESSION_STORE_KEY' variable not found in environment")
 		return
 	}
-	gh_secret, found := os.LookupEnv("GITHUB_SECRET")
-	if !found {
-		slog.Error("'GITHUB_SECRET' variable not found in environment")
-		return
+
+	gothic.Store = sessions.NewCookieStore([]byte(store_key))
+
+	gh_key, gh_key_found := os.LookupEnv("GITHUB_KEY")
+	gh_secret, gh_sec_found := os.LookupEnv("GITHUB_SECRET")
+	if gh_key_found && gh_sec_found {
+		goth.UseProviders(
+			github.New(gh_key, gh_secret, "http://localhost:8082/auth/callback?provider=github"),
+		)
+	} else if !(!gh_key_found && !gh_sec_found) {
+		if !gh_key_found {
+			slog.Error("'GITHUB_KEY' variable not found in environment")
+			return
+		}
+		if !gh_sec_found {
+			slog.Error("'GITHUB_SECRET' variable not found in environment")
+			return
+		}
 	}
-	goth.UseProviders(
-		github.New(gh_key, gh_secret, "http://localhost:8082/auth/callback?provider=github"),
-	)
 
 	host, found := os.LookupEnv("HOST")
 	if !found {

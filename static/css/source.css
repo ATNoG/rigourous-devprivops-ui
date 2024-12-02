@@ -158,6 +158,14 @@ nav {
     height: calc(100vh - 4rem);
 }
 
+.nav-link-active {
+    @apply font-bold text-white
+}
+
+.nav-link-inactive {
+    @apply font-bold text-slate-300
+}
+
 #editorContainer, #graphContainer, #schemaEditorContainer {
     height: 100%;
     display: none; /* Initially hidden */

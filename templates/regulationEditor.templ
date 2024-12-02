@@ -6,7 +6,7 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
 	<div id="editorContainer" class="editor"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-	@EditorScript(language, content, fileURL)
+	@EditorScript(language, content, fileURL, true)
 	// <script src="/static/js/gen_schema.js"></script>
 	<div id="regulation-editor">
 		<div id="object-list">
@@ -130,7 +130,7 @@ templ RegulationEditor(language string, content string, fileURL string, regulati
             body: yamlData
         })
         .then(response => response.text())
-        .then(data => alert('Objects saved successfully!'))
+        .then(data => console.log('Objects saved successfully!'))
         .catch(error => console.error('Error saving objects:', error));
     }
 

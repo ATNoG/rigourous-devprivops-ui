@@ -1,6 +1,6 @@
 package templates
 
-script EditorScript(language string, content string, fileURL string) {
+script EditorScript(language string, content string, fileURL string, convertYAML bool) {
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
         const editor = monaco.editor.create(document.getElementById('editorContainer'), {
@@ -19,7 +19,7 @@ script EditorScript(language string, content string, fileURL string) {
 			console.log(`Editor for ${language}`);
 		
 			var body = editorContent
-			if (language === "yaml") {
+			if (convertYAML && (language === "yaml")) {
 				console.log("HERE")
 			    const jsonObject = jsyaml.load(editorContent);
                 body = JSON.stringify(jsonObject);
@@ -100,13 +100,18 @@ script DiffEditorScript(language string, original string, modified string, fileU
 
 templ EditorComponent(language string, content string, fileURL string) {
 	<div id="editorContainer" class="editor"></div>
+	if language == "yaml" {
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-	@EditorScript(language, content, fileURL)
+	@EditorScript(language, content, fileURL, true)
 }
 
 templ DiffEditor(language string, original string, modified string, fileURL string) {
 	<div id="editorContainer" class="editor"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	if language == "yaml" {
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 	@DiffEditorScript(language, original, modified, fileURL)
 }
@@ -116,8 +121,11 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 	<div id="graphContainer" class="flex-grow p-4 bg-gray-50">
 		<div id="mynetwork"></div>
 	</div>
+	if language == "yaml" {
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-	@EditorScript(language, content, fileURL)
+	@EditorScript(language, content, fileURL, false)
 	/*
 	@GraphVizScript(
 		"[ { \"id\": 1, \"label\": \"Node 1\" }, { \"id\": 2, \"label\": \"Node 2\" }, { \"id\": 3, \"label\": \"Node 3\" }, { \"id\": 4, \"label\": \"Node 4\" }, { \"id\": 5, \"label\": \"Node 5\" } ]",
