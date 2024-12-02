@@ -1,21 +1,48 @@
-# Use image with golang and docker
-FROM 192.168.56.1:5000/devprivops:latest
+# Base image
+FROM golang:1.23.3-alpine3.20 as build
 
-COPY . /src/
-WORKDIR /src/ 
+# Install fuseki
+RUN apk update && apk add \
+	wget \
+	unzip \
+    git \
+    nodejs \
+    npm
 
-# Build the application
-RUN go install github.com/a-h/templ/cmd/templ@latest
-RUN templ generate
-RUN apt update -y
-RUN apt install nodejs npm -y
-RUN npm install -D tailwindcss
-RUN npx tailwindcss -i static/css/source.css -o static/css/style.css --minify
-RUN go mod tidy
-RUN go build
+WORKDIR /opt
+RUN wget https://dlcdn.apache.org/jena/binaries/apache-jena-fuseki-5.2.0.tar.gz && \
+    tar xzf apache-jena-fuseki-5.2.0.tar.gz && \
+    rm apache-jena-fuseki-5.2.0.tar.gz && \
+    mv apache-jena-fuseki-5.2.0 fuseki
 
-# Cleanup
-RUN mv devprivops-ui /bin/devprivops-ui
-RUN rm -rf /src/
+COPY shiro.ini /opt/fuseki/shiro.ini
 
-ENTRYPOINT /opt/fuseki/fuseki-server & devprivops-ui
+# Build PrivGuide
+RUN git clone https://github.com/ATNoG/rigourous-devprivops.git /privguide_src
+WORKDIR /privguide_src
+RUN go mod tidy && \
+    go build
+
+# Build UI
+COPY . /src
+WORKDIR /src
+RUN go install github.com/a-h/templ/cmd/templ@latest && \
+    templ generate && \
+    npm install -D tailwindcss && \
+    npx tailwindcss -i static/css/source.css -o static/css/style.css --minify && \
+    go mod tidy && \
+    go build
+
+# Execution environment
+FROM alpine:latest
+
+# Add runtime dependencies
+RUN apk update && apk add openjdk21-jre
+
+# Get executables
+COPY --from=build /opt/fuseki /opt/fuseki
+COPY --from=build /privguide_src/devprivops /usr/local/bin/
+COPY --from=build /src/devprivops-ui /usr/local/bin/
+
+# Start fuseki server
+CMD /opt/fuseki/fuseki-server --mem --port=3030 /tmp & devprivops-ui

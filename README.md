@@ -23,7 +23,7 @@ The UI can be deployed either through the docker container or as a native binary
 To use the docker container, we run the following command
 
 ```sh
-docker run \ 
+docker run -d \ 
     --env-file .env \ 
     -p 8082:8082 \ 
     -v ".devprivops:/tmp/.devprivops" \ 
