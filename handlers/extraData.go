@@ -253,9 +253,11 @@ func UpdateExtraData(c echo.Context) error {
 	}
 
 	// sync files with the config
+
 	dataDir, err := fs.GetFile("report_data/queries", userName)
+	// dataDir, err := fs.GetFile("report_data", userName)
 	if err != nil {
-		fmt.Println("Right here", err)
+		fmt.Println("Could not get directory '/report_data'", err)
 		return err
 	}
 
@@ -283,19 +285,17 @@ func UpdateExtraData(c echo.Context) error {
 	fmt.Println("Data to write \\/")
 	fmt.Println(string(data))
 
-	/*
-		file, err := fs.GetFile(fName)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
+	file, err := fs.GetFile("report_data/report_data.yml", userName)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-		fmt.Printf("Writing to %s: %s \n", file, string(data))
+	fmt.Printf("Writing to %s: %s \n", file, string(data))
 
-		if err := os.WriteFile(file, data, 0666); err != nil {
-			return err
-		}
-	*/
+	if err := fs.WriteFileSync(file, data, 0666); err != nil {
+		return err
+	}
 
 	fmt.Printf("In %s: %s %s\n", fs.LocalDir, userName, email)
 
