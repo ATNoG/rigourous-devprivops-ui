@@ -37,12 +37,17 @@ RUN go install github.com/a-h/templ/cmd/templ@latest && \
 FROM alpine:latest
 
 # Add runtime dependencies
-RUN apk update && apk add openjdk21-jre
+RUN apk update && apk add \
+    openjdk21-jre \
+    git
 
 # Get executables
 COPY --from=build /opt/fuseki /opt/fuseki
 COPY --from=build /privguide_src/devprivops /usr/local/bin/
 COPY --from=build /src/devprivops-ui /usr/local/bin/
+
+# Allow host directories to be used as git repositories, fixing "dubious ownership"
+RUN git config --system --add safe.directory '*'
 
 # Start fuseki server
 CMD /opt/fuseki/fuseki-server --mem --port=3030 /tmp & devprivops-ui
