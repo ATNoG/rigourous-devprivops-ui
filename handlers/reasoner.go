@@ -13,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Endpoint to show all reasoner rules
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func ReasonerMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -46,6 +51,15 @@ func ReasonerMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a single reasoner rule
+//
+// `c`: The echo context
+//
+// # PATH PARAMETERS
+//
+// `rule`: The reasoner rule file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func ReasonerRuleEditor(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

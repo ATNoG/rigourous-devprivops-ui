@@ -19,6 +19,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Endpoint to show all requriements and their metadata
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func RequirementsMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -97,6 +102,15 @@ func RequirementsMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a requirement query
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `req`: The path to the requirement file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func RequirementEdit(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -264,6 +278,11 @@ func RequirementEdit(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to update the requirement metadata
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateRequirements(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

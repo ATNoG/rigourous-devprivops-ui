@@ -18,6 +18,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Endpoint to show all extra data queries and metadata
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func ExtraDataMainPage(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
@@ -71,6 +76,15 @@ func ExtraDataMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a single extra data query
+//
+// `c`: The echo context
+//
+// # PATH PARAMETERS
+//
+// `query`: The query file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func ExtraDataQuery(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
@@ -215,6 +229,11 @@ func ExtraDataQuery(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to save changes to an extra data query
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateExtraData(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

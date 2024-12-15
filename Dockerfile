@@ -41,7 +41,7 @@ RUN apk update && apk add \
     openjdk21-jre \
     git
 
-# Get executables
+# Get executables and static directory
 COPY --from=build /opt/fuseki /opt/fuseki
 COPY --from=build /privguide_src/devprivops /usr/local/bin/
 COPY --from=build /src/devprivops-ui /usr/local/bin/

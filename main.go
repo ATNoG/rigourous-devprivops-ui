@@ -24,7 +24,6 @@ func main() {
 	static_dir, found := os.LookupEnv("STATIC_DIR")
 	if !found {
 		static_dir = "static"
-		return
 	}
 	e.Static("/static", static_dir)
 
@@ -50,7 +49,7 @@ func main() {
 	e.GET("/", handlers.HomePage)
 	e.GET("/credentials", handlers.GetCredentials)
 	e.GET("/login", handlers.SimpleLogIn)
-	e.GET("/demo", handlers.DemoPage)
+	// e.GET("/demo", handlers.DemoPage)
 
 	e.GET("/auth/callback", handlers.Callback)
 	e.GET("/logout", handlers.Logout)

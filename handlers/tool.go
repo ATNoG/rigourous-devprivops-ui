@@ -10,6 +10,11 @@ import (
 	"github.com/robert-nix/ansihtml"
 )
 
+// Endpoint to execute the analysis function of privguide on the user's repository
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Analyse(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -37,6 +42,11 @@ func Analyse(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to execute the test function of privguide on the user's repository
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Test(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

@@ -13,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Endpoint to show all JSON schemas
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func SchemasMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -47,6 +52,15 @@ func SchemasMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a JSON schema
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `schema`: The name of the schema file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func SchemaEditPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
