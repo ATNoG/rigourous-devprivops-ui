@@ -136,22 +136,10 @@ func Callback(c echo.Context) error {
 		fmt.Fprintln(res, err)
 		return err
 	}
-	/*
-		t, _ := template.New("foo").Parse(userTemplate)
-		t.Execute(res, user)
-	*/
-	fmt.Printf("DATA: %+v\n", user)
 
-	/*
-		return templates.Page(
-			"Home page",
-			"", "",
-			-1,
-			nil,
-			nil,
-			nil,
-		).Render(c.Request().Context(), c.Response())
-	*/
+	fmt.Printf("DATA: %+v\n", user)
+	c.Set("user", user)
+
 	return templates.Redirect(
 		fmt.Sprintf("/credentials?username=%s&email=%s", user.NickName, user.Email),
 	).Render(c.Request().Context(), c.Response())
@@ -162,6 +150,26 @@ func DemoPage(c echo.Context) error {
 	return templates.DemoPage().Render(c.Request().Context(), c.Response())
 }
 */
+
+func EnsureLoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Check if the user is authenticated
+		user := c.Get("user")
+		if user == nil {
+			return c.Redirect(http.StatusFound, "/")
+			// return echo.NewHTTPError(http.StatusUnauthorized, "You must be logged in to view this page.")
+		}
+		emailCookie, err := c.Cookie("email")
+		if err != nil {
+			return c.Redirect(http.StatusFound, "/")
+		}
+		email := emailCookie.Value
+		if email == "" {
+			return c.Redirect(http.StatusFound, "/")
+		}
+		return next(c)
+	}
+}
 
 var userTemplate = `
 <p><a href="/logout?provider={{.Provider}}">logout</a></p>

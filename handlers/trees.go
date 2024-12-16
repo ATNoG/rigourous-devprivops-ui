@@ -27,6 +27,7 @@ import (
 func TreesMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
+		fmt.Println("UNAUTHENTICATED!!!!")
 		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
