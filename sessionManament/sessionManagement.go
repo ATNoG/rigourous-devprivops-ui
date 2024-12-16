@@ -37,6 +37,7 @@ func (sm *SessionManager) GetBranch(sessionKey string) (string, bool) {
 	*/
 
 	res, ok := sm.sessionBranchMap[sessionKey]
+
 	sm.m.Unlock()
 
 	return res, ok

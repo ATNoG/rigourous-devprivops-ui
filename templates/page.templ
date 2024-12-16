@@ -1,7 +1,8 @@
 package templates
 
 const (
-    TREES int = iota
+    HOME int = iota
+    TREES 
     DESCRIPTIONS
     REASONER 
     REGULATIONS 
@@ -26,62 +27,67 @@ templ Page(title string, altView string, toggleBtnName string, active int, left,
         <div class="container mx-auto flex justify-between flex justify-between items-center">
             <div class="flex space-x-4">
     -->
-    <nav class="bg-green-800 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex space-x-4">
-                if active == TREES {
-                    <a class="nav-link-active" href="/trees">Trees</a>
+    <nav class="bg-green-800 min-h-[4rem]">
+        <div class="container mx-auto flex justify-between items-center h-full">
+            <div class="flex space-x-4 min-h-full">
+                if active == HOME {
+                    <a class="nav-item nav-link-active" href="/home">Home</a>
                 } else {
-                    <a class="nav-link-inactive" href="/trees">Trees</a>
+                    <a class="nav-item nav-link-inactive" href="/home">Home</a>
+                }
+                if active == TREES {
+                    <a class="nav-item nav-link-active" href="/trees">Trees</a>
+                } else {
+                    <a class="nav-item nav-link-inactive" href="/trees">Trees</a>
                 }
                 if active == DESCRIPTIONS {
-                    <a class="nav-link-active" href="/descriptions">Descriptions</a>
+                    <a class="nav-item nav-link-active" href="/descriptions">Descriptions</a>
                 } else {
-                    <a class="nav-link-inactive" href="/descriptions">Descriptions</a>
+                    <a class="nav-item nav-link-inactive" href="/descriptions">Descriptions</a>
                 }
                 if active == REASONER {
-                    <a class="nav-link-active" href="/reasoner">Reasoner</a>
+                    <a class="nav-item nav-link-active" href="/reasoner">Reasoner</a>
                 } else {
-                    <a class="nav-link-inactive" href="/reasoner">Reasoner</a>
+                    <a class="nav-item nav-link-inactive" href="/reasoner">Reasoner</a>
                 }
                 if active == REGULATIONS {
-                    <a class="nav-link-active" href="/regulations">Regulations</a>
+                    <a class="nav-item nav-link-active" href="/regulations">Regulations</a>
                 } else {
-                    <a class="nav-link-inactive" href="/regulations">Regulations</a>
+                    <a class="nav-item nav-link-inactive" href="/regulations">Regulations</a>
                 }
                 if active == EXTRA_DATA {
-                    <a class="nav-link-active" href="/extra-data">Extra data</a>
+                    <a class="nav-item nav-link-active" href="/extra-data">Extra data</a>
                 } else {
-                    <a class="nav-link-inactive" href="/extra-data">Extra data</a>
+                    <a class="nav-item nav-link-inactive" href="/extra-data">Extra data</a>
                 }
                 if active == REQUIREMENTS {
-                    <a class="nav-link-active" href="/requirements">Requirements</a>
+                    <a class="nav-item nav-link-active" href="/requirements">Requirements</a>
                 } else {
-                    <a class="nav-link-inactive" href="/requirements">Requirements</a>
+                    <a class="nav-item nav-link-inactive" href="/requirements">Requirements</a>
                 }
                 if active == SCHEMAS {
-                    <a class="nav-link-active" href="/schemas">Schemas</a>
+                    <a class="nav-item nav-link-active" href="/schemas">Schemas</a>
                 } else {
-                    <a class="nav-link-inactive" href="/schemas">Schemas</a>
+                    <a class="nav-item nav-link-inactive" href="/schemas">Schemas</a>
                 }
                 if active == CONFLICTS {
-                    <a class="nav-link-active" href="/conflicts">Push</a>
+                    <a class="nav-item nav-link-active" href="/conflicts">Push</a>
                 } else {
-                    <a class="nav-link-inactive" href="/conflicts">Push</a>
+                    <a class="nav-item nav-link-inactive" href="/conflicts">Push</a>
                 }
                 if active == TEST {
-                    <a id="test-btn" class="nav-link-active" href="/tests">Tests</a>
+                    <a id="test-btn" class="nav-item nav-link-active" href="/tests">Tests</a>
                 } else {
-                    <a id="test-btn" class="nav-link-inactive" href="/tests">Tests</a>
+                    <a id="test-btn" class="nav-item nav-link-inactive" href="/tests">Tests</a>
                 }
             </div>
             <div class="flex space-x-4">
-                <a id="save-btn" class="nav-link-inactive" href="#">Save</a>
-                <a id="toggleView" class="nav-link-inactive" href="#">{toggleBtnName}</a>
+                <a id="save-btn" class="nav-item nav-link-inactive" href="#">Save</a>
+                <a id="toggleView" class="nav-item nav-link-inactive" href="#">{toggleBtnName}</a>
                 if active == ANALYSE {
-                    <a id="analyse-btn" class="nav-link-active" href="/analyse">Analyse</a>
+                    <a id="analyse-btn" class="nav-item nav-link-active" href="/analyse">Analyse</a>
                 } else {
-                    <a id="analyse-btn" class="nav-link-inactive" href="/analyse">Analyse</a>
+                    <a id="analyse-btn" class="nav-item nav-link-inactive" href="/analyse">Analyse</a>
                 }
             </div>
         </div>
@@ -90,7 +96,7 @@ templ Page(title string, altView string, toggleBtnName string, active int, left,
     <!-- Main Content -->
     <div class="panel-container">
         <!-- Left Panel -->
-        <div class="side-bar" style="width: 15%;">
+        <div class="side-bar bg-gray-50 h-full border-r-2 border-grey-200" style="width: 15%;">
             if left != nil {
                 @left()
             }
@@ -104,7 +110,7 @@ templ Page(title string, altView string, toggleBtnName string, active int, left,
         </div>
         
         <!-- Right Panel -->
-        <div class="side-bar" style="width: 15%;">
+        <div class="side-bar border-l-2 border-grey-200" style="width: 15%;">
             if right != nil {
                 @right()
             }
@@ -127,19 +133,19 @@ templ TestPage(title string, altView string, toggleBtnName string, active int, l
     <nav class="bg-green-800 p-4">
         <div class="container mx-auto flex justify-between">
             <div class="flex space-x-4">
-                <a class="nav-link-inactive" href="/trees">Trees</a>
-                <a class="nav-link-inactive" href="/descriptions">Descriptions</a>
-                <a class="nav-link-inactive" href="/reasoner">Reasoner</a>
-                <a class="nav-link-inactive" href="/regulations">Regulations</a>
-                <a class="nav-link-inactive" href="/extra-data">Extra data</a>
-                <a class="nav-link-inactive" href="/requirements">Requirements</a>
-                <a class="nav-link-inactive" href="/schemas">Schemas</a>
-                <a class="nav-link-inactive" href="/conflicts">Push</a>
+                <a class="nav-item nav-link-inactive" href="/trees">Trees</a>
+                <a class="nav-item nav-link-inactive" href="/descriptions">Descriptions</a>
+                <a class="nav-item nav-link-inactive" href="/reasoner">Reasoner</a>
+                <a class="nav-item nav-link-inactive" href="/regulations">Regulations</a>
+                <a class="nav-item nav-link-inactive" href="/extra-data">Extra data</a>
+                <a class="nav-item nav-link-inactive" href="/requirements">Requirements</a>
+                <a class="nav-item nav-link-inactive" href="/schemas">Schemas</a>
+                <a class="nav-item nav-link-inactive" href="/conflicts">Push</a>
             </div>
             <div class="flex space-x-4">
-                <a id="toggleView" class="nav-link-inactive" href="#">{toggleBtnName}</a>
-                <a id="test-btn" class="nav-link-active" href="/test">Tests</a>
-                <!--<a id="analyse-btn" class="nav-link-inactive" href="/analyse">Analyse</a>-->
+                <a id="toggleView" class="nav-item nav-link-inactive" href="#">{toggleBtnName}</a>
+                <a id="test-btn" class="nav-item nav-link-active" href="/test">Tests</a>
+                <!--<a id="analyse-btn" class="nav-item nav-link-inactive" href="/analyse">Analyse</a>-->
             </div>
         </div>
     </nav>

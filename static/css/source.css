@@ -99,18 +99,21 @@ td {
     @apply py-2 px-3
 }
 
+/*
 input[type=text] {
-    @apply bg-stone-400	!text-gray-200
+    @apply bg-stone-300	!text-black
 }
+*/
 
 input[type=submit], button {
     @apply p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500
 }
 
+/*
 button {
     @apply !ml-2
 }
-
+*/
 .property-section * {
     @apply !m-2
 }
@@ -159,12 +162,18 @@ nav {
 }
 
 .nav-link-active {
-    @apply font-bold text-white
+    @apply font-bold text-white  bg-green-700
 }
 
 .nav-link-inactive {
     @apply font-bold text-slate-300
 }
+
+.nav-item {
+    @apply pt-5 pb-5 pr-2 pl-2 hover:bg-green-900
+}
+
+
 
 #editorContainer, #graphContainer, #schemaEditorContainer {
     height: 100%;
@@ -185,7 +194,7 @@ nav {
 
 @layer components {
     .page {
-        @apply bg-zinc-200 px-20
+        @apply bg-zinc-200
     }
 
     .block {
@@ -205,14 +214,17 @@ nav {
     }
 
     .side-bar {
-        @apply bg-gray-200 p-4 flex-shrink-0
+        @apply bg-gray-50 p-2 flex-shrink-0 min-w-min
     }
-
     .center-container {
         @apply flex-grow bg-white p-4
     }
 
     .editor {
         @apply flex-grow p-4 bg-gray-50 
+    }
+
+    .side-bar-btn {
+        @apply text-slate-400 ml-auto
     }
 }
