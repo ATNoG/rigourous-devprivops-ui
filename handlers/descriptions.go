@@ -15,6 +15,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Endpoint to show all descriptions and the metadata file
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func DescriptionsMainPage(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
@@ -47,6 +52,15 @@ func DescriptionsMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a single description file
+//
+// `c`: The echo context
+//
+// # PATH PARAMETERS
+//
+// `desc`: The description file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func DescriptionEdit(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {

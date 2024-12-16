@@ -1,3 +1,4 @@
+// This package agregates all handlers for the interface
 package handlers
 
 import (
@@ -13,6 +14,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Endpoint to manage conflicts visually.
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func MergeConflicts(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
@@ -53,6 +59,15 @@ func MergeConflicts(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to manually solve conflicts on a file.
+//
+// `c`: The echo context
+//
+// # PATH PARAMETERS
+//
+// `file`: The name of the file with conflicts to solve
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func SolveMergeConflict(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {
@@ -145,6 +160,11 @@ func SolveMergeConflict(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to push changes to the master repository, if there are no unsolved conflicts.
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Push(c echo.Context) error {
 	cookie, err := c.Cookie("username")
 	if err != nil {

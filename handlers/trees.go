@@ -19,6 +19,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Endpoint to view all attack and harm trees
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func TreesMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -56,6 +61,15 @@ func TreesMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to view a single tree's metadata
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `tree`: The attack or harm tree
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func TreeView(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -125,6 +139,17 @@ func TreeView(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a single tree's node
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `tree`: The attack or harm tree
+//
+// `node`: The tree node to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func EditTreeNode(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -248,6 +273,15 @@ func EditTreeNode(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to update an attack or harm tree
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `tree`: The name of the tree to update
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateTree(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

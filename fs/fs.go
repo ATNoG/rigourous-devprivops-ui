@@ -7,6 +7,11 @@
 // The unexported functions are independent of the local and global directories and are made to increase
 // testability. These are the ones that should be targeted in unit tests and thus are exported in `export_test.go`.
 //
+// Higher level actions use git repositories to ensure concurrency.
+// There is an innaccessible local repository, the `master` repository, with which users cannot interact.
+// Each user is given a repository with their name, cloned from the `master`.
+// When actions are completed, users can merge their work onto the master repository, making it accessible to the other users.
+//
 // This package only supports UNIX paths
 package fs
 
@@ -350,6 +355,15 @@ func getConfigs(localRoot string, globalRoot string) ([]string, error) {
 	return files, nil
 }
 
+// Sets the description of an attack node in an attack tree provided its query file.
+//
+// `node`: The root node of the attack tree
+//
+// `queryFile`: The file containing he query of the node whose description we want to change, acting as its unique identifier
+//
+// `newDescription`: The new description to replace the old one with
+//
+// returns: `true` if there was a description change, `false` otherwise
 func ChangeTreeDescription(node *templates.TreeNode, queryFile string, newDescription string) bool {
 	fmt.Printf("Comp '%s' <=> '%s'\n", node.Query, queryFile)
 	if node.Query == queryFile {
@@ -366,6 +380,13 @@ func ChangeTreeDescription(node *templates.TreeNode, queryFile string, newDescri
 	}
 }
 
+// Saves an attack tree's metadata to a file
+//
+// `tree`: The attack tree's root node
+//
+// `file`: The file path where to store it
+//
+// returns: An error if marshaling to YAML or writing the file fails
 func SaveTreeDescription(tree *templates.TreeNode, file string) error {
 	data, err := yaml.Marshal(tree)
 	if err != nil {
@@ -380,6 +401,15 @@ func SaveTreeDescription(tree *templates.TreeNode, file string) error {
 	return nil
 }
 
+// Write files synchronously to avoid corruption
+//
+// `file`: The path tot he file to write
+//
+// `data`: The contents of the file
+//
+// `permissions`: The permissions for the file
+//
+// returns: An error if writing the file fails
 func WriteFileSync(file string, data []byte, permissions fs.FileMode) error {
 
 	m.Lock()
@@ -389,6 +419,11 @@ func WriteFileSync(file string, data []byte, permissions fs.FileMode) error {
 	return err
 }
 
+// Check if a file exists handling errors
+//
+// `path`: The path to check
+//
+// returns: true if the file exists and an error if there was any
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {

@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 	"html/template"
+
+	// "html/template"
 	"net/http"
 	"os"
 
@@ -12,6 +14,11 @@ import (
 	"github.com/markbates/goth/gothic"
 )
 
+// Website entry point that redirects to Github OAuth or requests the login information itself.
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func HomePage(c echo.Context) error {
 	_, gh_key_found := os.LookupEnv("GITHUB_KEY")
 	_, gh_sec_found := os.LookupEnv("GITHUB_SECRET")
@@ -26,6 +33,11 @@ func HomePage(c echo.Context) error {
 	}
 }
 
+// Endpoint to get the git credentials from the user.
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func GetCredentials(c echo.Context) error {
 	prevUser := c.QueryParam("username")
 	prevMail := c.QueryParam("email")
@@ -43,6 +55,11 @@ func GetCredentials(c echo.Context) error {
 	return templates.LoginPage(prevUser, prevMail).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint of the main page
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func SimpleLogIn(c echo.Context) error {
 	userNameCookie := new(http.Cookie)
 	userNameCookie.Name = "username"
@@ -72,6 +89,11 @@ func SimpleLogIn(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to redirect to github oauth authentication
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Login(c echo.Context) error {
 	res := c.Response().Writer
 	req := c.Request()
@@ -86,6 +108,11 @@ func Login(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to logout the currently logged in user
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Logout(c echo.Context) error {
 	err := gothic.Logout(c.Response().Writer, c.Request())
 	if err != nil {
@@ -95,6 +122,11 @@ func Logout(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to which the github authenticator redirects to after authenticating
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func Callback(c echo.Context) error {
 	res := c.Response().Writer
 	req := c.Request()
@@ -125,9 +157,11 @@ func Callback(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+/*
 func DemoPage(c echo.Context) error {
 	return templates.DemoPage().Render(c.Request().Context(), c.Response())
 }
+*/
 
 var userTemplate = `
 <p><a href="/logout?provider={{.Provider}}">logout</a></p>

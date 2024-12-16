@@ -21,7 +21,11 @@ import (
 func main() {
 	e := echo.New()
 
-	e.Static("/static", "static")
+	static_dir, found := os.LookupEnv("STATIC_DIR")
+	if !found {
+		static_dir = "static"
+	}
+	e.Static("/static", static_dir)
 
 	for _, f := range []string{
 		"android-chrome-192x192.png",
@@ -33,16 +37,19 @@ func main() {
 	} {
 		e.Static(
 			fmt.Sprintf("/%s", f),
-			"static",
+			static_dir,
 		)
 	}
-	e.Static("site.manifest", "/static/site.manifest")
+	e.Static(
+		"site.manifest",
+		fmt.Sprintf("%s/site.manifest", static_dir),
+	)
 
 	// Routes
 	e.GET("/", handlers.HomePage)
 	e.GET("/credentials", handlers.GetCredentials)
 	e.GET("/login", handlers.SimpleLogIn)
-	e.GET("/demo", handlers.DemoPage)
+	// e.GET("/demo", handlers.DemoPage)
 
 	e.GET("/auth/callback", handlers.Callback)
 	e.GET("/logout", handlers.Logout)

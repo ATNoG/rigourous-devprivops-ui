@@ -18,6 +18,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Endpoint to show all regulations
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func RegulationsMainPage(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -49,6 +54,15 @@ func RegulationsMainPage(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to show all regulations
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `reg`: The regulation name
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func RegulationView(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -128,6 +142,15 @@ func RegulationView(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to show a policy
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `pol`: The policy query file to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func PolicyEdit(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -311,6 +334,15 @@ func PolicyEdit(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to create a new regulation
+//
+// `c`: the echo context
+//
+// # QUERY PARAMETERS
+//
+// `path`: The name of the regulation to create
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func CreateRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -363,6 +395,15 @@ func CreateRegulation(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to delete a regulation
+//
+// `c`: the echo context
+//
+// # QUERY PARAMETERS
+//
+// `path`: The name of the regulation to delete
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func DeleteRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -398,6 +439,15 @@ func DeleteRegulation(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to update a regulation
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `reg`: The name of the regulation to update
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateRegulation(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {

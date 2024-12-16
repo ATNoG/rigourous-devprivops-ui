@@ -13,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Endpoint to save a generic file sent in the request body
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func SaveEndpoint(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -71,6 +76,15 @@ func SaveEndpoint(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to delete any generic file
+//
+// `c`: The echo context
+//
+// # QUERY PARAMETERS
+//
+// `path`: The path of the file to delete
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func DeleteFile(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -96,6 +110,15 @@ func DeleteFile(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to create an empty file at a specific location
+//
+// `c`: The echo context
+//
+// # QUERY PARAMETERS
+//
+// `path`: The path of the file to create
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func CreateFile(c echo.Context) error {
 	file := c.QueryParam("path")
 	path := fmt.Sprintf("'%s/%s'", fs.LocalDir, file)
@@ -112,6 +135,11 @@ func CreateFile(c echo.Context) error {
 	return nil
 }
 
+// Endpoint to update a description file's default URI
+//
+// `c`: The echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateURI(c echo.Context) error {
 	desc, err := url.QueryUnescape(c.Param("desc"))
 	if err != nil {

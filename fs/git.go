@@ -10,6 +10,11 @@ import (
 
 // var Repo string
 
+// Clones the default master branch into another directory.
+//
+// `newRepoPath`: Path to the new cloned repository
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func Clone(newRepoPath string) (string, error) {
 	destPath := fmt.Sprintf("%s/%s", LocalDir, newRepoPath)
 	exists, err := exists(destPath)
@@ -37,6 +42,11 @@ func Clone(newRepoPath string) (string, error) {
 	return "repo already exists", nil
 }
 
+// Adds all changes to the git staging area
+//
+// `user`: The owner of the repository
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func AddAll(user string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
 	out, err := exec.Command("/usr/bin/git", "-C", repoPath, "add", ".").Output()
@@ -44,6 +54,11 @@ func AddAll(user string) (string, error) {
 	return string(out), err
 }
 
+// Commits all changes to the git repository
+//
+// `user`: The owner of the repository
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func Commit(user string, message string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
 	out, err := exec.Command("/usr/bin/git", "-C", repoPath, "commit", "-m", message).Output()
@@ -51,6 +66,11 @@ func Commit(user string, message string) (string, error) {
 	return string(out), err
 }
 
+// Commits all changes to the git repository
+//
+// `user`: The owner of the repository
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func Push(user string) (string, error) {
 	repoPath := fmt.Sprintf("%s/%s", LocalDir, user)
 	fmt.Println("/usr/bin/git", "-C", repoPath, "push", "origin", "master")
@@ -60,6 +80,15 @@ func Push(user string) (string, error) {
 	return string(out), err
 }
 
+// Clones the master repository onto the desired path for a user.
+//
+// `repo`: The path where to clone the master repository
+//
+// `user`: The owner of the repository
+//
+// `email`: The user's email
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func SetupRepo(repo string, user string, email string) (string, error) {
 	res, err := Clone(repo)
 	if err != nil {
@@ -88,6 +117,11 @@ func SetupRepo(repo string, user string, email string) (string, error) {
 	return string(out), err
 }
 
+// Finds all conflicts between the current repository and the master.
+//
+// `repo`: The path to the current repository
+//
+// returns: The output of the git commands and an error if executing the commands fails.
 func GetConflicts(repo string) ([]string, error) {
 	out, err := exec.Command("git", "-C", repo, "pull", "origin", "master", "--no-rebase").Output()
 	if err != nil {

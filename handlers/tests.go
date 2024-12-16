@@ -13,6 +13,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Endpoint to view all tests and test specifications
+//
+// `c`: the echo context
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func TestOverview(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -56,6 +61,15 @@ func TestOverview(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to view all test descriptions for a regulation
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `scenario`: The name of the scenario to edit
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func TestScenarioSelect(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
@@ -108,6 +122,17 @@ func TestScenarioSelect(c echo.Context) error {
 	).Render(c.Request().Context(), c.Response())
 }
 
+// Endpoint to edit a test scenario
+//
+// `c`: the echo context
+//
+// # PATH PARAMETERS
+//
+// `scenario`: The name of the scenario to edit
+//
+// `desc`: The path to the description file
+//
+// returns: error if any internal function, like file reading, or template rendering fails.
 func TestScenarioEdit(c echo.Context) error {
 	userCookie, err := c.Cookie("username")
 	if err != nil {
