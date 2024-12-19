@@ -29,9 +29,6 @@ func DescriptionsMainPage(c echo.Context) error {
 
 	descs, err := fs.GetDescriptions("descriptions", userName)
 	if err != nil {
-		fmt.Println("REMOVE THIS! FOR DEV ENVIRONMENT ONLY")
-		return templates.LoginPage("test", "test@mail.com").Render(c.Request().Context(), c.Response())
-
 		return err
 	}
 
@@ -46,7 +43,9 @@ func DescriptionsMainPage(c echo.Context) error {
 		"My page",
 		"", "",
 		templates.DESCRIPTIONS,
-		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
+		func() templ.Component {
+			return templates.FileList("descriptions", "descriptions", descriptions)
+		},
 		nil,
 		nil,
 	).Render(c.Request().Context(), c.Response())

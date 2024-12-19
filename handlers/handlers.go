@@ -120,17 +120,33 @@ func DeleteFile(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func CreateFile(c echo.Context) error {
-	file := c.QueryParam("path")
-	path := fmt.Sprintf("'%s/%s'", fs.LocalDir, file)
 
+	cookie, err := c.Cookie("username")
+	if err != nil {
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+	}
+	userName := cookie.Value
+
+	branch, ok := fs.SessionManager.GetBranch(userName)
+
+	if !ok {
+		return fmt.Errorf("could not find %s's branch", userName)
+	}
+
+	fullDir := fmt.Sprintf("%s/%s", fs.LocalDir, branch)
+
+	file := c.QueryParam("path")
+	path := fmt.Sprintf("%s/%s", fullDir, file)
+
+	fmt.Printf("fullDir: %s\n", fullDir)
 	fmt.Printf("Create '%s'\n", path)
 
 	f, err := os.Create(path)
+	defer f.Close()
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	defer f.Close()
 
 	return nil
 }
