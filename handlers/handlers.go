@@ -91,7 +91,7 @@ func DeleteFile(c echo.Context) error {
 		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
 	userName := userCookie.Value
-	branch, exists := fs.SessionManager.GetBranch(userName)
+	branch, exists := fs.GetBranch(userName)
 	if !exists {
 		return fmt.Errorf("user is not logged in")
 	}

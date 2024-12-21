@@ -41,18 +41,35 @@ var (
 	SessionManager *sessionmanament.SessionManager = sessionmanament.GetSessionManager()
 )
 
+// Finds the directory where the user's repository is located
+//
+// `sessionKey`: The user name
+//
+// returns: The expected path to the repository and a boolean denoting whether it exists
+func GetBranch(sessionKey string) (string, bool) {
+	res := fmt.Sprintf("%s/%s", LocalDir, sessionKey)
+	_, err := os.Stat(res)
+	if err != nil {
+		return "", false
+	}
+
+	return sessionKey, true
+}
+
 // Returns the path of a file relative to the local or global root using the pre-determined paths to the local and global directories
 //
 // `relativePath`: the path relative to either root
 //
 // returns: the path to the provided file relative to the root it is in, or an error if reading any of the directories fails.
 func GetFile(relativePath string, user string) (string, error) {
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
+	fmt.Println("Branch ", branch)
 
 	if !ok {
 		return "", fmt.Errorf("could not find %s's branch", user)
 	}
 
+	fmt.Printf("rel: '%s' local: '%s', global: '%s'\n", relativePath, fmt.Sprintf("%s/%s", LocalDir, branch), GlobalDir)
 	return getFile(
 		relativePath,
 		fmt.Sprintf("%s/%s", LocalDir, branch),
@@ -72,8 +89,10 @@ func GetFile(relativePath string, user string) (string, error) {
 func getFile(relativePath string, localRoot string, globalRoot string) (string, error) {
 	localPath := fmt.Sprintf("%s/%s", localRoot, relativePath)
 	if _, err := os.Stat(localPath); errors.Is(err, os.ErrNotExist) {
+		fmt.Println("Does not exist", localPath)
 		defaultPath := fmt.Sprintf("%s/%s", globalRoot, relativePath)
 		if _, err := os.Stat(defaultPath); errors.Is(err, os.ErrNotExist) {
+			fmt.Println("Does not exist", defaultPath)
 			return "", err
 		}
 		return defaultPath, nil
@@ -87,7 +106,7 @@ func getFile(relativePath string, localRoot string, globalRoot string) (string, 
 //
 // returns: the relative paths of the system descriptions, or an error if reading any of the directories fails.
 func GetDescriptions(descriptionRoot string, user string) ([]string, error) {
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
 
 	if !ok {
 		return []string{}, fmt.Errorf("could not find %s's branch", user)
@@ -140,7 +159,7 @@ func getDescriptions(descriptionRoot string, localRoot string, globalRoot string
 //
 // returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
 func GetRegulations(user string) ([]string, error) {
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
 
 	if !ok {
 		return []string{}, fmt.Errorf("could not find %s's branch", user)
@@ -187,7 +206,7 @@ func getRegulations(localRoot string, globalRoot string) ([]string, error) {
 //
 // returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
 func GetTests(user string) ([]string, error) {
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
 
 	if !ok {
 		return []string{}, fmt.Errorf("could not find %s's branch", user)
@@ -235,7 +254,7 @@ func getTests(localRoot string, globalRoot string) ([]string, error) {
 // returns: the directory names of the system regulation directories, or an error if reading any of the directories fails.
 func GetTestScenarios(scenario string, user string) ([]string, error) {
 	fmt.Printf("Tests in %s for %s\n", scenario, user)
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
 
 	if !ok {
 		return []string{}, fmt.Errorf("could not find %s's branch", user)
@@ -308,7 +327,7 @@ func getDirsInDir(path string) ([]string, error) {
 //
 // returns: The list of configuration files, or an error if reading any of the directories fails.
 func GetConfigs(user string) ([]string, error) {
-	branch, ok := SessionManager.GetBranch(user)
+	branch, ok := GetBranch(user)
 
 	if !ok {
 		return []string{}, fmt.Errorf("could not find %s's branch", user)

@@ -3,16 +3,21 @@ package handlers
 import (
 	"fmt"
 	"html/template"
+	"time"
 
 	// "html/template"
 	"net/http"
 	"os"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth/gothic"
 )
+
+// var JWTSecret = ""
 
 // Website entry point that redirects to Github OAuth or requests the login information itself.
 //
@@ -75,6 +80,31 @@ func SimpleLogIn(c echo.Context) error {
 	emailCookie.SameSite = http.SameSiteStrictMode
 	c.SetCookie(emailCookie)
 
+	token, err := sessionmanament.GenerateJWT(userName, email, sessionmanament.JWTSecret)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	/*
+		cookie := &http.Cookie{
+			Name:     "auth",
+			Value:    token,
+			Expires:  time.Now().Add(time.Hour * time.Duration(3600)),
+			HttpOnly: true,
+			Secure:   false, // Set to true in production (HTTPS)
+			SameSite: http.SameSiteStrictMode,
+		}
+	*/
+	cookie := new(http.Cookie)
+	cookie.Name = "auth"
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(time.Hour * time.Duration(3600))
+	cookie.HttpOnly = true
+	cookie.Secure = false
+	cookie.SameSite = http.SameSiteStrictMode
+	// http.SetCookie(c.Response(), cookie)
+	c.SetCookie(cookie)
+
 	fmt.Println("HERE!")
 	fs.SessionManager.AddSession(c.Request(), userName, userName)
 	fs.SetupRepo(userName, userName, email)
@@ -99,9 +129,11 @@ func Login(c echo.Context) error {
 	req := c.Request()
 
 	if gothUser, err := gothic.CompleteUserAuth(res, req); err == nil {
+		fmt.Println("user auth completed")
 		t, _ := template.New("foo").Parse(userTemplate)
 		t.Execute(res, gothUser)
 	} else {
+		fmt.Println("Could not complete user auth")
 		gothic.BeginAuthHandler(res, req)
 	}
 
@@ -128,6 +160,7 @@ func Logout(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func Callback(c echo.Context) error {
+	fmt.Println("CALLBACK!")
 	res := c.Response().Writer
 	req := c.Request()
 
@@ -138,7 +171,24 @@ func Callback(c echo.Context) error {
 	}
 
 	fmt.Printf("DATA: %+v\n", user)
-	c.Set("user", user)
+	c.Set("user1", user)
+
+	/*
+		token, err := sessionmanament.GenerateJWT(user.NickName, "", JWTSecret)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		cookie := new(http.Cookie)
+		cookie.Name = "auth"
+		cookie.Value = token
+		cookie.Expires = time.Now().Add(time.Hour * time.Duration(3600))
+		cookie.HttpOnly = true
+		cookie.Secure = false
+		cookie.SameSite = http.SameSiteStrictMode
+		// http.SetCookie(c.Response(), cookie)
+		c.SetCookie(cookie)
+	*/
 
 	return templates.Redirect(
 		fmt.Sprintf("/credentials?username=%s&email=%s", user.NickName, user.Email),
@@ -151,22 +201,58 @@ func DemoPage(c echo.Context) error {
 }
 */
 
+// Function to verify whether a user is logged in.
+// It serves as a middleware to ensure at each endpoint that the user accessing has a valid session.
+//
+// See https://pkg.go.dev/github.com/labstack/echo/v4#MiddlewareFunc
 func EnsureLoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Check if the user is authenticated
-		user := c.Get("user")
-		if user == nil {
-			return c.Redirect(http.StatusFound, "/")
-			// return echo.NewHTTPError(http.StatusUnauthorized, "You must be logged in to view this page.")
-		}
-		emailCookie, err := c.Cookie("email")
+		// Retrieve the token from cookies
+		cookie, err := c.Cookie("auth")
 		if err != nil {
-			return c.Redirect(http.StatusFound, "/")
+			if err == http.ErrNoCookie {
+				return c.Redirect(http.StatusTemporaryRedirect, "/")
+			}
+			fmt.Println(err)
+			return c.Redirect(http.StatusTemporaryRedirect, "/")
 		}
-		email := emailCookie.Value
-		if email == "" {
-			return c.Redirect(http.StatusFound, "/")
+
+		// Parse and validate the JWT token
+		tokenString := cookie.Value
+		tk, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Check the signing method
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, echo.NewHTTPError(http.StatusUnauthorized, "Invalid signing method")
+			}
+			return []byte(sessionmanament.JWTSecret), nil
+		})
+
+		// Check for parsing errors or invalid tokens
+		if err != nil || !tk.Valid {
+			fmt.Println(err)
+			return c.Redirect(http.StatusTemporaryRedirect, "/")
 		}
+
+		// Validate the token's expiration time
+		claims, ok := tk.Claims.(jwt.MapClaims)
+		if !ok || claims["exp"] == nil {
+			fmt.Println(err)
+			return c.Redirect(http.StatusTemporaryRedirect, "/")
+		}
+
+		// Check token expiration
+		expirationTime := int64(claims["exp"].(float64))
+		if time.Now().Unix() > expirationTime {
+			fmt.Println(err)
+			return c.Redirect(http.StatusTemporaryRedirect, "/")
+		}
+
+		// Store user information in the context
+		/*
+			userID := claims["sub"].(string)
+			c.Set("userID", userID)
+		*/
+
 		return next(c)
 	}
 }
