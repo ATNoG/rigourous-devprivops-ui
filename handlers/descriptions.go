@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"regexp"
 	"slices"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -21,11 +23,10 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func DescriptionsMainPage(c echo.Context) error {
-	cookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := cookie.Value
 
 	descs, err := fs.GetDescriptions("descriptions", userName)
 	if err != nil {
@@ -59,13 +60,12 @@ func DescriptionsMainPage(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func DescriptionEdit(c echo.Context) error {
-	cookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := cookie.Value
 
-	fmt.Printf("User: %s\n", cookie.Value)
+	fmt.Printf("User: %s\n", userName)
 
 	desc, err := url.QueryUnescape(c.Param("desc"))
 	if err != nil {

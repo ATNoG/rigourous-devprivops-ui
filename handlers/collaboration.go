@@ -3,11 +3,13 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -20,12 +22,10 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func MergeConflicts(c echo.Context) error {
-	cookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
-		// return err
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := cookie.Value
 	fmt.Printf("Username: %s\n", userName)
 
 	repo := fmt.Sprintf("%s/%s", fs.LocalDir, userName)
@@ -69,11 +69,10 @@ func MergeConflicts(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func SolveMergeConflict(c echo.Context) error {
-	cookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := cookie.Value
 
 	diffFile, err := url.QueryUnescape(c.Param("file"))
 	if err != nil {
@@ -166,11 +165,10 @@ func SolveMergeConflict(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func Push(c echo.Context) error {
-	cookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return err
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := cookie.Value
 
 	// Do not push if there are still conflicts
 	repo := fmt.Sprintf("%s/%s", fs.LocalDir, userName)

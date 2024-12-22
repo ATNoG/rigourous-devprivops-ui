@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
-	"github.com/Joao-Felisberto/devprivops-ui/templates"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,17 +20,15 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func SaveEndpoint(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
-	emailCookie, err := c.Cookie("email")
+	email, err := sessionmanament.GetEmailFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	email := emailCookie.Value
 
 	content, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -86,11 +85,11 @@ func SaveEndpoint(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func DeleteFile(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
+
 	branch, exists := fs.GetBranch(userName)
 	if !exists {
 		return fmt.Errorf("user is not logged in")

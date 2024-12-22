@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	"github.com/Joao-Felisberto/devprivops-ui/objects"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -112,11 +114,10 @@ func RequirementsMainPage(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func RequirementEdit(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	reqName, err := url.QueryUnescape(c.Param("req"))
 	if err != nil {
@@ -284,17 +285,15 @@ func RequirementEdit(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateRequirements(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
-	emailCookie, err := c.Cookie("email")
+	email, err := sessionmanament.GetEmailFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	email := emailCookie.Value
 
 	body, err := io.ReadAll(c.Request().Body)
 

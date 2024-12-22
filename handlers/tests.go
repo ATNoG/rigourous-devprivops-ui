@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 
@@ -19,11 +21,10 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func TestOverview(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	testDirs, err := fs.GetTests(userName)
 	if err != nil {
@@ -71,11 +72,10 @@ func TestOverview(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func TestScenarioSelect(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	scenarioName := c.Param("scenario")
 	fmt.Printf("Scenario '%s'\n", scenarioName)
@@ -134,12 +134,10 @@ func TestScenarioSelect(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func TestScenarioEdit(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		fmt.Println("ERROR: ", err)
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	scenarioName := c.Param("scenario")
 

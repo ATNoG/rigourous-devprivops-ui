@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/tool"
 	"github.com/a-h/templ"
@@ -16,11 +18,10 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func Analyse(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	fmt.Printf("User is '%s'\n", userName)
 	res, err := tool.Analyse("", userName)
@@ -48,11 +49,10 @@ func Analyse(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func Test(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	res, err := tool.Test(userName)
 	if err != nil {

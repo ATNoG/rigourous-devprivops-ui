@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -344,11 +346,11 @@ func PolicyEdit(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func CreateRegulation(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
+
 	branch, exists := fs.GetBranch(userName)
 	if !exists {
 		return fmt.Errorf("user is not logged in")
@@ -405,11 +407,10 @@ func CreateRegulation(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func DeleteRegulation(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	file := c.QueryParam("path")
 	path := fmt.Sprintf("%s/regulations/%s", fs.LocalDir, file)
@@ -449,17 +450,15 @@ func DeleteRegulation(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateRegulation(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
-	emailCookie, err := c.Cookie("email")
+	email, err := sessionmanament.GetEmailFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	email := emailCookie.Value
 
 	fName, err := url.QueryUnescape(c.Param("reg"))
 	if err != nil {

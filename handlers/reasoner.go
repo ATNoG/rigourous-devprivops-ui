@@ -3,10 +3,12 @@ package handlers
 import (
 	"fmt"
 	iofs "io/fs"
+	"net/http"
 	"net/url"
 	"os"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -19,11 +21,10 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func ReasonerMainPage(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	reasonDir, err := fs.GetFile("reasoner", userName)
 	if err != nil {
@@ -61,11 +62,10 @@ func ReasonerMainPage(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func ReasonerRuleEditor(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	ruleName, err := url.QueryUnescape(c.Param("rule"))
 	if err != nil {

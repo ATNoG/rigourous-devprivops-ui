@@ -6,12 +6,14 @@ import (
 	"io"
 	iofs "io/fs"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
+	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
 	"github.com/Joao-Felisberto/devprivops-ui/templates"
 	"github.com/Joao-Felisberto/devprivops-ui/util"
 	"github.com/a-h/templ"
@@ -25,12 +27,18 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func TreesMainPage(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	/*
+		userCookie, err := c.Cookie("username")
+		if err != nil {
+			fmt.Println("UNAUTHENTICATED!!!!")
+			return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		}
+		userName := userCookie.Value
+	*/
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		fmt.Println("UNAUTHENTICATED!!!!")
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	atkDir, err := fs.GetFile("attack_trees/descriptions/", userName)
 	if err != nil {
@@ -72,11 +80,10 @@ func TreesMainPage(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func TreeView(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	treeName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
@@ -152,11 +159,10 @@ func TreeView(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func EditTreeNode(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
 	treeName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
@@ -284,17 +290,15 @@ func EditTreeNode(c echo.Context) error {
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func UpdateTree(c echo.Context) error {
-	userCookie, err := c.Cookie("username")
+	userName, err := sessionmanament.GetUsernameFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	userName := userCookie.Value
 
-	emailCookie, err := c.Cookie("email")
+	email, err := sessionmanament.GetEmailFromSession(c)
 	if err != nil {
-		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
-	email := emailCookie.Value
 
 	fName, err := url.QueryUnescape(c.Param("tree"))
 	if err != nil {
