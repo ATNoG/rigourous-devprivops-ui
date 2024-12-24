@@ -8,12 +8,12 @@ pkgs.mkShell {
 		go
 		nodejs
 
-		cargo-generate
-		wasm-pack
-		cargo
-		rustup
-		rustc
-		nodejs
+#		cargo-generate
+#		wasm-pack
+#		cargo
+#		rustup
+#		rustc
+#		rust-analyzer
 
 		gopls
 		delve

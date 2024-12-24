@@ -148,9 +148,16 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 
 		init().then(() => {
 			waitForEditor().then((editor) => {
+				/*
 				var rawData = JSON.parse(process(editor.getValue()))
 				// console.log(rawData)
 
+				process_and_render(data);
+				*/
+
+				process_and_render(editor.getValue())
+
+				/*
 				// Create a data set with nodes and edges
 				var nodes = new vis.DataSet(rawData.nodes)
 				var edges = new vis.DataSet(rawData.edges)
@@ -182,6 +189,7 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 				});
 
 				window.network = network
+				*/
 			})
 		});
 	</script>
