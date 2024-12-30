@@ -185,6 +185,8 @@ func TestScenarioEdit(c echo.Context) error {
 		return err
 	}
 
+	pluginPath := fmt.Sprintf("%s/dfd/dfd.js", STATIC_DIR)
+
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(descPath))
 	return templates.Page(
 		"Tests",
@@ -197,7 +199,7 @@ func TestScenarioEdit(c echo.Context) error {
 			)
 		},
 		func() templ.Component {
-			return templates.EditorWithVisualizer("yaml", string(cfgContent), saveEndpoint)
+			return templates.EditorWithVisualizer("yaml", string(cfgContent), saveEndpoint, pluginPath)
 		},
 		nil,
 	).Render(c.Request().Context(), c.Response())

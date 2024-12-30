@@ -123,6 +123,7 @@ func main() {
 	if !found {
 		static_dir = "static"
 	}
+	handlers.STATIC_DIR = static_dir
 	e.Static("/static", static_dir)
 
 	for _, f := range []string{

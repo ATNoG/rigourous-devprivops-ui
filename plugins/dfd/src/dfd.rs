@@ -30,10 +30,6 @@ impl Node {
 
         Node { id, label, }
     }
-
-    pub fn get_id(&self) -> String {
-        self.id.clone()
-    }
 }
 
 impl Edge {

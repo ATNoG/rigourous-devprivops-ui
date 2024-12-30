@@ -17,6 +17,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var STATIC_DIR = ""
+
 // Endpoint to show all descriptions and the metadata file
 //
 // `c`: The echo context
@@ -184,6 +186,9 @@ func DescriptionEdit(c echo.Context) error {
 			return matched
 		})
 	})
+
+	pluginPath := fmt.Sprintf("%s/dfd/dfd.js", STATIC_DIR)
+
 	return templates.Page(
 		"My page",
 		"graphContainer", "Visual",
@@ -191,7 +196,7 @@ func DescriptionEdit(c echo.Context) error {
 		func() templ.Component { return templates.FileList("descriptions", "descriptions", descriptions) },
 		//		func() templ.Component { return templates.EditorComponent("yaml", string(descContent), saveEndpoint) },
 		func() templ.Component {
-			return templates.EditorWithVisualizer("yaml", string(descContent), saveEndpoint)
+			return templates.EditorWithVisualizer("yaml", string(descContent), saveEndpoint, pluginPath)
 		},
 		func() templ.Component {
 			return templates.DescriptionMetadata(

@@ -1,5 +1,7 @@
 package templates
 
+import "html/template"
+
 script EditorScript(language string, content string, fileURL string, convertYAML bool) {
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' }});
     require(['vs/editor/editor.main'], function() {
@@ -116,24 +118,11 @@ templ DiffEditor(language string, original string, modified string, fileURL stri
 	@DiffEditorScript(language, original, modified, fileURL)
 }
 
-templ EditorWithVisualizer(language string, content string, fileURL string) {
-	<div id="editorContainer" class="editor"></div>
-	<div id="graphContainer" class="flex-grow p-4 bg-gray-50">
-		<div id="mynetwork"></div>
-	</div>
-	if language == "yaml" {
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-	}
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-	@EditorScript(language, content, fileURL, false)
-	/*
-	@GraphVizScript(
-		"[ { \"id\": 1, \"label\": \"Node 1\" }, { \"id\": 2, \"label\": \"Node 2\" }, { \"id\": 3, \"label\": \"Node 3\" }, { \"id\": 4, \"label\": \"Node 4\" }, { \"id\": 5, \"label\": \"Node 5\" } ]",
-		"[ { \"from\": 1, \"to\": 2 }, { \"from\": 1, \"to\": 3 }, { \"from\": 2, \"to\": 4 }, { \"from\": 2, \"to\": 5 }]",
-	)
-	*/
-	<script type="module">
-		import init, { process } from "/static/dfd/dfd.js";
+var wasmMod = template.Must(template.New("example").Parse(`
+<script type="module">
+		import init, { process, process_and_render } from "{{ . }}";
+		window.test_func = alert
+		window.newNetwork = (container, data, options) => new vis.Network(container, data, options);
 
 		function waitForEditor() {
             return new Promise((resolve) => {
@@ -148,49 +137,22 @@ templ EditorWithVisualizer(language string, content string, fileURL string) {
 
 		init().then(() => {
 			waitForEditor().then((editor) => {
-				/*
-				var rawData = JSON.parse(process(editor.getValue()))
-				// console.log(rawData)
-
-				process_and_render(data);
-				*/
-
 				process_and_render(editor.getValue())
-
-				/*
-				// Create a data set with nodes and edges
-				var nodes = new vis.DataSet(rawData.nodes)
-				var edges = new vis.DataSet(rawData.edges)
-
-				// Create a network
-				var container = document.getElementById('mynetwork');
-				var data = {
-					nodes: nodes,
-					edges: edges
-				};
-				var options = {
-					layout: {
-						improvedLayout: true
-					},
-					physics: {
-						enabled: true
-					}
-				};
-				var network = new vis.Network(container, data, options);
-
-				// Center the graph
-				network.once('stabilizationIterationsDone', function () {
-					network.fit({
-						animation: {
-							duration: 500,
-							easingFunction: 'easeInOutQuad'
-						}
-					});
-				});
-
-				window.network = network
-				*/
 			})
 		});
 	</script>
+`))
+
+templ EditorWithVisualizer(language string, content string, fileURL string, pluginPath string) {
+	<div id="editorContainer" class="editor"></div>
+	<div id="graphContainer" class="flex-grow p-4 bg-gray-50">
+		<div id="mynetwork"></div>
+	</div>
+	if language == "yaml" {
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+	}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+	@EditorScript(language, content, fileURL, false)
+	
+	@templ.FromGoHTML(wasmMod, pluginPath)
 }
