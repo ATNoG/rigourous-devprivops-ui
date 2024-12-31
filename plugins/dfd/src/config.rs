@@ -25,3 +25,36 @@ struct LayoutOpts {
 struct PhysicsOpts {
     enabled: bool,
 }
+
+
+/*
+{
+						animation: {
+							duration: 500,
+							easingFunction: 'easeInOutQuad'
+						}
+					}
+*/
+
+#[derive(Serialize,Deserialize)]
+pub struct FitConfig {
+    animation: AnimationConfig
+}
+
+impl FitConfig {
+    pub fn new(duration: usize, easing_function: String) -> Self {
+        return Self {
+            animation: AnimationConfig {
+                duration,
+                easing_function,
+            }
+        }
+    }
+}
+
+#[derive(Serialize,Deserialize)]
+struct AnimationConfig {
+    duration: usize,
+    #[serde(rename = "easingFunction")]
+    easing_function: String
+}

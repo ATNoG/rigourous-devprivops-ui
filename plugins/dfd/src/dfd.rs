@@ -17,8 +17,8 @@ pub struct Edge {
 
 #[derive(Serialize,Deserialize)]
 pub struct Data {
-    nodes: Vec<Node>,
-    edges: Vec<Edge>,
+    pub nodes: Vec<Node>,
+    pub edges: Vec<Edge>,
 }
 
 impl Node {
