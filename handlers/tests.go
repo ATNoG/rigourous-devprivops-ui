@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-ui/fs"
 	sessionmanament "github.com/Joao-Felisberto/devprivops-ui/sessionManament"
@@ -185,7 +187,15 @@ func TestScenarioEdit(c echo.Context) error {
 		return err
 	}
 
-	pluginPath := fmt.Sprintf("%s/dfd/dfd.js", STATIC_DIR)
+	tmp := strings.Split(descFile, ".")
+	pluginName := tmp[len(tmp)-2]
+	pluginPath := fmt.Sprintf("%s/%s/%s.js", STATIC_DIR, pluginName, pluginName)
+
+	if _, err := os.Stat(pluginPath); errors.Is(err, os.ErrNotExist) {
+		pluginPath = ""
+	} else if !strings.HasPrefix(pluginPath, "/") {
+		pluginPath = fmt.Sprintf("/%s", pluginPath)
+	}
 
 	saveEndpoint := fmt.Sprintf("/save/%s", url.QueryEscape(descPath))
 	return templates.Page(

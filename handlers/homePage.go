@@ -47,16 +47,46 @@ func GetCredentials(c echo.Context) error {
 	prevUser := c.QueryParam("username")
 	prevMail := c.QueryParam("email")
 
-	/*
-		return templates.Page(
-			"Home page",
-			"", "",
-			-1,
-			nil,
-			nil,
-			nil,
-		).Render(c.Request().Context(), c.Response())
-	*/
+	_, gh_key_found := os.LookupEnv("GITHUB_KEY")
+	_, gh_sec_found := os.LookupEnv("GITHUB_SECRET")
+
+	if gh_key_found && gh_sec_found {
+		cookie, err := c.Cookie("ghAuth")
+		if err != nil {
+			if err == http.ErrNoCookie {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Missing cookie")
+			}
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		// Parse and validate the JWT token
+		tokenString := cookie.Value
+		tk, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Check the signing method
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, echo.NewHTTPError(http.StatusUnauthorized, "Invalid signing method")
+			}
+			return []byte(sessionmanament.JWTSecret), nil
+		})
+
+		// Check for parsing errors or invalid tokens
+		if err != nil || !tk.Valid {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+		}
+
+		// Validate the token's expiration time
+		claims, ok := tk.Claims.(jwt.MapClaims)
+		if !ok || claims["exp"] == nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token claims")
+		}
+
+		// Check token expiration
+		expirationTime := int64(claims["exp"].(float64))
+		if time.Now().Unix() > expirationTime {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Token has expired")
+		}
+	}
+
 	return templates.LoginPage(prevUser, prevMail).Render(c.Request().Context(), c.Response())
 }
 
@@ -171,24 +201,25 @@ func Callback(c echo.Context) error {
 	}
 
 	fmt.Printf("DATA: %+v\n", user)
-	c.Set("user1", user)
 
-	/*
-		token, err := sessionmanament.GenerateJWT(user.NickName, "", JWTSecret)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-
-		cookie := new(http.Cookie)
-		cookie.Name = "auth"
-		cookie.Value = token
-		cookie.Expires = time.Now().Add(time.Hour * time.Duration(3600))
-		cookie.HttpOnly = true
-		cookie.Secure = false
-		cookie.SameSite = http.SameSiteStrictMode
-		// http.SetCookie(c.Response(), cookie)
-		c.SetCookie(cookie)
-	*/
+	claims := jwt.MapClaims{
+		"sub": user.AccessToken,
+		"exp": time.Now().Add(time.Hour * time.Duration(3600)).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tkStr, err := token.SignedString([]byte(sessionmanament.JWTSecret))
+	if err != nil {
+		return err
+	}
+	cookie := new(http.Cookie)
+	cookie.Name = "ghAuth"
+	cookie.Value = tkStr
+	cookie.Expires = time.Now().Add(time.Hour * time.Duration(3600))
+	cookie.HttpOnly = true
+	cookie.Secure = false
+	cookie.SameSite = http.SameSiteStrictMode
+	cookie.Path = "/credentials"
+	c.SetCookie(cookie)
 
 	return templates.Redirect(
 		fmt.Sprintf("/credentials?username=%s&email=%s", user.NickName, user.Email),
