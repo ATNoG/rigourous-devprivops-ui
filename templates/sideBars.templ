@@ -325,43 +325,56 @@ templ VerticalList(elements ...func() templ.Component) {
 	}
 }
 
-templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
-	<div>
-		<div>
-		    <div class="flex space-x-4">
-            //<a id="save-btn" class="nav-item nav-link-inactive" href="#">Save</a>
-            //<a id="toggleView" class="nav-item nav-link-inactive" href="#">{toggleBtnName}</a>
-    
-            </div></div>
-		<form class="mb-5" id="form1" action={ templ.SafeURL(endpoint) }>
-			<label class="mr-5" for="uri">URI</label>
-			<select name="uri" id="uri">
-				for _, s := range uriList {
-					if s != currentURI {
-						<option value={ s }>{ s }</option>
-					} else {
-						<option value={ s } selected>{ s }</option>
-					}
-				}
-			</select>
-			<br class="mb-5"/>
-			<input id="1" type="submit" value="Change URI"/>
-		</form>
-		<br/>
-		<form id="form2" action={ templ.SafeURL(endpoint) }>
-			<label for="abreviation">Abreviation</label>
-			<br/>
-			// <input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
-			<input id="abreviation" type="text" name="abreviation" value={ currentURI }/>
-			<br class="mb-5"/>
-			<label for="new-uri">New URI</label>
-			<br/>
-			// <input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
-			<input id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
-			<br class="mb-5"/>
-			<input id="2" type="submit" value="Save Changes"/>
-		</form>
+
+templ FileControls(){
+	<div class="flex-item mt-5 p-3 rounded border border-opacity-80">
+		<p>Editor Controls</p>
+		<div class="flex flex-row justify-between"><p>Current View:</p> <button id="toggleView" class="flex-item">Toggle Visual Editor</button></div>
 	</div>
+}
+
+templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
+	<div class="flex flex-col min-h-full w-full h-full ">
+		@FileControls()
+		<div class="flex-item mt-5 p-3 rounded border border-opacity-80">
+			<div>
+			    <div class="flex space-x-4">
+    	        //<a id="save-btn" class="nav-item nav-link-inactive" href="#">Save</a>
+    	        //<a id="toggleView" class="nav-item nav-link-inactive" href="#">{toggleBtnName}</a>
+	
+    	        </div>
+			</div>
+			<form class="mb-5" id="form1" action={ templ.SafeURL(endpoint) }>
+				<label class="mr-5" for="uri">URI</label>
+				<select name="uri" id="uri">
+					for _, s := range uriList {
+						if s != currentURI {
+							<option value={ s }>{ s }</option>
+						} else {
+							<option value={ s } selected>{ s }</option>
+						}
+					}
+				</select>
+				<br class="mb-5"/>
+				<input id="1" type="submit" value="Change URI"/>
+			</form>
+			<br/>
+			<form id="form2" action={ templ.SafeURL(endpoint) }>
+				<label for="abreviation">Abreviation</label>
+				<br/>
+				// <input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+				<input id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+				<br class="mb-5"/>
+				<label for="new-uri">New URI</label>
+				<br/>
+				// <input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+				<input id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+				<br class="mb-5"/>
+				<input id="2" type="submit" value="Save Changes"/>
+			</form>
+		</div>
+	</div>
+
 }
 
 templ ConflictList(files []SideBarListElement) {
