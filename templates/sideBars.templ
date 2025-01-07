@@ -344,42 +344,47 @@ templ FileControls(){
 templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
 	<div class="flex flex-col min-h-full w-full h-full ">
 		@FileControls()
-		<div class="flex-item mt-5 p-3 rounded border border-opacity-80">
-			<div>
-			    <div class="flex space-x-4">
-    	        //<a id="save-btn" class="nav-item nav-link-inactive" href="#">Save</a>
-    	        //<a id="toggleView" class="nav-item nav-link-inactive" href="#">{toggleBtnName}</a>
-	
-    	        </div>
+		<div class="flex-item mt-5 p-3 rounded border border-opacity-80  w-full">
+			<span class="text-gray-900 font-bold text-lg border-bottom border-gray-400 w-full">Edit Current URI</span>
+			<hr/>
+
+			<div class="pt-5  w-full">
+				<form class="mb-5 flex flex-row justify-between" id="form1" action={ templ.SafeURL(endpoint) }>
+					<div class=" flex flex-col">
+						<label class="mr-5 pb-1 " for="uri">Select URI</label>
+						<select name="uri" id="uri" class="p-2 cursor-pointer">
+							for _, s := range uriList {
+								if s != currentURI {
+									<option value={ s }>{ s }</option>
+								} else {
+									<option value={ s } selected>{ s }</option>
+								}
+							}
+						</select>
+					</div>
+					<input id="1" type="submit" value="Apply Change" class="hover:text-green-500 hover:border-green-500 hover:bg-green-100 cursor-pointer"/>
+				</form>
 			</div>
-			<form class="mb-5" id="form1" action={ templ.SafeURL(endpoint) }>
-				<label class="mr-5" for="uri">URI</label>
-				<select name="uri" id="uri">
-					for _, s := range uriList {
-						if s != currentURI {
-							<option value={ s }>{ s }</option>
-						} else {
-							<option value={ s } selected>{ s }</option>
-						}
-					}
-				</select>
-				<br class="mb-5"/>
-				<input id="1" type="submit" value="Change URI"/>
-			</form>
-			<br/>
-			<form id="form2" action={ templ.SafeURL(endpoint) }>
-				<label for="abreviation">Abreviation</label>
-				<br/>
-				// <input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
-				<input id="abreviation" type="text" name="abreviation" value={ currentURI }/>
-				<br class="mb-5"/>
-				<label for="new-uri">New URI</label>
-				<br/>
-				// <input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
-				<input id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
-				<br class="mb-5"/>
-				<input id="2" type="submit" value="Save Changes"/>
-			</form>
+			<hr/>
+
+			<div class="pt-10 border-bottom border-gray-400 w-full flex-col">
+				<span class="text-gray-900 font-bold text-lg text-slate-400 ">Create a New URI</span>
+				<hr/>
+
+				<form id="form2" action={ templ.SafeURL(endpoint) }class="pt-5">
+					<label for="abreviation">Set Abbreviation</label>
+					<br/>
+					// <input class="text-slate-400" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+					<input class="p-2 bg-stone-300	text-black flex-grow-3 mr-1 hover:ring-1" id="abreviation" type="text" name="abreviation" value={ currentURI }/>
+					<br class="mb-5"/>
+					<label for="new-uri">Set New URI</label>
+					<br/>
+					// <input class="text-slate-400" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+					<input class="p-2 bg-stone-300	text-black flex-grow-3 mr-1 hover:ring-1" id="new-uri" type="text" name="new-uri" value={ extendedCurrentURI }/>
+					<br class="mb-5"/>
+					<input id="2" class="hover:text-green-500 hover:border-green-500 hover:bg-green-100 cursor-pointer" type="submit" value="Create & Assign URI"/>
+				</form>
+			</div>
 		</div>
 	</div>
 

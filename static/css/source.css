@@ -109,6 +109,10 @@ input[type=submit], button {
     @apply p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500
 }
 
+.object-form select{
+    @apply p-2 focus:ring-blue-400 hover:ring-blue-300
+    
+}
 /*
 button {
     @apply !ml-2
