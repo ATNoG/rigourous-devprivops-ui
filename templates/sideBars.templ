@@ -1,6 +1,7 @@
 package templates
 
 import "fmt"
+import "strings"
 
 type SideBarListElement struct {
 	Text string
@@ -75,15 +76,23 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 	</ul>
 	*/
 	// @FileListScript()
+	
 	<div class="flex flex-col justify-between min-w-min w-full h-full">
 		<div id="fileList" class="w-full divide-y divide-gray-500 divide-dashed">
 			for _, e := range files {
+				 {{ 
+					filename := e.Text
+					if strings.Contains(e.Text,"/") {
+						filename = strings.Split(e.Text, "/")[1]
+					} 
+				}}
 				<li class="flex flex-row justify-between pl-2 pr-2 pb-2 hover:bg-gray-100">
 					<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+					
 					<button
 						class="text-slate-400 p-1 hover:text-red-500 hover:border-red-500 hover:bg-red-100"
-						onclick={ templ.ComponentScript{
-						Call: fmt.Sprintf("deleteFile(this, '%s%s')", baseDir, e.Text),
+						onclick={ templ.ComponentScript{							
+						Call: fmt.Sprintf("deleteFile(this, '%s/%s')", baseDir, filename ),
 					} }
 					>Delete</button>
 				</li>
