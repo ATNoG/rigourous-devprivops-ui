@@ -199,5 +199,7 @@ func main() {
 	tool.DBPort = dbPortInt
 	tool.Dataset = dbDataset
 
+	e.Debug = true
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))
+
 }

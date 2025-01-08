@@ -29,6 +29,8 @@ func DescriptionsMainPage(c echo.Context) error {
 
 	descs, err := fs.GetDescriptions("descriptions", userName)
 	if err != nil {
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
+
 		return err
 	}
 
