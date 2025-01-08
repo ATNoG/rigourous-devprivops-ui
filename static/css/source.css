@@ -123,6 +123,7 @@ button {
 }
 
 /* Nesting of an indefinite amount of lists */
+/*
 ul,
 ol {
     padding-left: 0;
@@ -140,7 +141,7 @@ ul ol,
 ol ol {
     margin-left: 1em;
 }
-
+*/
 /*
 nav #nav-container ul {
     @apply flex space-x-4

@@ -78,7 +78,7 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 	// @FileListScript()
 	
 	<div class="flex flex-col justify-between min-w-min w-full h-full">
-		<div id="fileList" class="w-full divide-y divide-gray-500 divide-dashed">
+		<div id="fileList" class="w-full divide-y divide-gray-200">
 			for _, e := range files {
 				 {{ 
 					filename := e.Text
@@ -86,11 +86,11 @@ templ FileList(baseURL string, baseDir string, files []SideBarListElement) {
 						filename = strings.Split(e.Text, "/")[1]
 					} 
 				}}
-				<li class="flex flex-row justify-between pl-2 pr-2 pb-2 hover:bg-gray-100">
-					<span><a href={ templ.SafeURL(e.Link) }>{ e.Text }</a> </span>
+				<li class="flex flex-row items-center justify-between hover:bg-gray-200 m-1 ">
+					<span class="h-full w-full "><a href={ templ.SafeURL(e.Link) } class="h-full w-full inline-block pt-3 pb-3 pr-auto">{ e.Text }</a> </span>
 					
 					<button
-						class="text-slate-400 p-1 hover:text-red-500 hover:border-red-500 hover:bg-red-100"
+						class="text-slate-400 p-1 hover:text-red-500 hover:border-red-500 hover:bg-red-100 "
 						onclick={ templ.ComponentScript{							
 						Call: fmt.Sprintf("deleteFile(this, '%s/%s')", baseDir, filename ),
 					} }
