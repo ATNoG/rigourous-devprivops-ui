@@ -341,6 +341,12 @@ templ FileControls(){
 	</div>
 }
 
+templ ReasonerMetadata() {
+	<div class="flex flex-col min-h-full w-full h-full ">
+		@FileControls()
+	</div>
+}
+
 templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
 	<div class="flex flex-col min-h-full w-full h-full ">
 		@FileControls()

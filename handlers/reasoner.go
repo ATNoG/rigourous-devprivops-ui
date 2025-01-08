@@ -19,6 +19,7 @@ import (
 //
 // returns: error if any internal function, like file reading, or template rendering fails.
 func ReasonerMainPage(c echo.Context) error {
+
 	userCookie, err := c.Cookie("username")
 	if err != nil {
 		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
@@ -27,8 +28,9 @@ func ReasonerMainPage(c echo.Context) error {
 
 	reasonDir, err := fs.GetFile("reasoner", userName)
 	if err != nil {
-		return err
+		return templates.Redirect("/").Render(c.Request().Context(), c.Response())
 	}
+
 	ruleFiles, err := os.ReadDir(reasonDir)
 	if err != nil {
 		return err
@@ -107,6 +109,6 @@ func ReasonerRuleEditor(c echo.Context) error {
 		templates.REASONER,
 		func() templ.Component { return templates.FileList("/reasoner/", "reasoner/", ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
-		nil,
+		func() templ.Component { return templates.ReasonerMetadata() },
 	).Render(c.Request().Context(), c.Response())
 }
