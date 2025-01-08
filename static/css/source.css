@@ -175,7 +175,7 @@ nav {
 }
 
 .nav-item {
-    @apply pt-5 pb-5 pr-2 pl-2 hover:bg-green-900
+    @apply pt-5 pb-5 pr-3 pl-3 hover:bg-green-900
 }
 
 
