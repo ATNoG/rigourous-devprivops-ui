@@ -51,6 +51,7 @@ templ SideBarList(elements []SideBarListElement) {
 }
 
 templ SideBarForm(endpoint string, elements ...SideBarFormElement) {
+	@FileControls()
 	<form action={ templ.SafeURL(endpoint) }>
 		<ul>
 			for _, e := range elements {
@@ -326,7 +327,11 @@ templ VerticalList(elements ...func() templ.Component) {
 }
 
 
-templ FileControls(){
+templ ExtraDataControls() {
+	<a href="#"> Test Link to reload editor </a>
+}
+
+templ FileControls() {
 	<div class="flex-item mt-5 p-3 rounded border border-opacity-80 divide-y divide-gray-400 w-full">
 		<span class="text-gray-900 font-bold text-lg ">Editor Controls</span>
 		
@@ -336,16 +341,17 @@ templ FileControls(){
 		  <span class="font-medium text-gray-900 pl-4">Visual Editor</span>
 		</label>
 
-
-		<!--<div class="flex flex-row justify-between"><p>Current View:</p> <button id="toggleView" class="flex-item">Toggle Visual Editor</button></div> -->
+		
 	</div>
 }
 
-templ ReasonerMetadata() {
+
+templ SimpleRightBar() {
 	<div class="flex flex-col min-h-full w-full h-full ">
 		@FileControls()
 	</div>
 }
+
 
 templ DescriptionMetadata(endpoint string, currentURI string, extendedCurrentURI string, uriList []string) {
 	<div class="flex flex-col min-h-full w-full h-full ">

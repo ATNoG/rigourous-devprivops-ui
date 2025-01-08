@@ -98,7 +98,9 @@ func RequirementsMainPage(c echo.Context) error {
 		func() templ.Component {
 			return templates.UseCaseEditor("yaml", string(requriementsContent), saveEndpoint, &jsonUCs)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SimpleRightBar()
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 

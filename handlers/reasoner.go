@@ -109,6 +109,6 @@ func ReasonerRuleEditor(c echo.Context) error {
 		templates.REASONER,
 		func() templ.Component { return templates.FileList("/reasoner/", "reasoner/", ruleList) },
 		func() templ.Component { return templates.EditorComponent("sparql", string(ruleContent), saveEndpoint) },
-		func() templ.Component { return templates.ReasonerMetadata() },
+		func() templ.Component { return templates.SimpleRightBar() },
 	).Render(c.Request().Context(), c.Response())
 }

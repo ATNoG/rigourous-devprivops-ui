@@ -48,7 +48,9 @@ func SchemasMainPage(c echo.Context) error {
 		templates.SCHEMAS,
 		func() templ.Component { return templates.FileList("/schemas/", "schemas", schemas) },
 		nil,
-		nil,
+		func() templ.Component {
+			return templates.SimpleRightBar()
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 
@@ -109,6 +111,8 @@ func SchemaEditPage(c echo.Context) error {
 		func() templ.Component {
 			return templates.SchemaEditor("yaml", string(schemaContent), saveEndpoint)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SimpleRightBar()
+		},
 	).Render(c.Request().Context(), c.Response())
 }

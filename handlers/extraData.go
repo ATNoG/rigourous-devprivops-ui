@@ -69,10 +69,11 @@ func ExtraDataMainPage(c echo.Context) error {
 		templates.EXTRA_DATA,
 		func() templ.Component { return templates.FileList("/extra-data", "extra-data", extraDataList) },
 		func() templ.Component {
-			// return templates.EditorComponent("yaml", string(extraDataContent), saveEndpoint)
 			return templates.ExtraDataEditor("yaml", string(extraDataContent), saveEndpoint, &jsonData)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SimpleRightBar()
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 

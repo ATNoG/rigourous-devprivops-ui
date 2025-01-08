@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Endpoint to show all descriptions and the metadata file
+// todo
 //
 // `c`: The echo context
 //

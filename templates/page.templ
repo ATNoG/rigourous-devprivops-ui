@@ -203,11 +203,11 @@ script toggleButton(altView string, toggleBtnName string) {
                 window.network.redraw();
                 window.network.fit();
             }
-            toggleButton.textContent = 'Editor';
+            //toggleButton.textContent = 'Editor';
         } else {
             document.getElementById('editorContainer').style.display = 'block';
             document.getElementById(altView).style.display = 'none';
-            toggleButton.textContent = toggleBtnName;
+            //toggleButton.textContent = toggleBtnName;
         }
         isEditorVisible = !isEditorVisible;
     });

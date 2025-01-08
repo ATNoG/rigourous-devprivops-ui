@@ -138,7 +138,9 @@ func RegulationView(c echo.Context) error {
 		func() templ.Component {
 			return templates.RegulationEditor("yaml", string(cfgContent), saveEndpoint, &jsonString)
 		},
-		nil,
+		func() templ.Component {
+			return templates.SimpleRightBar()
+		},
 	).Render(c.Request().Context(), c.Response())
 }
 
