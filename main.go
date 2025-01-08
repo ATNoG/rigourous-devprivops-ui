@@ -51,6 +51,7 @@ func main() {
 	e.GET("/login", handlers.SimpleLogIn)
 	// e.GET("/demo", handlers.DemoPage)
 
+	e.GET("/home", handlers.LandingPage)
 	e.GET("/auth/callback", handlers.Callback)
 	e.GET("/logout", handlers.Logout)
 	e.GET("/auth", handlers.Login)
