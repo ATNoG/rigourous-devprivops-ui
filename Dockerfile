@@ -1,5 +1,5 @@
 # Base image
-FROM golang:1.23.3-alpine3.20 as build
+FROM golang:1.23.3-alpine3.20 AS build
 
 # Install fuseki
 RUN apk update && apk add \
@@ -10,10 +10,10 @@ RUN apk update && apk add \
     npm
 
 WORKDIR /opt
-RUN wget https://dlcdn.apache.org/jena/binaries/apache-jena-fuseki-5.2.0.tar.gz && \
-    tar xzf apache-jena-fuseki-5.2.0.tar.gz && \
-    rm apache-jena-fuseki-5.2.0.tar.gz && \
-    mv apache-jena-fuseki-5.2.0 fuseki
+RUN wget https://dlcdn.apache.org/jena/binaries/apache-jena-fuseki-5.5.0.tar.gz && \
+    tar xzf apache-jena-fuseki-5.5.0.tar.gz && \
+    rm apache-jena-fuseki-5.5.0.tar.gz && \
+    mv apache-jena-fuseki-5.5.0 fuseki
 
 COPY shiro.ini /opt/fuseki/shiro.ini
 
@@ -28,7 +28,7 @@ COPY . /src
 WORKDIR /src
 RUN go install github.com/a-h/templ/cmd/templ@latest && \
     templ generate && \
-    npm install -D tailwindcss && \
+    npm install -D tailwindcss@3 && \
     npx tailwindcss -i static/css/source.css -o static/css/style.css --minify && \
     go mod tidy && \
     go build

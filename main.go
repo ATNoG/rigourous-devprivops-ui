@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/sessions"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -22,10 +21,10 @@ import (
 func main() {
 	e := echo.New()
 
-	if err := godotenv.Load(); err != nil {
-		slog.Error("Error loading .env file: %s", err)
-		// return
-	}
+	// if err := godotenv.Load(); err != nil {
+	// 	slog.Error("Error loading .env file: %s", err)
+	// 	// return
+	// }
 
 	store_key, found := os.LookupEnv("SESSION_STORE_KEY")
 	if !found {
